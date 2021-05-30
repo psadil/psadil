@@ -1,0 +1,56 @@
+---
+title: New England GAN
+author: Patrick Sadil
+date: '2021-01-17'
+slug: []
+categories: []
+tags:
+  - python
+  - machine learning
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-01-17T19:43:37-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+A friend recently moved away from Western Mass, so I wanted to send them a gift to help remind them of the area. I also happened to want to learn a bit more about Generative Adversarial Networks (GANs).
+
+# Goals
+
+ - Briefly overview GANs
+ - Link to fun code for acquiring data from Google Street View
+ - Share a neat set of photographs
+
+Note that this isn't an 'intro to GANs'. If that's what you're after, keep browsing.
+
+# Overview
+
+Computers have gotten very good at extracting information from images, particularly at identifying images' contents. Such categorization is powerful, but it often requires access to labeled data -- hundreds of thousands of pictures for which we can tell the computer: this is a cat, that is a dog, no that's also a dog, yes that's a dog but it's also a husky. However, many applications remain where computer-aided categorization would be invaluable, but for which there isn't sufficient labeled data. If an algorithm can learn to recognize the subtle features distinguishing [120 dog breeds](https://en.wikipedia.org/wiki/ImageNet), it could probably learn visual features that help radiologists locate potential anomalies. But the guess-and-check strategy, despite being sufficient for many advanced computer vision algorithms, flounders when it has access to only a few hundred training examples. Computers have the potential to do some very clever things, but there is not always enough data to supervise their training. 
+
+To mitigate a lack of data, one developing solution is a GAN. A common analogy for these networks envisions art forgery ([e.g.](https://www.tensorflow.org/tutorials/generative/dcgan)), a forger and a critic collaborating to learn about an artist. The forger paints fake works in the style of van Gough, while the critic distinguishes the fake from the real van Goughs. For the forger to succeed, it must paint the essences of van Gough: the reductionist features like the strokes and the yellows, and the holistic feelings of urgency and presence. For the critic to succeed, it must identify those essences, learning the sharp boundaries between longing and yearning. As the forgeries improve, the critic becomes more discerning, further inspiring the forger. Although the networks are taught the essences  -- the labels -- explicitly, the two together learn about van Gough. And they'll learn without supervision.
+
+After learning, the critic can be deployed for standard categorization tasks (e.g., aiding medical diagnoses). But the training also produces another useful machine, a machine that is capable of generating images. Predictably, there are challenges to training a generator that is capable of producing good quality, large, and diverse images. But I didn't need the images to be stellar, so long as their content was clear (to a human). A lack of photorealism -- imperfect training -- could make the pictures more interesting^[If I wanted perfect pictures, I could have just used a camera.]. To make a gift, I wanted a forger that could paint New England.
+
+# Setup
+
+I wanted the forger to generate images of New England, so I first needed a bunch of pictures of New England. I have photographed a few hundred pictures, but this wouldn't be nearly enough^[The van Gough example is slightly misleading; in practice, van Gough didn't paint enough pictures to train a GAN. Training a GAN from scratch doesn't require labeled data, but it still requires many images. There are tricks that could help a GAN, but simply training his images would likely be insufficient.]. Instead, I relied on a combination of Google's [Street View Static](https://developers.google.com/maps/documentation/streetview/overview) and [Directions](https://developers.google.com/maps/documentation/directions/overview) APIs. The Street View API gives a picture associated with a location, and those locations were provided by the Directions API. [The repository](https://github.com/psadil/gan-mass) for the network has the details, but the result was that I could input an origin and a destination -- meandering through a few waypoints -- and download whatever the Street View Car recorded when it traveled along those directions^[Having not owned a car during graduate school, I found it funny that these networks learned about New England through its highways]. In the end, I collected ~25,000 images.
+
+25k may feel like a lot of images. But skimming online suggested that [even 25k would not have been enough to adequately constrain the networks](https://blogs.nvidia.com/blog/2020/12/07/neurips-research-limited-data-gan/). GANs may not require labeled examples, but they are still data-hungry. Given my relatively small dataset, I picked an adversarial architecture that incorporates a few extra tricks to glean information from smaller datasets: [stylegan2-ada](https://github.com/NVlabs/stylegan2-ada)^[But also, they provided a helpful docker image, functions to prep the data, and decent documentation. This is a good reminder about the benefits of polishing a repository.]. To train the network, I used free credits on the Google's cloud console.
+
+# Curated Samples
+
+After one day of training^[After one day, the training error was still decreasing. But I was using a [preemptible virtual machine](https://cloud.google.com/compute/docs/instances/preemptible), and so after 24 hours it was automatically shutdown.], the network started producing some useful images.
+
+![These six images are fake, produced from a collaboration to learn about New England.](print_5x7_256.png)
+
+I chose these six -- and the seventh at the top -- because they illustrate a few fun features of what the GAN learned. For example, the GAN learned, very early, that pictures of New England always have, in the bottom corners, the word "Google"^[I removed the text from the curated examples, but it can be seen in the preview image at the top.]. That machine learning can produce realistic text surprises me (e.g., [if the face is weird, how are all of the pixels in place to spell out a word](https://www.facebook.com/botsofnewyork/photos/a.2028566864113743/2490502274586864/?type=3&theater)?!). I assume that text comes out clean because most lettering is tightly constrained. That is, when the forger paints something that could be categorized as lettering, the critic severely constrains those pixels; fuzzy letters betray forgery, and real photographs don't have nonsense like UNS;QD*LKJ. So if the training images contain enough text that the generator starts producing letters, there is also enough text for the critic to learn what text is realistic. 
+
+The forger had difficulty with buildings. I downloaded mostly images of the highways connecting cities. This means that there were enough cityscapes for the GAN to generate buildings, but relative to a road, it was much slower at learning the intricacies of a building. Of course, the roads are imperfect, too (the telephone pole in the upper middle ripples, the upper left has too many roads, the colors of the painted lines mismatch, etc). But unlike, say, a bad photoshop, these errors have a kind of global coherence that, subjectively, allows the images to seem not fake but instead surreal. 
+
+

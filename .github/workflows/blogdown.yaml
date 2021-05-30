@@ -1,0 +1,70 @@
+on:
+  push:
+    branches:
+      - main
+
+name: blogdown
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      RENV_PATHS_ROOT: ~/.local/share/renv
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
+
+      - name: Git LFS Pull
+        run: git lfs pull
+
+      - name: setup R
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '4.1.0'
+
+      - uses: r-lib/actions/setup-pandoc@v1
+
+      - name: cache R packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: ${{ runner.os }}-renv-
+
+      - name: install external libs
+        run: sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+
+      - name: install R packages
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+          renv::restore()
+
+      - name: install hugo
+        run: |
+          R -e 'blogdown::install_hugo("0.73.0")'
+
+      - name: build
+        run: |
+          R -e 'blogdown::build_site(TRUE, build_rmd = "md5sum")'
+
+      - name: deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

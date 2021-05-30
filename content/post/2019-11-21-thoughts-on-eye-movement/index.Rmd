@@ -1,0 +1,212 @@
+---
+title: thoughts on eye movement
+author: Patrick Sadil
+date: '2019-11-21'
+slug: thoughts-on-eye-movement
+categories: []
+tags: []
+link-citations: true
+bibliography: [2019-11-21-thoughts-on-eye-movement.bib]
+image:
+  placement: 1
+  caption: ''
+  focal_point: ''
+  preview_only: true
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(magrittr)
+# library(ggplot2)
+
+reformat_mat <- function(.x,c){
+  if(c==1){
+    value = "r"
+  }else if(c==2){
+    value = "g"
+  }else if(c == 3){
+    value = "b"
+  }
+  .x[,,c] %>%
+    magrittr::set_colnames(as.character(yy)) %>%
+    tibble::as_tibble(.name_repair="check_unique") %>%
+    dplyr::mutate(x = xx) %>%
+    tidyr::gather(y, !!value, -x)  
+}
+
+edf <- readr::read_csv(
+  file = "0206VTF.csv",
+  col_types = readr::cols(
+    time = readr::col_double(),
+    gxR = readr::col_double(),
+    gyR = readr::col_double())
+) 
+
+edf <- edf[1:30,]
+
+grating0 <- png::readPNG("grating.png")
+
+X <- dim(grating0)[2]
+Y <- dim(grating0)[1]
+
+xx <- seq(1,X,by=5)
+yy <- seq(1,Y,by=5)
+
+grating <- tidyr::crossing(x=xx, y=yy) %>%
+  dplyr::mutate(fill = purrr::map2_chr(
+    x,y,~rgb(
+      grating0[.y,.x,1],
+      grating0[.y,.x,2],
+      grating0[.y,.x,3])))
+
+fill_manual_values <- unique(grating$fill)
+fill_manual_values <- setNames(fill_manual_values,fill_manual_values)
+```
+
+
+Visual perception research has produced many illusions. Stare at a waterfall for a minute, then look away and the whole world appears in motion, traveling upwards [@addams1834]. Given proper lighting, black paper can appear white, but placing a white piece of paper nearby colors the first dark gray [@gelb1929; as cited by @cataliotti1995]. Inspecting two sets of black lines -- horizontal lines that obscure a solid red field like a picket fence, along with vertical lines that obscure a solid green field -- causes the black lines alone to induce a perception of color, an illusory shading that can last for days [@mccollough1965]. Such illusions reveal the intricacies of visual perception, kludges and all^[To personally experience the illusions mentioned here -- and many others -- explore [Michael Bach's website](https://michaelbach.de/ot/).]. The pizzazz of the illusions affords visual perception a kind of scientific rigor; the effects are obviously real and reproducible, so to satisfyingly explain how visual perception works _so well_ also requires explaining how atypical visual environments can so often dupe vision. 
+
+However, research on visual perception inevitably strays from fascinating and easily demonstrable illusions. Of course, even without the glamour of classic visual illusions an effect can still be a reliable and valid object of research. But as the effect becomes more subtle, observing the effect requires increasingly complex analyses. Unfortunately, the most complex analyses, when misapplied, can also transmute noise into something that appears noteworthy^[Full disclosure: I write this as someone who has written [a paper](https://psadil.gitlab.io/psadil/publication/sadil_huber_cowell_2019/) on a novel development of an already obscure analysis, a development that I needed to support the claims in [another paper](https://psadil.gitlab.io/psadil/publication/sadil_potter_huber_cowell_dots_2019/). I am a kettle.]. So when a subtle effect relies entirely on a complex analysis, the effect becomes suspect. To highlight the obviousness of an effect, it can help to visualize and revisualize the data.
+
+A few weeks ago, [I posted](https://psadil.gitlab.io/psadil/post/serial-dependence/) about an effect that warrants revisualizing, the apparent stability of visual perception. I discussed this stability as one of the reasons that perception exhibits serial dependence [@fischer2014], which is the tendency of visual perception to be slightly erroneous, resembling not an accurate reproduction of the input it receives but a mixture of current input and input from the past. This dependence may occur during perception to refine the inherently erratic input provided by the retina. I attempt to demonstrate the need for refinement with Figures 1-3. Figure \@ref(fig:density) shows a stimulus from an ongoing experiment. In the experiment, the participant was required to simply hold their gaze still. The figure is a heatmap, showing that this participant successfully fixated on a small region of the stimulus. However, the heatmap obscures how fixating on a "small" region implies ample movement. Figure \@ref(fig:centric1) recapitulates, in real time, how the gaze wandered during fixation. But then Figure \@ref(fig:centric1) obscures what that wandering means for the visual system; whenever the eye moves, the retina receives (and so must then output) a different image. With Figure \@ref(fig:final), I attempt to visualize what these eye movements mean for the retinal image. In Figure \@ref(fig:final), the movements of the gaze are transferred to the stimulus, revealing how the retina receives a twitching stimulus. The effect to explain here is why fixating at the dot in Figure \@ref(fig:density) -- given that the eyes move as shown in Figure \@ref(fig:centric1) -- does not elicit the jumpy movie depicted in Figure \@ref(fig:final), but instead elicits the stable image of Figure \@ref(fig:density).
+
+```{r density, fig.cap="Example stimulus, with heatmap of eye positions during one trial overlayed. Participants viewed such grating stimuli, each for five seconds. They were instructed to fixate on the central magenta dot. The blob to the left of the dot indicates where this participant looked during the trial; the brightest regions held their gaze for the most time."}
+edf %>%
+  ggplot2::ggplot(ggplot2::aes(x = gxR, y = gyR)) +
+  ggplot2::scale_alpha(range = c(0,1)) +
+  ggplot2::coord_fixed(
+    xlim = c(1,X), 
+    ylim = c(1,Y)) +
+  ggplot2::geom_raster(
+    ggplot2::aes(fill = fill, x = x, y = y),
+    show.legend = FALSE,
+    interpolate = TRUE,
+    data = grating) +
+  ggplot2::scale_fill_manual(values = fill_manual_values) +
+  ggnewscale::new_scale("fill") +
+  ggplot2::stat_density_2d(
+    geom = "raster",
+    ggplot2::aes(
+      fill = stat(density),
+      alpha = stat(density)),
+    contour = FALSE,
+    show.legend = FALSE,
+    n = 500) +
+  ggplot2::scale_fill_viridis_c(option = "inferno") +
+  ggplot2::theme_void() 
+
+```
+
+
+```{r, centric1, fig.cap="Time course of fixations from Figure 1. The blue dot shows where the participant looked at each moment. Fixations were recorded at 1000 Hz, but this video has been downsampled to 10 Hz."}
+
+p <- edf %>%
+  ggplot2::ggplot(ggplot2::aes(x = gxR, y = gyR)) +
+  ggplot2::coord_fixed(
+    xlim = c(1,X), 
+    ylim = c(1,Y)) +
+  ggplot2::geom_raster(
+    ggplot2::aes(fill = fill, x = x, y = y),
+    show.legend = FALSE,
+    interpolate = TRUE,
+    data = grating) +
+  ggplot2::scale_fill_manual(values = fill_manual_values) +
+  ggnewscale::new_scale("fill") +
+  ggplot2::geom_point(
+    size=2, 
+    color="blue") +
+  gganimate::transition_reveal(time) +
+  gganimate::ease_aes('cubic-in-out') +
+  ggplot2::theme_void() 
+
+gganimate::animate(p, fps = 10, end_pause = 3, nframes = nrow(edf))
+
+```
+
+
+```{r, final, fig.cap="Approximate example of the retinal image from Figure 2. While the gaze travels throughout the visual environment, that environment is largely stable. Yet the travelling gaze constantly alters the image imprinted on the retina."}
+dx <- c(0, -1*diff(edf$gxR))
+dy <- c(0, -1*diff(edf$gyR))
+
+grating2 <- imager::load.image("grating.png")
+
+grating_df <- tibble::tibble(
+  dx = dx,
+  dy = dy, 
+  img = replicate(nrow(edf), grating2, simplify = FALSE)) %>%
+  dplyr::mutate(
+    img = purrr::pmap(
+      list(im = img, delta_x = dx, delta_y = dy), 
+      imager::imshift, 
+      boundary=2),
+    img = purrr::map(img, ~.x[xx,yy,1,]),
+    r = purrr::map(img, reformat_mat, c=1),
+    g = purrr::map(img, reformat_mat, c=2),
+    b = purrr::map(img, reformat_mat, c=3)) %>%
+  dplyr::select(r,g,b) %>%
+  dplyr::mutate(
+    img = purrr::map2(r,g, dplyr::left_join, by = c("x","y")),
+    img = purrr::map2(img, b, dplyr::left_join, by = c("x","y")),
+    frame = 1:(dplyr::n())) %>%
+  dplyr::select(img, frame) %>%
+  tidyr::unnest(cols = c(img)) %>%
+  dplyr::mutate(fill = rgb(r,g,b)) %>%
+  dplyr::select(x, y, fill, frame) %>%
+  dplyr::mutate(y = as.numeric(y))
+
+fill_manual_values <- unique(grating_df$fill)
+fill_manual_values <- setNames(fill_manual_values,fill_manual_values)
+
+p2 <- grating_df %>%
+  ggplot2::ggplot(ggplot2::aes(x = x, y = y)) +
+  ggplot2::geom_raster(
+    ggplot2::aes(fill = fill),
+    show.legend = FALSE,
+    interpolate = TRUE) +
+  ggplot2::scale_fill_manual(values = fill_manual_values) +
+  ggplot2::coord_fixed(
+    xlim=c(1, X), 
+    ylim=c(1, Y)) +
+  ggplot2::geom_point(
+    x = edf$gxR[1],
+    y = edf$gyR[1],
+    size = 2, 
+    color = "blue") +
+  ggplot2::theme_void() +
+  gganimate::transition_manual(frame)
+
+gganimate::animate(p2, fps = 10, end_pause = 3, nframes = nrow(edf))
+
+```
+
+
+```{r data-prep, eval=FALSE}
+
+edf <- tibble::tibble(files = "0206VTF.edf") %>%
+  dplyr::mutate(
+    code = stringr::str_extract(files, "[[:digit:]]+"),
+    sub = stringr::str_sub(code, end=2) %>% as.numeric(),
+    run = stringr::str_sub(code,start=3) %>% as.numeric(),
+    task = stringr::str_extract(files, "VTF|PWR|PMB"),
+    task = dplyr::case_when(
+      task == "VTF" ~ "con",
+      task == "PWR" ~ "ret",
+      task == "PMB" ~ "ret")) %>%
+  dplyr::mutate(
+    data = purrr::map(
+      files, edfR::edf.samples,
+      trials = TRUE,
+      fields = c("time", "gxR", "gyR")),
+    data = purrr::map(data, tibble::as_tibble, .name_repair="check_unique")) %>%
+  tidyr::unnest(cols=c(data)) %>%
+  dplyr::filter(
+    gxR < 1e6 &
+      time %% 100 == 0 &
+      eyetrial == 1) %>%
+  select(time, gxR, gyR)
+
+fst::write_fst(x = edf, path = "0206VTF.fst")
+```
+
+
+# References

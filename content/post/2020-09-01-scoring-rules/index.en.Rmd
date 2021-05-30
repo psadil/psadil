@@ -1,0 +1,53 @@
+---
+title: scoring rules
+author: Patrick Sadil
+date: '2020-09-01'
+slug: []
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-09-01T20:52:35-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+draft: true
+---
+
+Bayes' Rule gives that $p(\theta|y) \propto p(\theta) p(y|\theta)$, that the posterior distribution, $p(\theta|y)$ of the parameters, $\theta$, is proportional to a prior distribution on those parameters, $p(\theta)$, multiplied by the likelihood of the data, $p(y|\theta)$. The rule specifies a procedure for using observed data, $y$, to learn about the parameters, but it does not give a procedure for making decisions based on those parameters. In this dissertation, the statistical decisions are based primarily on the ability of different models to predict new data, $\tilde{y}$, as approximated by PSIS-LOO+. However, this approach is relatively rare in cognitive psychology. The notation closely follows that of [@vehtari_practical_2017].
+
+Currently in Psychology, the strategy is to rely on Bayes' Factors. There are a few different ways to view Bayes' Factors. I'm going to question whether Bayes' Factors are actually a good way to choose a new model.
+
+There are a few different ways to motivate Bayes' factors. One simple strategy comes from an application of Bayes' rule. If we have a model, $M$, we can ask a question like: what is the probability of a model, given that we've observed data? This gives the relationship
+
+$$
+p(M|y) = \frac{p(y|M)p(M)}{p(y)}
+$$
+
+This relationship is not, by itself, particularly helpful. There is approximately 0 chance that we've specified exactly the right model, so any calculation that allowed $p(M|y) > 0$ should immediately be suspect. But if we have two models, $M_0$ and $M_1$, it makes a bit of sense to talk about the relative probability of each model. 
+
+$$
+\frac{p(M_1|y)}{p(M_0|y)} = \underbrace{\frac{p(y|M_1)}{p(y|M_0)}}_{\text{Bayes Factor}} \frac{p(M_1)}{p(M_0)}
+$$
+
+Assuming that the prior probability associated with each model are equal, then this ratio of posterior is driven entirely by the ratio of likelihoods of the data under each of the different models. However, it is again questionable whether this relationship practical makes sense to calculate. As before, I have no faith that the models I've specified are literally the truth, so for me $p(M_0)$ is 0. Just because these are the two models I'm currently willing to entertain does not mean that I think they are actually true (after all, _all_ models are wrong...). 
+
+But let's assume that we're talking about some small world, where all statements are qualified with the assumption that one of these two models are true. 
+
+Now we step into a tricky part of language. It is common to talk about a model's 'predictions' in reference to how well the model can capture the already observed data. This language leads some authors to talk about Bayes' factor as a measure of the (relative) 'predictive accuracy' of a model. 
+
+By the chain rule, the implied predictions can also be viewed sequentially [waiting on book to see whether this is relevant]
+
+$$
+p(y|M) = p(y_1|M)p(y_2|M,y_1)\ldots p(y_n | M,y_1,y_2,\ldots,y_{n-1})
+$$
+
+
+\textbf{Posterior Predictive Distribution}:A distribution indicating what new data are likely under a posterior distribution. $p(\tilde{y}_i | y) = \int p(\tilde{y}_i|\theta)p(\theta | y) d \theta$. Note that the distribution is for a single new observation, $\tilde{y}_i$. 
+
+\textbf{ELPD}: Expected log, pointwise predictive density. This is an expectation of the log score of the posterior predictive distribution for each observation, summed across all observations in a dataset: $\sum_{i=1}^{n} \int p_t(\tilde{y}_i)\log\left(\tilde{y}_i \middle| y \right) d \tilde{y}_i $. The distribution $p_t(\tilde{y}_i)$ is the true (unknown) data-generating distribution for observation $\tilde{y}_i$ \parencite{geisser_predictive_1979, gneiting_strictly_2007}. Roughly, the ELPD measures the predictive ability of a model by first scoring how likely a model "thinks" a particular observation will be (through the log of the posterior predictive distribution), then weighting that score by the probability of observing that observation (through the true, data generating distribution), and finally combining these weighted scores across all possible values of each observation and all observations in a dataset (the integration and summation).
+

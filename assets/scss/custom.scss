@@ -1,0 +1,42 @@
+
+div.marginnote {
+  padding: 1em;
+  margin: 1em 0;
+  float: right;
+  clear: right;
+  margin-right: -60%;
+  padding-left: 100px;
+  background-size: 70px;
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  min-height: 120px;
+  color: #1f5386;
+  background-color: #bed3ec;
+  border: solid 5px #dfedff;
+}
+
+
+/* Medium screens */
+@media all and (max-width: 960px) {
+
+  div.marginnote {
+    float: none;
+    clear: none;
+    padding: 1em;
+    margin: 1em 0;
+    padding-left: 100px;
+    background-size: 70px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    min-height: 120px;
+    color: #1f5386;
+    background-color: #bed3ec;
+    border: solid 5px #dfedff;  
+  }
+}
+
+
+
+div.marginnote {
+  background-image: url("../icons/Lightbulb.png");
+}
