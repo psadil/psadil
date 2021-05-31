@@ -10,8 +10,6 @@ public
 
 resources/
 
-content/post/*/index.en_files/*/*png
-.Rdata
 .httr-oauth
 
 content/post/*/*.html

@@ -17,6 +17,7 @@ highlight_languages: ["R"]
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE, tidy = TRUE, warning = FALSE)
+library(formatR)
 ```
 
 It may be the case that Amazon Mechanical Turk WorkerIDs are not anonymous. [Lease et al., 2013](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2228728) describe at length how personally identifying information may be exposed when a researcher shares WorkerIDs. It is unclear to me the extent to which Amazon constructs their WorkerIDs at present, given that one of their striking demonstrations did not apply to my WorkerID. That is, they describe simply googling the WorkerID and receiving a picture of the participant, along with their full name. My WorkerID turn up nothing. Though, I have only been a worker on MTurk for a short while, so maybe I've been lucky and my ID has just not yet been shared widely.

@@ -17,7 +17,7 @@ draft: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE, tidy = TRUE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, warning = FALSE)
 ```
 
 # Goals

@@ -47,7 +47,8 @@ make_gabor <- function(f=0.1,
       M[x,y] <- GaborFunction(X[x],Y[y],theta,f,sigma_x,sigma_y)
     }
   }
-  d <- tibble::as_tibble(M, .name_repair = "universal") %>%
+  colnames(M) <- stringr::str_c("...", 1:ncol(M))
+  d <- tibble::as_tibble(M) %>%
     dplyr::mutate(x=as.numeric(1:dplyr::n())) %>%
     tidyr::pivot_longer(cols=tidyselect::starts_with("..."), names_to="y") %>%
     dplyr::mutate(y = stringr::str_extract(y,"[[:digit:]]+"),

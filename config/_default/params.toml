@@ -272,3 +272,7 @@ plugins_js  = []
   google_tag_manager = ""
   
 
+
+# Icon Pack Extensions
+[icon.pack]
+ ai = true  # Enable the Academicons icon pack https://jpswalsh.github.io/academicons/

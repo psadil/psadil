@@ -12,6 +12,9 @@ tags:
 image:
   caption: ''
   focal_point: ''
+pandoc_args:
+      - "--indented-code-classes"
+      - "matlab"
 ---
 
 ```{r setup, include=FALSE}
@@ -20,6 +23,11 @@ knitr::opts_chunk$set(
   eval = FALSE, 
   tidy = TRUE, 
   warning = FALSE)
+
+eng_dummy <- function(options) {
+    knitr::engine_output(options, options$code, "")
+}
+knitr::knit_engines$set(matlab = eng_dummy)
 ```
 
 I've started trying out [MATLAB's OOP](www.mathworks.com/discovery/object-oriented-programming.html) after mounting suspicion that the way I'd been coding experiments basically involved making something that looked and behaved like an object--but did so in a convoluted and inefficient way. See this [post on eyetracking with PTB](psadil.gitlab.io/psadil/post/eyetracking-init/) as proof. 

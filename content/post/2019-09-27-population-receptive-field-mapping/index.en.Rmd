@@ -32,7 +32,7 @@ tibble::tibble(x = seq(-5,5, length.out = 500),
   ggplot2::scale_fill_viridis_c(option="inferno") +
   ggplot2::theme_void() +
   ggplot2::coord_fixed() +
-  cowplot::draw_image(image=here::here("static","img", "object-018_paired-039_ap-0.png"),
+  cowplot::draw_image(image=here::here("assets","media","img", "object-018_paired-039_ap-0.png"),
                       scale=5)
 ```
 
