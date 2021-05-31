@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      RENV_PATHS_ROOT: ~/.local/share/renv
     steps:
       - name: checkout repo
         uses: actions/checkout@v2
@@ -31,7 +30,7 @@ jobs:
       - name: cache R packages
         uses: actions/cache@v2
         with:
-          path: ${{ env.RENV_PATHS_ROOT }}
+          path: ~/.local/share/renv
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: ${{ runner.os }}-renv-
 
@@ -52,11 +51,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
+            content/post/**/*html
             content/post/**/*_files/**/*
             content/post/**/*_cache/**/*
-            content/post/**/*html
-          key: blogdown-${{ hashFiles('blogdown/md5sum.txt') }}
-          restore-keys: blogdown-
+          key: blogdown-${{ hashFiles('**/blogdown/md5sum.txt') }}
 
       - name: build
         run: |
