@@ -19,7 +19,7 @@
 {{ end }}
 
 <p class="edit-page">
-  <a href="{{site.Params.edit_page.repo_url}}/blob/{{site.Params.edit_page.repo_branch | default "master"}}/{{$content_dir}}/{{ $.Scratch.Get "FilePath" }}">
+  <a href="{{site.Params.edit_page.repo_url}}/blob/{{site.Params.edit_page.repo_branch | default "main"}}/{{$content_dir}}/{{ $.Scratch.Get "FilePath" }}">
     View Page Source
   </a>
 </p>

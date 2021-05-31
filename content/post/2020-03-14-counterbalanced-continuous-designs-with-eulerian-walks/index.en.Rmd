@@ -183,14 +183,14 @@ This sequence is small enough that it's feasible to verify the Eulerian property
 #' @return tbl containing the counts of each transition type contained in the circuit. 
 #' If all went well, the counts should be equal
 check_blocking <- function(circuit, nodes){
-  tibble::tibble(contrast = circuit) %>%
+  tibble::tibble(contrast = circuit, .name_repair = "check_unique") %>%
     dplyr::mutate(
       trial = 1:dplyr::n(),
       contrast = nodes$label[contrast],
       last_contrast = dplyr::lag(contrast)) %>%
     dplyr::filter(trial > 1) %>%
     dplyr::group_by(contrast, last_contrast) %>%
-    dplyr::summarise(n = dplyr::n())
+    dplyr::summarise(n = dplyr::n(), .groups = "drop")
 }
 
 ```
