@@ -8,4 +8,13 @@ if (Sys.getenv("GITHUB_ACTION") == ""){
     servr.daemon = TRUE,
     blogdown.files_filter = blogdown::filter_md5sum,
     blogdown.initial_files.open = FALSE)
-} 
+} else{
+  builder <- function(files) { 
+    files <- blogdown::filter_md5sum(files) 
+    x <- NULL
+    for (f in files) { 
+      if (!length(grep('^draft: (yes|true)\\s*$', xfun::read_utf8(f)))) x = c(x, f) 
+    } 
+    x
+  }
+}
