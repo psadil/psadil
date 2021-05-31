@@ -1,0 +1,313 @@
+---
+title: eyetracking with eyelink in psychtoolbox, now with oop
+author: Patrick Sadil
+date: '2019-05-25'
+slug: eyetracking-in-psychtoolbox-oop
+categories:
+  - experiments
+tags:
+  - eyelink
+  - matlab
+  - psychtoolbox
+image:
+  caption: ''
+  focal_point: ''
+pandoc_args:
+      - "--indented-code-classes"
+      - "matlab"
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>I’ve started trying out <a href="https://www.mathworks.com/discovery/object-oriented-programming.html">MATLAB’s OOP</a> after mounting suspicion that the way I’d been coding experiments basically involved making something that looked and behaved like an object–but did so in a convoluted and inefficient way. See this <a href="https://psadil.github.io/psadil/post/eyetracking-init/">post on eyetracking with PTB</a> as proof.</p>
+<p>This post is brief, and is about as well thought out as a github gist/gitlab snippet.</p>
+<p>The two classes I’ll work with here is a Window class and a Tracker class. The window class has 3 methods. The first <a href="https://www.mathworks.com/help/matlab/matlab_oop/class-constructor-methods.html">constructor</a> method exists just to create the object. The constructed object will have a few default properties of the class. The second method is open, which (can you guess?) calls the PTB functions to open an onscreen window. The open method is fancier than it needs to be for this post (note the PsychImaging configuration, and the optional debugLevel flag). The final window method is the <a href="https://www.mathworks.com/help/matlab/matlab_oop/handle-class-destructors.html">desctructor</a>. The destructor method is one of the advantages of leaning on MATLAB’s OOP syntax. That method will get called whenever the Window object’s lifecycle has ended (which might happen from explicit deletion of the object, closing MATLAB, the object is no longer referenced in the call stack, etc).</p>
+<p>The second class is the Tracker class, which interfaces with Eyelink. The Window class is only present here because Eyelink needs an open window to run calibration. There are five Tracker methods, but they are either analogous to the Window objects methods (constructor, destructor) or were largely presented in the previous post.</p>
+<div id="window-object" class="section level2">
+<h2>Window Object</h2>
+<pre class="matlab"><code>
+classdef Window &lt; handle
+    % Window handles opening and closing of screen
+    
+    properties (Constant)
+        screenNumber = 0
+        
+        % background color of screen
+        background = GrayIndex(Window.screenNumber)
+    end
+    
+    properties
+        pointer
+        winRect
+    end
+    
+    methods
+        function obj = Window()
+        end
+        
+        function open(obj, skipsynctests, debuglevel)
+            
+            PsychImaging(&#39;PrepareConfiguration&#39;);
+            PsychImaging(&#39;AddTask&#39;, &#39;General&#39;, &#39;FloatingPoint16Bit&#39;);
+            
+            Screen(&#39;Preference&#39;, &#39;SkipSyncTests&#39;, skipsynctests);
+            switch debuglevel
+                % no debug. run as usual, without listening to keyboard input
+                % and also hiding the cursor
+                case 0
+                    ListenChar(-1);
+                    HideCursor;
+                    [obj.pointer, obj.winRect] = ...
+                        PsychImaging(&#39;OpenWindow&#39;, obj.screenNumber, obj.background);
+                % light debug: still open fullscreen window, but keep keyboard input
+                case 1
+                    [obj.pointer, obj.winRect] = ...
+                        PsychImaging(&#39;OpenWindow&#39;, obj.screenNumber, obj.background);
+                % full debug: only open transparent window
+                case 10
+                    PsychDebugWindowConfiguration(0, .5)
+                    [obj.pointer, obj.winRect] = ...
+                        PsychImaging(&#39;OpenWindow&#39;, obj.screenNumber, obj.background);
+            end
+                        
+            % Turn on blendfunction for antialiasing of drawing dots
+            Screen(&#39;BlendFunction&#39;, obj.pointer, &#39;GL_SRC_ALPHA&#39;, &#39;GL_ONE_MINUS_SRC_ALPHA&#39;);
+            
+            topPriorityLevel = MaxPriority(obj.pointer);
+            Priority(topPriorityLevel);
+        end
+        
+        % will auto-close open windows and return keyboard control when
+        % this object is deleted
+        function delete(obj) %#ok&lt;INUSD&gt;
+            ListenChar(0);
+            Priority(0);
+            sca;
+        end
+    end
+    
+end
+</code></pre>
+</div>
+<div id="tracker-object" class="section level2">
+<h2>Tracker Object</h2>
+<p>The tracker object will mostly do what it did in the <a href="https://psadil.github.io/psadil/post/eyetracking-init/">previous post</a>. Same functionality, but the syntax is much cleaner than the heavy use of switch/case conditionals.</p>
+<pre class="matlab"><code>classdef Tracker &lt; handle
+    
+    properties
+        % flag to be called in scripts which enable turning on or off the tracker
+        % in an experiment (e.g., when debug mode is on)
+        using_tracker logical = false
+        
+        % name of the write. must follow eyelink conventions. alphanumeric only, no 
+        % more than 8 characters
+        filename char = &#39;&#39;
+        
+        % eyelink object structure. stores many relevant parameters
+        el
+    end
+    
+    methods
+        function obj = Tracker(using_tracker, filename, window)            
+            obj.using_tracker = using_tracker;
+            obj.filename = filename;
+            
+            % run calibration for tracker (see method below)
+            calibrate(obj, window);
+        end
+        
+        function calibrate(obj, window)
+            if obj.using_tracker
+                % Provide Eyelink with details about the graphics environment
+                % and perform some initializations. The information is returned
+                % in a structure that also contains useful defaults
+                % and control codes (e.g. tracker state bit and Eyelink key values).
+                obj.el = EyelinkInitDefaults(window.pointer);
+                
+                if ~EyelinkInit(0, 1)
+                    error(&#39;\n Eyelink Init aborted \n&#39;);
+                end
+                
+                %Reduce FOV for calibration and validation. Helpful when the
+                % the stimulus is only in the center of the screen, or at places
+                % like the fMRI scanner at UMass where the eyes have a lot in front
+                % of them
+                Eyelink(&#39;Command&#39;,&#39;calibration_area_proportion = 0.5 0.5&#39;);
+                Eyelink(&#39;Command&#39;,&#39;validation_area_proportion = 0.5 0.5&#39;);
+                
+                % open file to record data to
+                status = Eyelink(&#39;Openfile&#39;, obj.filename);
+                if status ~= 0
+                    error(&#39;\n Eyelink Init aborted \n&#39;);
+                end
+                
+                % Setting the proper recording resolution, proper calibration type,
+                % as well as the data file content;
+                Eyelink(&#39;Command&#39;,&#39;screen_pixel_coords = %ld %ld %ld %ld&#39;, 0, 0, window.winRect(3)-1, window.winRect(4)-1);
+                Eyelink(&#39;message&#39;, &#39;DISPLAY_COORDS %ld %ld %ld %ld&#39;, 0, 0, window.winRect(3)-1, window.winRect(4)-1);
+                % set calibration type to 5 point.
+                Eyelink(&#39;Command&#39;, &#39;calibration_type = HV5&#39;);
+                
+                % set EDF file contents using the file_sample_data and
+                % file-event_filter commands
+                % set link data thtough link_sample_data and link_event_filter
+                Eyelink(&#39;Command&#39;, &#39;file_event_filter = RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT&#39;);
+                Eyelink(&#39;Command&#39;, &#39;link_event_filter = RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT&#39;);
+                
+                % check the software version
+                % add &quot;HTARGET&quot; to record possible target data for EyeLink Remote
+                Eyelink(&#39;command&#39;, &#39;file_sample_data  = RIGHT,GAZE,HREF,GAZERES,AREA,HTARGET,STATUS,INPUT&#39;);
+                Eyelink(&#39;command&#39;, &#39;link_sample_data  = RIGHT,GAZE,HREF,GAZERES,AREA,HTARGET,STATUS,INPUT&#39;);
+                
+                % make sure we&#39;re still connected.
+                if Eyelink(&#39;IsConnected&#39;)~=1
+                    error(&#39;\n Eyelink Init aborted \n&#39;);
+                end
+                
+                % set sample rate in camera setup screen
+                Eyelink(&#39;Command&#39;, &#39;sample_rate = %d&#39;, 1000);
+                
+                % opens up main calibration scheme
+                EyelinkDoTrackerSetup(obj.el);
+            end
+        end
+        
+        function status = eyelink(obj, varargin)
+            % calls main Eyelink routines only when
+            % this tracker object property using_tracker==true.
+            status = [];
+            if obj.using_tracker
+                if nargin==2
+                    % construct calls to eyelink that don&#39;t output any
+                    % status
+                    if strcmp(varargin{1}, &#39;StopRecording&#39;) || ...
+                            strcmp(varargin{1}, &#39;Shutdown&#39;) ||...
+                            strcmp(varargin{1}, &#39;SetOfflineMode&#39;)
+                            
+                        % magic happens here, where the variable argument input
+                        % is expanded an repassed through to Eyelink()
+                        Eyelink(varargin{:});
+                    else
+                        status = Eyelink(varargin{:});
+                    end
+                % all calls to Eyelink that have more than two inputs (e.g., the
+                % name of a function with some parameters to that function) return
+                % some status
+                else
+                    status = Eyelink(varargin{:});
+                end
+            end
+        end
+        
+        % starts up the eyelink machine. call this once the start of each
+        % experiment. could modify function to also draw something special
+        % to the screen (e.g., a background image). this might be the kind
+        % of function to modify if you wanted to draw trial-by-trial material
+        % to the eyetracking computer
+        function startup(obj)
+            
+            % Must be offline to draw to EyeLink screen
+            obj.eyelink(&#39;SetOfflineMode&#39;);
+            
+            % clear tracker display and draw background img to host pc
+            obj.eyelink(&#39;Command&#39;, &#39;clear_screen 0&#39;);
+            
+            % draw simple fixation cross as later reference
+            obj.eyelink(&#39;command&#39;, &#39;draw_cross %d %d&#39;, 1920/2, 1080/2);
+            
+            % give image transfer time to finish
+            WaitSecs(0.1);
+        end
+        
+        % destructor function will get called whenever tracker object is deleted (e.g.,
+        % this function is automatically called when MATLAB closes, meaning you can&#39;t
+        % forget to close the file connection with the tracker computer).
+        function delete(obj)
+          % waitsecs occur because the filetransfer often takes a moment, and moving
+          % on too quickly will result in an error
+            
+            % End of Experiment; close the file first
+            % close graphics window, close data file and shut down tracker
+            obj.eyelink(&#39;StopRecording&#39;);
+            WaitSecs(0.1); % Slack to let stop definitely happen
+            obj.eyelink(&#39;SetOfflineMode&#39;); 
+            
+            obj.eyelink(&#39;CloseFile&#39;);
+            WaitSecs(0.1);
+            
+            obj.eyelink(&#39;ReceiveFile&#39;, obj.filename, fullfile(pwd,&#39;events&#39;), 1);
+            WaitSecs(0.2);
+            obj.eyelink(&#39;Shutdown&#39;);
+        end
+        
+    end
+end
+</code></pre>
+</div>
+<div id="run-the-calibration-and-use-the-tracker" class="section level2">
+<h2>Run the calibration (and use the tracker)</h2>
+<p>Putting this together, the following script starts calibration, and outlines how this tracker could be used in an experiment.</p>
+<pre class="matlab"><code>
+%% input 
+% ------------------
+
+skipsynctests = 2;
+debuglevel = 0;
+using_tracker = true;
+
+%% setup
+% ------------------
+  
+% boilerplate setup
+PsychDefaultSetup(2);
+
+% initialize window
+window = Window();
+
+% open that window
+open(window, skipsynctests, debuglevel)
+
+% Initialize tracker object
+tracker = Tracker(using_tracker, &#39;OOPDEMO.edf&#39;, window);
+
+% run calibration
+tracker.startup();
+
+% Let Eyelink know that the experiment starts now
+tracker.eyelink(&#39;message&#39;, &#39;SYNCTIME&#39;);
+
+%% Experiment/trial code
+% ------------------
+
+% note that we should not need to wait to start recording,
+% given that the stimulus will always be drawn a bit later
+% (determined by how often phase changes occur)
+tracker.eyelink(&#39;StartRecording&#39;);
+
+% trial/experiment happens here ...
+
+tracker.eyelink(&#39;StopRecording&#39;);
+% Wait moment to ensure that tracker is definitely finished with the last few samples
+WaitSecs(0.001);
+
+%% Cleanup
+% ------------------
+
+% closes connection to Eyelink system, saves file
+delete(tracker);
+
+% closes window, restores keyboard input
+delete(window);
+</code></pre>
+<p>What’s nice about this syntax (as before) is that only very minimal changes are required you don’t want to call the Eyelink functions (e.g., if you’re testing on a computer that doesn’t have the Eyelink system connected, or you’re debugging other parts of the experiment). By changing just the input, the Eyelink functions won’t be called.</p>
+<pre class="matlab"><code>
+using_tracker = false;
+
+% all the rest as above
+% ...</code></pre>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>There’s not much to summarize because I haven’t explained much! Again, this post is largely just an attempt to revise what I now think is a poor implementation, presented in an earlier post.</p>
+</div>

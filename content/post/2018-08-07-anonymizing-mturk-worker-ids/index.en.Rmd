@@ -16,7 +16,7 @@ highlight_languages: ["R"]
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE, tidy = TRUE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, tidy = TRUE, warning = FALSE, message = FALSE)
 library(formatR)
 ```
 
@@ -40,7 +40,7 @@ The script relies on five R libraries
 # NOTE: always overrides the file --outfile
 #
 
-suppressMessages(library(docopt)) 
+library(docopt)
 
 doc <- "Usage: 
   anonymize_db.R [-i DBNAME] KEY OUTFILE
@@ -58,11 +58,10 @@ Arguments:
 
 opt <- docopt(doc)
 
-suppressMessages(library(magrittr))
-suppressMessages(library(dplyr))
-suppressMessages(library(stringr))
-suppressMessages(library(openssl))
-
+library(magrittr)
+library(dplyr)
+library(stringr)
+library(openssl)
 
 db <- dplyr::src_sqlite(opt$infile) %>%
   dplyr::tbl(opt$table) %>%
@@ -105,8 +104,6 @@ which will read in the sqlite database `participants_raw.db` (default for --infi
 The general workflow would be to include in your .gitignore the raw database output by psiturk. That way, the raw database is never uploaded into any repository. Then, when you are ready to host the experiment, you pull your repository as usual. As an extra step, you will now need to separately move around your raw database such that when you run the next experiment psiturk will know which workers have already participated. After collecting data, retrieve the database and run this anonymization script on it. The newly created database can then be bundled with your repository.
 
 This is a bit of extra work (i.e., you must manually send the database, retrieve the database, then anonymize it). However, the whole point is to avoid making it easy to download something with potentially identifying information.
-
-Downloadable copy, [here](https://gitlab.com/psadil/visr-mturk/raw/master/anonymize_db.R?inline=false)^[this is a link to a file in a gitlab repository which may be subject to change after the date of this posts' upload].
 
 # Gotchas
 

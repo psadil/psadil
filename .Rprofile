@@ -10,7 +10,7 @@ if (Sys.getenv("GITHUB_ACTION") == ""){
     blogdown.initial_files.open = FALSE)
 } else{
   builder <- function(files) { 
-    files <- blogdown::filter_md5sum(files) 
+    files <- blogdown::filter_timestamp(files) 
     x <- NULL
     for (f in files) { 
       if (!length(grep('^draft: (yes|true)\\s*$', xfun::read_utf8(f)))) x = c(x, f) 
