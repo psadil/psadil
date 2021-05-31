@@ -35,33 +35,33 @@ Setting up a study on MTurk can roughly be divided into three needs.
 
 * We need some way to code the experiment 
   + Packages
-    - [jspsych](www.jspsych.org)
+    - [jspsych](https://www.jspsych.org)
     - jquery [w3schools](https://www.w3schools.com/jquery/default.asp)
   + Languages
-    - Javascript [w3schools](www.w3schools.com/js/default.asp)
-    - CSS [w3schools](www.w3schools.com/css/default.asp)
-    - HTML [w3schools](www.w3schools.com/html/default.asp)
+    - Javascript [w3schools](https://www.w3schools.com/js/default.asp)
+    - CSS [w3schools](https://www.w3schools.com/css/default.asp)
+    - HTML [w3schools](https://www.w3schools.com/html/default.asp)
   + Useful concepts
-    - Turns out that, in javascript, line 2 might not run after line 1! It's helpful to read about [asynchronous programming in javascript](javascript.info/callbacks)
-    - [Static sites, dynamic sites, and static site generators](about.gitlab.com/2016/06/03/ssg-overview-gitlab-pages-part-1-dynamic-x-static/)
+    - Turns out that, in javascript, line 2 might not run after line 1! It's helpful to read about [asynchronous programming in javascript](https://javascript.info/callbacks)
+    - [Static sites, dynamic sites, and static site generators](https://about.gitlab.com/2016/06/03/ssg-overview-gitlab-pages-part-1-dynamic-x-static/)
     
 * We need some way to organize that experimental code such that it is advertised to turkers, Amazon is informed when a Turker finishes the experiment, their responses are stored in a database, and we can approve the turkers' work 
   + Packages
-    - [psiturk](psiturk.readthedocs.io/en/latest/)
-    - [flask](flask.pocoo.org/docs/1.0/#)
-    - [jinja](www.palletsprojects.com/p/jinja/)
+    - [psiturk](https://psiturk.readthedocs.io/en/latest/)
+    - [flask](https://flask.pocoo.org/docs/1.0/#)
+    - [jinja](https://www.palletsprojects.com/p/jinja/)
   + Languages
-    - [Python](python.swaroopch.com/), [Anaconda distribution](www.anaconda.com/download/)
-    - [SQLite](cran.r-project.org/web/packages/dbplyr/vignettes/dbplyr.html)
+    - [Python](https://python.swaroopch.com/), [Anaconda distribution](https://www.anaconda.com/download/)
+    - [SQLite](https://cran.r-project.org/web/packages/dbplyr/vignettes/dbplyr.html)
   + Useful concepts
-    - [what is a database?](taylorwhitten.github.io/blog/RSQLite1)
-    - [what is an ip address?](www.howtogeek.com/66214/how-to-forward-ports-on-your-router/)
+    - [what is a database?](https://taylorwhitten.github.io/blog/RSQLite1)
+    - [what is an ip address?](https://www.howtogeek.com/66214/how-to-forward-ports-on-your-router/)
     - Psiturk runs on python 2, not python 3. You may want to be using an [Anaconda virtual environment](conda.io/docs/user-guide/tasks/manage-environments.html)
 
 * We need a server to host the above components such that they are accessible via an internet connection 
   + Services
-    - Amazon Mechanical Turk: follow the [psiturk documentation!](psiturk.readthedocs.io/en/latest/amt_setup.html#)
-    - Amazon EC2: follow the [psiturk documentation!](psiturk.readthedocs.io/en/latest/amazon_ec2.html)
+    - Amazon Mechanical Turk: follow the [psiturk documentation!](https://psiturk.readthedocs.io/en/latest/amt_setup.html#)
+    - Amazon EC2: follow the [psiturk documentation!](https://psiturk.readthedocs.io/en/latest/amazon_ec2.html)
   + useful concepts
     - definitely keep the psiturk documentation open in a tab somewhere
 
@@ -72,8 +72,8 @@ At the next deeper level, it's useful to know how HTML, javascript, and CSS work
 Next, the template part comes from the idea of a static site generator. The particular SSG is jinja. It's useful to know about Flask, because the Flask syntax defines custom routes (e.g., helping determine which stimuli to show a given participant). Jinja might be useful, but I haven't found it necessary to know more than the basics of what is an SSG.
 
 [Todd Gureckis' videotapped course lectures](https://psiturk.org/docs/)
-[Tim Brady's Mechanical Turk Tutorial](bradylab.ucsd.edu/ttt/index.html)
-[Wilma Bainbridge organized a Big Data Tutorial at VSS 2018](wilmabainbridge.com/bigdataclass.html). Note, this involves the package psitoolkit. That seemed like an okay alternative, but I worried that I would encounter a situation that psitoolkit wasn't equipped to handle and would be stuck. Working with the psiturk + jspsych ensured that there would be the flexibility to run pretty much any kind of experiment
+[Tim Brady's Mechanical Turk Tutorial](https://bradylab.ucsd.edu/ttt/index.html)
+[Wilma Bainbridge organized a Big Data Tutorial at VSS 2018](https://wilmabainbridge.com/bigdataclass.html). Note, this involves the package psitoolkit. That seemed like an okay alternative, but I worried that I would encounter a situation that psitoolkit wasn't equipped to handle and would be stuck. Working with the psiturk + jspsych ensured that there would be the flexibility to run pretty much any kind of experiment
 
 # Gotcha's and extra notes
 
@@ -81,7 +81,7 @@ Next, the template part comes from the idea of a static site generator. The part
 
 * when setting up EC2, pay careful attention to the IP configuration settings. To be able to use ssh to access the instance, you'll need to have your IP address match the IP it's expecting. Or, just set it to receive traffic from 'Anywhere.' Likewise, make sure that the custom TCP is set to receive traffic from Anywhere
 
-* Do read the tutorial on [asynchronous programming in javascript](javascript.info/callbacks). It can be really confusing when you're trying to debug and variables aren't defined
+* Do read the tutorial on [asynchronous programming in javascript](https://javascript.info/callbacks). It can be really confusing when you're trying to debug and variables aren't defined
 
 * Speaking of debugging, your friend will be the 'developer tools' in whatever browser you're using. Right click on the experiment and check 'view source' to get access to a console
 
