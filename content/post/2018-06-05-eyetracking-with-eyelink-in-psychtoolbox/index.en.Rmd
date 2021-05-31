@@ -360,7 +360,7 @@ For examples of these methods in action, check out [an experiment on Voxel Tunin
 
 [Here's the original publication](https://link.springer.com/article/10.3758/BF03195489) that introduced the Eyelink interface to PTB.
 
-Also, for inspiration about the cool experiments that can be run with Eyelink's software, see the [PTB Demos](https://github.com/kleinerm/Psychtoolbox-3/tree/master/Psychtoolbox/PsychHardware/EyelinkToolbox/EyelinkDemos). See a list of `Eyelink` functions [here](http://docs.psychtoolbox.org/Eyelink). You'll need to look at this page if you want access to the help files for these commands on a computer without Eyelink installed.
+Also, for inspiration about the cool experiments that can be run with Eyelink's software, see the [PTB Demos](https://github.com/kleinerm/Psychtoolbox-3/tree/master/Psychtoolbox/PsychHardware/EyelinkToolbox/EyelinkDemos). See a list of `Eyelink` functions [here](http://psychtoolbox.org/docs/EyelinkToolbox). You'll need to look at this page if you want access to the help files for these commands on a computer without Eyelink installed.
 
 Finally, thanks to [Ramiro](https://www.umass.edu/pbs/people/ramiro-reyes) for sharing a PTB script that got me started with Eyelink.
 

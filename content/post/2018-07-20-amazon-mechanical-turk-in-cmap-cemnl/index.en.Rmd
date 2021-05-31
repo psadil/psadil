@@ -48,7 +48,7 @@ Setting up a study on MTurk can roughly be divided into three needs.
 * We need some way to organize that experimental code such that it is advertised to turkers, Amazon is informed when a Turker finishes the experiment, their responses are stored in a database, and we can approve the turkers' work 
   + Packages
     - [psiturk](https://psiturk.readthedocs.io/en/latest/)
-    - [flask](https://flask.pocoo.org/docs/1.0/#)
+    - [flask](https://flask.palletsprojects.com/en/2.0.x/)
     - [jinja](https://www.palletsprojects.com/p/jinja/)
   + Languages
     - [Python](https://python.swaroopch.com/), [Anaconda distribution](https://www.anaconda.com/download/)
@@ -56,7 +56,7 @@ Setting up a study on MTurk can roughly be divided into three needs.
   + Useful concepts
     - [what is a database?](https://taylorwhitten.github.io/blog/RSQLite1)
     - [what is an ip address?](https://www.howtogeek.com/66214/how-to-forward-ports-on-your-router/)
-    - Psiturk runs on python 2, not python 3. You may want to be using an [Anaconda virtual environment](conda.io/docs/user-guide/tasks/manage-environments.html)
+    - Psiturk runs on python 2, not python 3. You may want to be using an [Anaconda virtual environment](https://conda.io/docs/user-guide/tasks/manage-environments.html)
 
 * We need a server to host the above components such that they are accessible via an internet connection 
   + Services
@@ -71,7 +71,7 @@ At the next deeper level, it's useful to know how HTML, javascript, and CSS work
 
 Next, the template part comes from the idea of a static site generator. The particular SSG is jinja. It's useful to know about Flask, because the Flask syntax defines custom routes (e.g., helping determine which stimuli to show a given participant). Jinja might be useful, but I haven't found it necessary to know more than the basics of what is an SSG.
 
-[Todd Gureckis' videotapped course lectures](https://psiturk.org/docs/)
+[Todd Gureckis' videotapped course lectures](https://gureckislab.org/courses/spring14/online_data_collection/)
 [Tim Brady's Mechanical Turk Tutorial](https://bradylab.ucsd.edu/ttt/index.html)
 [Wilma Bainbridge organized a Big Data Tutorial at VSS 2018](https://wilmabainbridge.com/bigdataclass.html). Note, this involves the package psitoolkit. That seemed like an okay alternative, but I worried that I would encounter a situation that psitoolkit wasn't equipped to handle and would be stuck. Working with the psiturk + jspsych ensured that there would be the flexibility to run pretty much any kind of experiment
 
