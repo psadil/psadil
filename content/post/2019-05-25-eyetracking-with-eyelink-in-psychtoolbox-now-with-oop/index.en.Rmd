@@ -30,7 +30,7 @@ eng_dummy <- function(options) {
 knitr::knit_engines$set(matlab = eng_dummy)
 ```
 
-I've started trying out [MATLAB's OOP](www.mathworks.com/discovery/object-oriented-programming.html) after mounting suspicion that the way I'd been coding experiments basically involved making something that looked and behaved like an object--but did so in a convoluted and inefficient way. See this [post on eyetracking with PTB](psadil.gitlab.io/psadil/post/eyetracking-init/) as proof. 
+I've started trying out [MATLAB's OOP](www.mathworks.com/discovery/object-oriented-programming.html) after mounting suspicion that the way I'd been coding experiments basically involved making something that looked and behaved like an object--but did so in a convoluted and inefficient way. See this [post on eyetracking with PTB](psadil.github.io/psadil/post/eyetracking-init/) as proof. 
 
 This post is brief, and is about as well thought out as a github gist/gitlab snippet. 
 
@@ -110,7 +110,7 @@ end
 
 ## Tracker Object
 
-The tracker object will mostly do what it did in the [previous post](https://psadil.gitlab.io/psadil/post/eyetracking-init/). Same functionality, but the syntax is much cleaner than the heavy use of switch/case conditionals.
+The tracker object will mostly do what it did in the [previous post](https://psadil.github.io/psadil/post/eyetracking-init/). Same functionality, but the syntax is much cleaner than the heavy use of switch/case conditionals.
 
 ```{matlab}
 classdef Tracker < handle

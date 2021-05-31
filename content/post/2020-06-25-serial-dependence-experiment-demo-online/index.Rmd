@@ -24,7 +24,7 @@ draft: true
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE, tidy = TRUE, warning = FALSE)
 ```
 
-A breadcrumb trail of post [topics](https://psadil.gitlab.io/psadil/post/derivative-of-gaussian-for-serial-dependence/) [suggests](https://psadil.gitlab.io/psadil/post/serial-dependence-reflects-a-preference-for-low-variability/) that I have been working on an experiment to explore [serial dependence](https://psadil.gitlab.io/psadil/post/serial-dependence/). When I explain these kinds of experiments to people outside of cognitive psychology, I find it hard to explain the experiment's simplicity. The tasks are basic.
+A breadcrumb trail of post [topics](https://psadil.github.io/psadil/post/derivative-of-gaussian-for-serial-dependence/) [suggests](https://psadil.github.io/psadil/post/serial-dependence-reflects-a-preference-for-low-variability/) that I have been working on an experiment to explore [serial dependence](https://psadil.github.io/psadil/post/serial-dependence/). When I explain these kinds of experiments to people outside of cognitive psychology, I find it hard to explain the experiment's simplicity. The tasks are basic.
 
 Today, I am happy to report that I now have an online demonstration of the task! The demo can be reached [here](https://morning-earth-15290.herokuapp.com/serialdependence). The experiment will start with a few pages of (poorly formatted) instructions. After that, you'll do 11 trials.
 

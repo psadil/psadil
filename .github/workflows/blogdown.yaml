@@ -48,6 +48,16 @@ jobs:
         run: |
           R -e 'blogdown::install_hugo("0.81.0")'
 
+      - name: cache build
+        uses: actions/cache@v2
+        with:
+          path: |
+            content/post/**/*_files/**/*
+            content/post/**/*_cache/**/*
+            content/post/**/*html
+          key: blogdown-${{ hashFiles('blogdown/md5sum.txt') }}
+          restore-keys: blogdown-
+
       - name: build
         run: |
           R -e 'blogdown::build_site(TRUE, build_rmd = "md5sum")'

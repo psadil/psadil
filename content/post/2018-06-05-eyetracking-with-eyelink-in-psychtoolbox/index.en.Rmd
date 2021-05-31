@@ -30,7 +30,7 @@ eng_dummy <- function(options) {
 knitr::knit_engines$set(matlab = eng_dummy)
 ```
 
-UPDATE: I now think that the examples I've presented here obscure the interface with Eyelink. Much cleaner to use MATLAB's object oriented programming. This is covered in [another post](https://psadil.gitlab.io/psadil/post/eyetracking-in-psychtoolbox-oop/).
+UPDATE: I now think that the examples I've presented here obscure the interface with Eyelink. Much cleaner to use MATLAB's object oriented programming. This is covered in [another post](https://psadil.github.io/psadil/post/eyetracking-in-psychtoolbox-oop/).
 
 This post is designed as minimal documentation for using the Eyelink software at the UMass Amherst [hMRC](https://www.umass.edu/ials/hmrc). The goals are very modest
 
@@ -356,7 +356,7 @@ end
 
 # Extra Resourcess
 
-For examples of these methods in action, check out [an experiment on Voxel Tuning Functions](https://github.com/psadil/VTF). In particular, see [setupEyeTracker](https://github.com/psadil/VTF/blob/master/lib/PsychSetup/setupEyeTracker.m), [makeEyelinkFcn](https://github.com/psadil/VTF/blob/master/lib/PsychEyelink/makeEyelinkFcn.m). That repository also has examples of using the value returned by `makeEyelinkFcn` in [runContrast](https://github.com/psadil/VTF/blob/master/lib/PsychTasks/runContrast.m). Note that the repository may change from time to time and might not match the code in this post exactly. To download the exact files defined above, see [setupEyeTracker](https://psadil.gitlab.io/psadil/files/matlab/setupEyeTracker.m), [makeEyelinkFcn](https://psadil.gitlab.io/psadil/files/matlab/makeEyelinkFcn.m)
+For examples of these methods in action, check out [an experiment on Voxel Tuning Functions](https://github.com/psadil/VTF). In particular, see [setupEyeTracker](https://github.com/psadil/VTF/blob/master/lib/PsychSetup/setupEyeTracker.m), [makeEyelinkFcn](https://github.com/psadil/VTF/blob/master/lib/PsychEyelink/makeEyelinkFcn.m). That repository also has examples of using the value returned by `makeEyelinkFcn` in [runContrast](https://github.com/psadil/VTF/blob/master/lib/PsychTasks/runContrast.m). Note that the repository may change from time to time and might not match the code in this post exactly. To download the exact files defined above, see [setupEyeTracker](https://psadil.github.io/psadil/files/matlab/setupEyeTracker.m), [makeEyelinkFcn](https://psadil.github.io/psadil/files/matlab/makeEyelinkFcn.m)
 
 [Here's the original publication](https://link.springer.com/article/10.3758/BF03195489) that introduced the Eyelink interface to PTB.
 
