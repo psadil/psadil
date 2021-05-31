@@ -2,7 +2,7 @@ source("renv/activate.R")
 options(
   blogdown.author = "Patrick Sadil", 
   blogdown.hugo.args = '--minify',
-  blogdown.hugo.version = "0.81.0")
+  blogdown.hugo.version = "0.83.1")
 if (Sys.getenv("GITHUB_ACTION") == ""){
   options(
     servr.daemon = TRUE,

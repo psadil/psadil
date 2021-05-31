@@ -45,16 +45,7 @@ jobs:
 
       - name: install hugo
         run: |
-          R -e 'blogdown::install_hugo("0.81.0")'
-
-      - name: cache build
-        uses: actions/cache@v2
-        with:
-          path: |
-            content/post/**/*html
-            content/post/**/*_files/**/*
-            content/post/**/*_cache/**/*
-          key: blogdown-${{ hashFiles('**/blogdown/md5sum.txt') }}
+          R -e 'blogdown::install_hugo("0.83.1")'
 
       - name: build
         run: |
