@@ -35,108 +35,109 @@ Participant <- R6Class("Participant",
 )
 
 
-Staircase <- R6Class("Staircase",
-                     public = list(
-                       current_contrast = NULL,
-                       current_step = NULL,
-                       trials = NULL,
-                       n_trials = NULL,
-                       estimated_correct = NULL,
-                       run_number = 1,
-                       stopping_step_size = NULL,
-                       last_reversal_is_double = FALSE,
-                       last_step_is_double = FALSE,
-                       tested_contrast = NULL,
-                       max_trials = NULL,
-                       total_trial = 1,
-                       all_obs = NULL,
-                       pest = NULL,
-                       down = NULL,
-                       initialize = function(starting_contrast=NA, 
-                                             starting_step=NA,
-                                             stopping_step_size = 1/16,
-                                             max_trials = 500,
-                                             pest = FALSE,
-                                             down = 1){
-                         self$current_contrast <- starting_contrast
-                         self$current_step <- starting_step
-                         self$stopping_step_size <- stopping_step_size
-                         self$max_trials <- max_trials
-                         self$pest <- pest
-                         self$down <- down
-                       },
-                       do_trial = function(participant){
-                         self$total_trial <- self$total_trial + 1
-                         self$tested_contrast <- c(self$tested_contrast,
-                                                   self$current_contrast)
-                         self$trials <- c(self$trials, 
-                                          participant$test(contrast=self$current_contrast))
-                         self$n_trials <- length(self$trials)
-                         self$all_obs <- c(self$all_obs, self$trials[self$n_trials])
-                         
-                         
-                         if(any(self$trials == 0)) {
-                           godown <- FALSE
-                           goup <- TRUE
-                         }else if(length(self$trials)==self$down){
-                           godown <- TRUE
-                           goup <- FALSE
-                         }else{
-                           godown <- FALSE
-                           goup <- FALSE
-                         }
-                         
-                         if(godown || goup){
-                           if(self$pest){
-                             # conditions for reversal
-                             # - you made it easy, and they got it right
-                             # - you made it harder, and they got a bunch wrong
-                             if((self$current_step > 0 && godown) || 
-                                (self$current_step < 0 && goup)){ 
-                               if(self$run_number > 1){
-                                 self$current_step <- -1*self$current_step/2
-                                 self$last_reversal_is_double <- self$last_step_is_double
-                               }else{
-                                 if(godown) self$current_step <- abs(self$current_step)*-1
-                                 else self$current_step <- abs(self$current_step)
-                               }
-                               self$run_number <- 2 # next time !inbounds[1] means this is second run already
-                             }
-                             else if(self$run_number > 3){
-                               self$current_step <- self$current_step*2
-                               self$run_number <- self$run_number + 1
-                               self$last_step_is_double <- TRUE
-                             }else if(self$run_number == 3){
-                               if(self$last_reversal_is_double){
-                                 self$current_step <- self$current_step
-                                 self$last_step_is_double <- FALSE
-                               }else{
-                                 self$current_step <- self$current_step*2
-                                 self$last_step_is_double <- TRUE
-                               }
-                               self$run_number <- self$run_number + 1
-                             }else if(self$run_number == 2){
-                               self$current_step <- self$current_step
-                               self$last_step_is_double <- FALSE
-                               self$run_number <- self$run_number + 1
-                             }
-                             self$current_contrast <- self$current_contrast + self$current_step
-                           }else{
-                             if(goup) self$current_contrast <- self$current_contrast + abs(self$current_step)
-                             else self$current_contrast <- self$current_contrast - abs(self$current_step)
-                           }
-                           self$trials <- NULL 
-                         }
-                         invisible(self)
-                       },
-                       do_experiment = function(participant){
-                         while((abs(self$current_step) > self$stopping_step_size) & 
-                               (self$max_trials > self$total_trial)){
-                           self$do_trial(participant)
-                         }
-                         invisible(self)
-                       }
-                     )
+Staircase <- R6Class(
+  "Staircase",
+  public = list(
+    current_contrast = NULL,
+    current_step = NULL,
+    trials = NULL,
+    n_trials = NULL,
+    estimated_correct = NULL,
+    run_number = 1,
+    stopping_step_size = NULL,
+    last_reversal_is_double = FALSE,
+    last_step_is_double = FALSE,
+    tested_contrast = NULL,
+    max_trials = NULL,
+    total_trial = 1,
+    all_obs = NULL,
+    pest = NULL,
+    down = NULL,
+    initialize = function(starting_contrast=NA, 
+                          starting_step=NA,
+                          stopping_step_size = 1/16,
+                          max_trials = 500,
+                          pest = FALSE,
+                          down = 1){
+      self$current_contrast <- starting_contrast
+      self$current_step <- starting_step
+      self$stopping_step_size <- stopping_step_size
+      self$max_trials <- max_trials
+      self$pest <- pest
+      self$down <- down
+    },
+    do_trial = function(participant){
+      self$total_trial <- self$total_trial + 1
+      self$tested_contrast <- c(self$tested_contrast,
+                                self$current_contrast)
+      self$trials <- c(self$trials, 
+                       participant$test(contrast=self$current_contrast))
+      self$n_trials <- length(self$trials)
+      self$all_obs <- c(self$all_obs, self$trials[self$n_trials])
+      
+      
+      if(any(self$trials == 0)) {
+        godown <- FALSE
+        goup <- TRUE
+      }else if(length(self$trials)==self$down){
+        godown <- TRUE
+        goup <- FALSE
+      }else{
+        godown <- FALSE
+        goup <- FALSE
+      }
+      
+      if(godown || goup){
+        if(self$pest){
+          # conditions for reversal
+          # - you made it easy, and they got it right
+          # - you made it harder, and they got a bunch wrong
+          if((self$current_step > 0 && godown) || 
+             (self$current_step < 0 && goup)){ 
+            if(self$run_number > 1){
+              self$current_step <- -1*self$current_step/2
+              self$last_reversal_is_double <- self$last_step_is_double
+            }else{
+              if(godown) self$current_step <- abs(self$current_step)*-1
+              else self$current_step <- abs(self$current_step)
+            }
+            self$run_number <- 2 # next time !inbounds[1] means this is second run already
+          }
+          else if(self$run_number > 3){
+            self$current_step <- self$current_step*2
+            self$run_number <- self$run_number + 1
+            self$last_step_is_double <- TRUE
+          }else if(self$run_number == 3){
+            if(self$last_reversal_is_double){
+              self$current_step <- self$current_step
+              self$last_step_is_double <- FALSE
+            }else{
+              self$current_step <- self$current_step*2
+              self$last_step_is_double <- TRUE
+            }
+            self$run_number <- self$run_number + 1
+          }else if(self$run_number == 2){
+            self$current_step <- self$current_step
+            self$last_step_is_double <- FALSE
+            self$run_number <- self$run_number + 1
+          }
+          self$current_contrast <- self$current_contrast + self$current_step
+        }else{
+          if(goup) self$current_contrast <- self$current_contrast + abs(self$current_step)
+          else self$current_contrast <- self$current_contrast - abs(self$current_step)
+        }
+        self$trials <- NULL 
+      }
+      invisible(self)
+    },
+    do_experiment = function(participant){
+      while((abs(self$current_step) > self$stopping_step_size) & 
+            (self$max_trials > self$total_trial)){
+        self$do_trial(participant)
+      }
+      invisible(self)
+    }
+  )
 )
 
 ```
@@ -145,11 +146,11 @@ Staircase <- R6Class("Staircase",
 https://stackoverflow.com/questions/35026405/auto-number-equations-in-r-markdown-documents-in-rstudio--> 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
-  TeX: { 
-      equationNumbers: { 
-            autoNumber: "ams"
-      } 
-  }
+TeX: { 
+equationNumbers: { 
+autoNumber: "ams"
+} 
+}
 });
 </script>
 

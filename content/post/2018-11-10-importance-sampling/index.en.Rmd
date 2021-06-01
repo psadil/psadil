@@ -98,6 +98,7 @@ $$
 where $\phi$ is the standard normal density function. This $h$ is such that only values near 4 provide much contribution to the average. 
 
 ```{r, mismatch, fig.cap="h(x) (black) has mostly 0 around where p_X (blue) has high density. The mismatch of these distributions will contribute to unnecessarily high variance of the estimator."}
+set.seed(1234)
 hx <- function(x){
   return(dnorm(x-4))
 }

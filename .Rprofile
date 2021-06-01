@@ -6,7 +6,6 @@ options(
 if (Sys.getenv("GITHUB_ACTION") == ""){
   options(
     servr.daemon = TRUE,
-    blogdown.files_filter = blogdown::filter_md5sum,
     blogdown.initial_files.open = FALSE)
 } else{
   builder <- function(files) { 

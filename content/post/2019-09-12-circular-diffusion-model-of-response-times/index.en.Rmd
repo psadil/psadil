@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = FALSE, eval = TRUE, tidy = TRUE, warning = FALSE, c
 library(magrittr)
 library(magick)
 library(gifski)
+set.seed(1234)
 ```
 
 Many cognitive experiments involve asking participants to answer questions that require circular responses (Figure \@ref(fig:color)). What was the color of the shape you just saw? In which direction was the arrow pointing? How tilted was the bar? The answers required by these questions differ fundamentally from the more common, categorical responses required to questions. Was the color green or red? Was the arrow pointing left or right? Was the bar tilted more than 45 degrees from vertical, between 45-90, or more than 90 degrees? In the continuous case, the experimenter looses the ability to classify responses as either correct or incorrect, and an analysis must consider participants' degree of inaccuracy, their relative error. Circularity adds the additional complication that a response can only be erroneous up to a point; if a person responds that a vertical bar is 3 degrees offset from vertical on trial one and 359 degrees on trial two, the analysis must acknowledge that the average is close to truth. Although many models exist that describe how a participant will respond when the choice is binary, models of these are much more limited.
