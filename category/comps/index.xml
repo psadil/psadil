@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>comps | psadil</title><link>https://psadil.github.io/psadil/category/comps/</link><atom:link href="https://psadil.github.io/psadil/category/comps/index.xml" rel="self" type="application/rss+xml"/><description>comps</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><copyright>© 2021 Patrick Sadil</copyright><lastBuildDate>Sat, 10 Nov 2018 00:00:00 +0000</lastBuildDate><image><url>https://psadil.github.io/psadil/media/icon_hu3896c2ce465988ba1fc8077f9a6388c6_268630_512x512_fill_lanczos_center_2.png</url><title>comps</title><link>https://psadil.github.io/psadil/category/comps/</link></image><item><title>Basic Importance Sampling for Variance Reduction</title><link>https://psadil.github.io/psadil/post/importance-sampling/</link><pubDate>Sat, 10 Nov 2018 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/importance-sampling/</guid><description>
+&lt;script src="https://psadil.github.io/psadil/post/importance-sampling/index.en_files/header-attrs/header-attrs.js">&lt;/script>
+&lt;p>This post attempts to provide a brief intro to importance sampling, presenting a relatively simple situation in which importance sampling enables a speedup in Monte Carlo by reducing the variance of the estimate.&lt;/p>
+&lt;p>A lot of the material will be an effort to remember material that was taught to be in a Stochastic Processes and Applications class. This post should be though of as my notes on the &lt;a href="http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html">course notes&lt;/a>, with supplementation by &lt;a href="https://www.statlect.com/asymptotic-theory/importance-sampling" class="uri">https://www.statlect.com/asymptotic-theory/importance-sampling&lt;/a>. That is, it can safely be assumed that any content comes from those notes, excluding errors (which will be due to my translation)&lt;a href="#fn1" class="footnote-ref" id="fnref1">&lt;sup>1&lt;/sup>&lt;/a>.&lt;/p>
+&lt;div id="what-is-importance-sampling" class="section level1">
+&lt;h1>What is importance sampling?&lt;/h1>
+&lt;p>Importance sampling comes up in the context of Monte Carlo, (MC) applications as a technique for reducing the variability in the MC estimator. As a reminder, MC can be used to estimate the expected value, &lt;span class="math inline">\(\mu\)&lt;/span>, of a random variable, &lt;span class="math inline">\(X\)&lt;/span>.&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\mu = \mathbb{E}[h(x)] = \int h(x)p_X(x)\,dx
+\]&lt;/span>&lt;/p>
+&lt;p>The idea of Monte Carlo is that this expectation can be estimated by drawing &lt;span class="math inline">\(S\)&lt;/span> samples from the distribution &lt;span class="math inline">\(p_X\)&lt;/span>, where &lt;span class="math inline">\(X \sim p_X\)&lt;/span>&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\hat{\mu} =\frac{1}{S}\sum_{s=1}^S h(x_s)
+\]&lt;/span>&lt;/p>
+&lt;p>where the subscript on &lt;span class="math inline">\(x\)&lt;/span> implies the &lt;span class="math inline">\(s^th\)&lt;/span> draw of &lt;span class="math inline">\(X\)&lt;/span>, and the hat over &lt;span class="math inline">\(\mu\)&lt;/span> indicates that the result is an estimate. Note that, since we’re starting from that equation, it is assumed that there is some way to produce random samples from the distribution &lt;span class="math inline">\(p_X\)&lt;/span>, and that the function, &lt;span class="math inline">\(h\)&lt;/span> is calculable for any &lt;span class="math inline">\(X\)&lt;/span>. Also, &lt;span class="math inline">\(h\)&lt;/span> might be something as simple as &lt;span class="math inline">\(h(x) = x\)&lt;/span> if the expectation should correspond to the mean of &lt;span class="math inline">\(x\)&lt;/span>].&lt;/p>
+&lt;p>This is a powerful idea, though a general downside is that some &lt;span class="math inline">\(\mu\)&lt;/span> require many samples to obtain a reasonable estimate. The MC Standard Error (MCSE) provides an estimate of the approximation error, which is &lt;span class="math inline">\(\frac{1}{n} Var(h(X))\)&lt;/span>. This provides a metric by which to gauge different algorithms. In particular, if all else is equal, the estimator with lower variance will can obtain a given level of precision with a lower &lt;span class="math inline">\(S\)&lt;/span>.&lt;/p>
+&lt;p>The basic idea with Importance Sampling (IS) is to draw samples from some alternative distribution, &lt;span class="math inline">\(p_Y\)&lt;/span>, which has the same support as &lt;span class="math inline">\(p_X\)&lt;/span>, then reweight those samples in accordance with the difference between &lt;span class="math inline">\(p_X\)&lt;/span> and &lt;span class="math inline">\(p_Y\)&lt;/span>.&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\begin{aligned}
+\mathbb{E}[h(x)] &amp;amp; = \int h(x)p_X(x) \,dx &amp;amp; \textrm{definition of expectation} \\
+&amp;amp; = \int h(x)\frac{p_X(x)}{p_Y(x)}p_Y(x) \,dx &amp;amp; \textrm{multiplication by 1, assuming same support} \\
+&amp;amp; \int h(y)\frac{p_X(y)}{p_Y(y)}p_Y(y) \,dy &amp;amp; \textrm{assuming same support} \\
+&amp;amp; = \mathbb{E} \left[h(y)\frac{p_X(y)}{p_Y(y)} \right] &amp;amp; \textrm{our new importance sampling estimator}
+\end{aligned}
+\]&lt;/span>&lt;/p>
+&lt;p>Recognize that there will often not be a single unique &lt;span class="math inline">\(p_Y\)&lt;/span>. The goal is to find a &lt;span class="math inline">\(p_Y\)&lt;/span> that results in lower MCSE. The MCSE for the importance sampling estimator is &lt;span class="math inline">\(\frac{1}{n}Var\left[h(y)\frac{p_X(y)}{p_Y(y)} \right]\)&lt;/span>. That will be used to gain an intuition for how to choose a useful &lt;span class="math inline">\(p_Y\)&lt;/span>.&lt;/p>
+&lt;/div>
+&lt;div id="why-does-importance-sampling-work" class="section level1">
+&lt;h1>Why does importance sampling work?&lt;/h1>
+&lt;p>One way to think about importance sampling is that, if we could sample from &lt;span class="math inline">\(h(y)\frac{p_X(y)}{p_Y(y)}\)&lt;/span> such that the result were constant, the variance would be 0, and so we’d only need a single sample. To see why, note that, for a constant &lt;span class="math inline">\(c\)&lt;/span>&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\begin{aligned}
+h(y)\frac{p_X(y)}{p_Y(y)} &amp;amp; = c \\
+\implies p_Y(y)c &amp;amp; = h(y)p_X(y) \\
+\implies p_Y(y) &amp;amp; \propto h(y)p_X(y) \\
+\end{aligned}
+\]&lt;/span>&lt;/p>
+&lt;p>That is, &lt;span class="math inline">\(h(y)\frac{p_X(y)}{p_Y(y)}\)&lt;/span> will be constant whenever &lt;span class="math inline">\(p_Y(y)\)&lt;/span> is proportional to &lt;span class="math inline">\(h(y)p_X(x)\)&lt;/span>.&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\begin{aligned}
+p_Y(y) &amp;amp; = \frac{h(y)p_X(y)}{\int h(y)p_X(y)\,dy} \\
+\implies p_Y(y) &amp;amp; = \frac{h(y)p_X(y)}{\mathbb{E}[h(X)]} \\
+&amp;amp; = \frac{h(y)p_X(y)}{\mu} &amp;amp; \textrm {definition of }\mu
+\end{aligned}
+\]&lt;/span>&lt;/p>
+&lt;p>Plugging this distribution into the IS estimator&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\begin{aligned}
+\frac{1}{S} \sum_{s=1}^S \frac{h(Y_s)p_X(Y_s)}{p_Y(Y_s)} &amp;amp; = \frac{1}{S} \sum_{s=1}^S \frac{h(Y_s)p_X(Y_s)}{\frac{h(Y_s)p_X(Y_s)}{\mathbb{E}[h(X_s)]}} \\
+&amp;amp; = \frac{1}{S} S\mu \\
+&amp;amp; = \mu
+\end{aligned}
+\]&lt;/span>&lt;/p>
+&lt;p>So, regardless of &lt;span class="math inline">\(S\)&lt;/span>, the resulting estimator is always &lt;span class="math inline">\(\mu\)&lt;/span>.&lt;/p>
+&lt;p>That’s almost useful, but this means that to get an optimal &lt;span class="math inline">\(p_Y\)&lt;/span> we need to know &lt;span class="math inline">\(\mathbb{E}[h(X)]\)&lt;/span>, which is by definition the &lt;span class="math inline">\(\mu\)&lt;/span> that we’re trying to estimate. Still, knowing what is optimal provides the intuition for why importance sampling works.&lt;/p>
+&lt;p>There are two ideas going on here. First, the optimal &lt;span class="math inline">\(p_Y\)&lt;/span> is one which places higher density on regions where &lt;span class="math inline">\(h(X)\)&lt;/span> is high, as compared to &lt;span class="math inline">\(p_X\)&lt;/span>. Those “important” values are the ones that will determine the result of &lt;span class="math inline">\(h(x)\)&lt;/span>, so those are the ones that need to be altered the most (going from &lt;span class="math inline">\(p_X\)&lt;/span> to &lt;span class="math inline">\(p_Y\)&lt;/span>). Then, the second idea is that when averaging, we must account for the oversampling of these points – downweighting them by however much they were oversampled, which is the ratio &lt;span class="math inline">\(\frac{p_X(y)}{p_Y(y)}\)&lt;/span>.&lt;/p>
+&lt;/div>
+&lt;div id="using-is-to-reduce-variance" class="section level1">
+&lt;h1>Using IS to reduce variance&lt;/h1>
+&lt;p>Here’s an example of this working out. The value we’re trying to estimate will be, for &lt;span class="math inline">\(X \sim N(0,1)\)&lt;/span>&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\mu = \int \phi(x-4)p_X(x)\,dx
+\]&lt;/span>&lt;/p>
+&lt;p>where &lt;span class="math inline">\(\phi\)&lt;/span> is the standard normal density function. This &lt;span class="math inline">\(h\)&lt;/span> is such that only values near 4 provide much contribution to the average.&lt;/p>
+&lt;pre class="r">&lt;code>set.seed(1234)
+hx &amp;lt;- function(x) {
+return(dnorm(x - 4))
+}
+x &amp;lt;- seq(-5, 10, length.out = 1000)
+plot(x, hx(x), type = &amp;quot;l&amp;quot;)
+points(x, dnorm(x), col = &amp;quot;blue&amp;quot;, type = &amp;quot;l&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div class="figure">&lt;span id="fig:mismatch">&lt;/span>
+&lt;img src="https://psadil.github.io/psadil/post/importance-sampling/index.en_files/figure-html/mismatch-1.png" alt="h(x) (black) has mostly 0 around where p_X (blue) has high density. The mismatch of these distributions will contribute to unnecessarily high variance of the estimator." width="672" />
+&lt;p class="caption">
+Figure 1: h(x) (black) has mostly 0 around where p_X (blue) has high density. The mismatch of these distributions will contribute to unnecessarily high variance of the estimator.
+&lt;/p>
+&lt;/div>
+&lt;p>However, &lt;span class="math inline">\(X\)&lt;/span> will only rarely contain values that are near 4. Hence, the variance of the estimation will be relatively high. We can get an explicit formula for the variance.&lt;/p>
+&lt;p>&lt;span class="math display">\[
+Var(h(x)) = \mathbb{E}[h(x)^2] - \mathbb{E}[h(x)]^2
+\]&lt;/span>&lt;/p>
+&lt;p>A formula that involves calculating the expected value of this function&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\begin{aligned}
+\mathbb{E}[h(x)] &amp;amp; = \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right)\left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right) dx \\
+&amp;amp; = \int_{-\infty}^{\infty} \frac{\exp (- x^2 + 4x - 8 )}{2\pi} dx \\
+&amp;amp; = \frac{1}{2\pi} \int_{-\infty}^{\infty} \exp (- x^2 + 4x - 8 ) dx\\
+&amp;amp; = \frac{1}{2\pi} \sqrt{\pi}\exp \left(\frac{4^2}{4}-8 \right) &amp;amp; \textrm{en.wikipedia.org/wiki/Gaussian_function} \\
+&amp;amp; = \frac{1}{2 \exp(4) \sqrt{\pi}}
+\end{aligned}
+\]&lt;/span>&lt;/p>
+&lt;p>Which we’ll save for now to use later&lt;/p>
+&lt;pre class="r">&lt;code>mu &amp;lt;- 1/(2 * exp(4) * sqrt(pi))
+mu&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.005166746&lt;/code>&lt;/pre>
+&lt;p>Returning to the variance calculation&lt;/p>
+&lt;p>&lt;span class="math display">\[
+\begin{aligned}
+Var(h(x)) &amp;amp; = \left[ \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{(x-2)^2}{2})}{\sqrt{2\pi}} \right)^2 \left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right) \,dx \right] - \mu^2 \\
+&amp;amp; = \frac{1}{2\sqrt{2}\pi^{3/2}} \int_{-\infty}^{\infty} \exp\left(-\frac{3}{2}x^2+8x-16 \right) \,dx - \mu^2 \\
+&amp;amp; = \frac{1}{2\sqrt{2}\pi^{3/2}} \sqrt{\frac{\pi}{3/2}}\exp \left(\frac{8^2}{6} -16 \right) \\
+&amp;amp; = \frac{1}{2 \pi \sqrt{3} \exp(16/3)} - \mu^2
+\end{aligned}
+\]&lt;/span>&lt;/p>
+&lt;pre class="r">&lt;code>1/(2 * pi * sqrt(3) * exp(16/3)) - mu^2&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.0004169361&lt;/code>&lt;/pre>
+&lt;div id="standard-mc-estimate-is-accurate-but-with-relatively-high-variance" class="section level3">
+&lt;h3>Standard MC estimate is accurate, but with relatively high variance&lt;/h3>
+&lt;p>Using an MC estimate,&lt;/p>
+&lt;pre class="r">&lt;code>x &amp;lt;- rnorm(1e+06)
+y &amp;lt;- hx(x)
+var(y)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.0004270083&lt;/code>&lt;/pre>
+&lt;p>Note also that the estimate (our target), is also accurate&lt;/p>
+&lt;pre class="r">&lt;code>mean(y) - mu&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 4.582938e-05&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="using-a-distribution-that-simply-matches-hx-is-also-not-so-great" class="section level3">
+&lt;h3>Using a distribution that simply matches h(x) is also not-so-great&lt;/h3>
+&lt;p>Now, let’s instead construct and IS estimator. One intuitive (but by no means optimal) attempt would be to use &lt;span class="math inline">\(Y \sim N(4,1)\)&lt;/span>, a distribution that matches with &lt;span class="math inline">\(h(x)\)&lt;/span> perfectly. Indeed, that will provide an accurate answer&lt;/p>
+&lt;pre class="r">&lt;code>y &amp;lt;- rnorm(1e+06, mean = 4)
+h &amp;lt;- hx(y)
+IS &amp;lt;- h * dnorm(y, 0, 1)/dnorm(y, 4, 1)
+mean(IS)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.005194268&lt;/code>&lt;/pre>
+&lt;p>But, it turns out that the variance is about the same as before.&lt;/p>
+&lt;pre class="r">&lt;code>var(IS)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.0004204215&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="the-proposal-distribution-needs-to-be-tuned-to-both-p_x-and-hx" class="section level3">
+&lt;h3>The proposal distribution needs to be tuned to both p_X and h(x)&lt;/h3>
+&lt;p>This is a somewhat subtle point of the derivation provided above. We &lt;em>don’t&lt;/em> just want a distribution that will be highest here &lt;span class="math inline">\(h(x)\)&lt;/span> is high. Instead, what we actually need is a distribution that will be highest when &lt;span class="math inline">\(h(x)p_X(x)\)&lt;/span> is high. That will be exactly where the two distributions intersect, at 2.&lt;/p>
+&lt;pre class="r">&lt;code>x &amp;lt;- seq(-5, 10, length.out = 1000)
+plot(x, hx(x), type = &amp;quot;l&amp;quot;)
+points(x, dnorm(x), col = &amp;quot;blue&amp;quot;, type = &amp;quot;l&amp;quot;)
+abline(v = 2)&lt;/code>&lt;/pre>
+&lt;div class="figure">&lt;span id="fig:matching">&lt;/span>
+&lt;img src="https://psadil.github.io/psadil/post/importance-sampling/index.en_files/figure-html/matching-1.png" alt="Same as above, but with line demonstrating intersection at x=2" width="672" />
+&lt;p class="caption">
+Figure 2: Same as above, but with line demonstrating intersection at x=2
+&lt;/p>
+&lt;/div>
+&lt;pre class="r">&lt;code>y &amp;lt;- rnorm(1e+06, mean = 2)
+h &amp;lt;- hx(y)
+IS &amp;lt;- h * dnorm(y, 0)/dnorm(y, 2)
+mean(IS)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.005165774&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>var(IS)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 4.131799e-06&lt;/code>&lt;/pre>
+&lt;p>The answer is still accurate, but the variance has been reduced by many factors. This means that a desired level of MCSE could be achieved with many fewer samples.&lt;/p>
+&lt;p>One final demonstration, remember that &lt;span class="math inline">\(h(x)p_X(x)\)&lt;/span> describes a distribution. Hence it would be a mistake to try a &lt;span class="math inline">\(p_Y\)&lt;/span> that placed all of the density around that point of intersection. For example, let’s try &lt;span class="math inline">\(Y \sim N(2,0.1)\)&lt;/span>. Although that is centered on the region that contributes the largest values to the expectation, the largest values alone do not define the expectation; too much of the tails of &lt;span class="math inline">\(h(x)\)&lt;/span> are not included. Using this results is the worst variance.&lt;/p>
+&lt;pre class="r">&lt;code>y &amp;lt;- rnorm(1e+06, mean = 2, 0.1)
+h &amp;lt;- hx(y)
+IS &amp;lt;- h * dnorm(y, 0)/dnorm(y, 2, 0.1)
+mean(IS)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.002601838&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>var(IS)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 0.006540712&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;div id="other-references" class="section level1">
+&lt;h1>Other References&lt;/h1>
+&lt;ul>
+&lt;li>&lt;a href="https://en.wikipedia.org/wiki/Gaussian_function#Integral_of_a_Gaussian_function">integral of Gaussian Function&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html">course notes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.statlect.com/asymptotic-theory/importance-sampling">statlect&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div class="footnotes">
+&lt;hr />
+&lt;ol>
+&lt;li id="fn1">&lt;p>this page is mostly a study page for upcoming comprehensive exams&lt;a href="#fnref1" class="footnote-back">↩︎&lt;/a>&lt;/p>&lt;/li>
+&lt;/ol>
+&lt;/div></description></item></channel></rss>

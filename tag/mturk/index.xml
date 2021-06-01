@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mturk | psadil</title><link>https://psadil.github.io/psadil/tag/mturk/</link><atom:link href="https://psadil.github.io/psadil/tag/mturk/index.xml" rel="self" type="application/rss+xml"/><description>mturk</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><copyright>© 2021 Patrick Sadil</copyright><lastBuildDate>Tue, 07 Aug 2018 00:00:00 +0000</lastBuildDate><image><url>https://psadil.github.io/psadil/media/icon_hu3896c2ce465988ba1fc8077f9a6388c6_268630_512x512_fill_lanczos_center_2.png</url><title>mturk</title><link>https://psadil.github.io/psadil/tag/mturk/</link></image><item><title>Anonymizing MTurk WorkerIDs</title><link>https://psadil.github.io/psadil/post/anonymizing-mtruk-worker-ids/</link><pubDate>Tue, 07 Aug 2018 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/anonymizing-mtruk-worker-ids/</guid><description>
+&lt;script src="https://psadil.github.io/psadil/post/anonymizing-mtruk-worker-ids/index.en_files/header-attrs/header-attrs.js">&lt;/script>
+&lt;p>It may be the case that Amazon Mechanical Turk WorkerIDs are not anonymous. &lt;a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2228728">Lease et al., 2013&lt;/a> describe at length how personally identifying information may be exposed when a researcher shares WorkerIDs. It is unclear to me the extent to which Amazon constructs their WorkerIDs at present, given that one of their striking demonstrations did not apply to my WorkerID. That is, they describe simply googling the WorkerID and receiving a picture of the participant, along with their full name. My WorkerID turn up nothing. Though, I have only been a worker on MTurk for a short while, so maybe I’ve been lucky and my ID has just not yet been shared widely.&lt;/p>
+&lt;p>Regardless, providing extra anonymity to participants isn’t too much trouble. This post serves as documentation for a brief script that takes a sqlite database produced by running an experiment in jspsych + psiturk and replaces all instances of the WorkerID with a more secure code.&lt;/p>
+&lt;p>The script relies on five R libraries&lt;/p>
+&lt;ol style="list-style-type: decimal">
+&lt;li>&lt;a href="https://magrittr.tidyverse.org">magrittr&lt;/a>, for ease of writing&lt;/li>
+&lt;li>&lt;a href="https://dplyr.tidyverse.org">dplyr&lt;/a>, through (dbplyr)[cran.r-project.org/web/packages/dbplyr/vignettes/dbplyr.html], serves as the way to interface with the sqlite database&lt;/li>
+&lt;li>&lt;a href="https://github.com/jeroen/openssl#readme">openssl&lt;/a> constructs a more secure identifier for each participant that can still be used to cross reference them across studies&lt;/li>
+&lt;li>&lt;a href="https://stringr.tidyverse.org">stringr&lt;/a> does the work of replacing instances of the WorkerID with the more secure code&lt;/li>
+&lt;li>&lt;a href="https://github.com/docopt/docopt.R">docopt&lt;/a>, wraps up the Rscript such that it can be called from the command line (in an environment in which Rscript is the name of a function. i.e., may be Rscript.exe in Windows powershell)&lt;/li>
+&lt;/ol>
+&lt;pre class="r">&lt;code>#!/usr/bin/env Rscript
+# Anonymize participants database NOTE: always overrides the file --outfile
+library(docopt)
+doc &amp;lt;- &amp;quot;Usage:
+anonymize_db.R [-i DBNAME] KEY OUTFILE
+anonymize_db.R -h
+Options:
+-i --infile DBNAME sqlite database filename from which to read [default: participants_raw.db]
+-t --table TABLE name of table within database to anonymize [default: participants]
+-h --help show this help text
+Arguments:
+KEY key to salt WorkerIDs for extra security
+OUTFILE sqlite database filename to write&amp;quot;
+opt &amp;lt;- docopt(doc)
+library(magrittr)
+library(dplyr)
+library(stringr)
+library(openssl)
+db &amp;lt;- dplyr::src_sqlite(opt$infile) %&amp;gt;%
+dplyr::tbl(opt$table) %&amp;gt;%
+dplyr::collect() %&amp;gt;%
+dplyr::mutate(uniqueid = stringr::str_replace(uniqueid, workerid, openssl::sha256(workerid,
+key = opt$KEY)), datastring = dplyr::case_when(is.na(datastring) ~ datastring,
+TRUE ~ stringr::str_replace_all(datastring, workerid, openssl::sha256(workerid,
+key = opt$KEY))), workerid = openssl::sha256(workerid, key = opt$KEY))
+message(paste0(&amp;quot;read raw database: &amp;quot;, opt$infile))
+con &amp;lt;- DBI::dbConnect(RSQLite::SQLite(), opt$OUTFILE)
+dplyr::copy_to(con, db, opt$table, temporary = FALSE, indexes = list(&amp;quot;uniqueid&amp;quot;),
+overwrite = TRUE)
+DBI::dbDisconnect(con)
+message(paste0(&amp;quot;wrote anonymized database: &amp;quot;, opt$OUTFILE))
+message(paste0(&amp;quot;Store your KEY securely if you want the same WorkerIDs to create the same HMACs!&amp;quot;))&lt;/code>&lt;/pre>
+&lt;p>As stated in the initial string of this script, a typical call might be&lt;/p>
+&lt;p>&lt;code>anonymize_db.R longandsecurelystoredsalt participants.db&lt;/code>&lt;/p>
+&lt;p>which will read in the sqlite database &lt;code>participants_raw.db&lt;/code> (default for –infile), convert all instances of WorkerID into a hash-digest with the sha256 algorithm, and store the result in a new sqlite database called &lt;code>participants.db&lt;/code>.&lt;/p>
+&lt;p>The general workflow would be to include in your .gitignore the raw database output by psiturk. That way, the raw database is never uploaded into any repository. Then, when you are ready to host the experiment, you pull your repository as usual. As an extra step, you will now need to separately move around your raw database such that when you run the next experiment psiturk will know which workers have already participated. After collecting data, retrieve the database and run this anonymization script on it. The newly created database can then be bundled with your repository.&lt;/p>
+&lt;p>This is a bit of extra work (i.e., you must manually send the database, retrieve the database, then anonymize it). However, the whole point is to avoid making it easy to download something with potentially identifying information.&lt;/p>
+&lt;div id="gotchas" class="section level1">
+&lt;h1>Gotchas&lt;/h1>
+&lt;ol style="list-style-type: decimal">
+&lt;li>&lt;p>This function will overwrite any database of the same name as OUTFILE. Though, that’s often not an issue. If you’ve anonymized a database (call the result &lt;code>participants.db&lt;/code>), added new participants to the same raw database, and then anonymize the raw database again, those participants that were anonymized in the first round will be re-anonymized and included in the new result.&lt;/p>&lt;/li>
+&lt;li>&lt;p>If you want this function to convert a given WorkerID into a consistent code, you’ll need to call it with the same value for KEY.&lt;/p>&lt;/li>
+&lt;li>&lt;p>It would be more secure to use a salt of random length for each participant separately.&lt;/p>&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Amazon Mechanical Turk in cMAP-CEMNL, part 1</title><link>https://psadil.github.io/psadil/post/mechanical-turk-part-i/</link><pubDate>Fri, 20 Jul 2018 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/mechanical-turk-part-i/</guid><description>
+&lt;script src="https://psadil.github.io/psadil/post/mechanical-turk-part-i/index.en_files/header-attrs/header-attrs.js">&lt;/script>
+&lt;div id="goals" class="section level1">
+&lt;h1>Goals&lt;/h1>
+&lt;ol style="list-style-type: decimal">
+&lt;li>Provide high-level overview of the tools used to run an MTurk study&lt;/li>
+&lt;li>Highlight steps at which to be careful while setting the study up&lt;/li>
+&lt;/ol>
+&lt;p>Part 2 will cover a basic project&lt;/p>
+&lt;/div>
+&lt;div id="the-current-lab-practice-is-to-string-together-many-different-tools" class="section level1">
+&lt;h1>The current lab practice is to string together many different tools&lt;/h1>
+&lt;p>Setting up a study on MTurk can roughly be divided into three needs.&lt;/p>
+&lt;ul>
+&lt;li>We need some way to code the experiment
+&lt;ul>
+&lt;li>Packages
+&lt;ul>
+&lt;li>&lt;a href="https://www.jspsych.org">jspsych&lt;/a>&lt;/li>
+&lt;li>jquery &lt;a href="https://www.w3schools.com/jquery/default.asp">w3schools&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>Languages
+&lt;ul>
+&lt;li>Javascript &lt;a href="https://www.w3schools.com/js/default.asp">w3schools&lt;/a>&lt;/li>
+&lt;li>CSS &lt;a href="https://www.w3schools.com/css/default.asp">w3schools&lt;/a>&lt;/li>
+&lt;li>HTML &lt;a href="https://www.w3schools.com/html/default.asp">w3schools&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>Useful concepts
+&lt;ul>
+&lt;li>Turns out that, in javascript, line 2 might not run after line 1! It’s helpful to read about &lt;a href="https://javascript.info/callbacks">asynchronous programming in javascript&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://about.gitlab.com/2016/06/03/ssg-overview-gitlab-pages-part-1-dynamic-x-static/">Static sites, dynamic sites, and static site generators&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>We need some way to organize that experimental code such that it is advertised to turkers, Amazon is informed when a Turker finishes the experiment, their responses are stored in a database, and we can approve the turkers’ work
+&lt;ul>
+&lt;li>Packages
+&lt;ul>
+&lt;li>&lt;a href="https://psiturk.readthedocs.io/en/latest/">psiturk&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://flask.palletsprojects.com/en/2.0.x/">flask&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.palletsprojects.com/p/jinja/">jinja&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>Languages
+&lt;ul>
+&lt;li>&lt;a href="https://python.swaroopch.com/">Python&lt;/a>, &lt;a href="https://www.anaconda.com/download/">Anaconda distribution&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://cran.r-project.org/web/packages/dbplyr/vignettes/dbplyr.html">SQLite&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>Useful concepts
+&lt;ul>
+&lt;li>&lt;a href="https://taylorwhitten.github.io/blog/RSQLite1">what is a database?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.howtogeek.com/66214/how-to-forward-ports-on-your-router/">what is an ip address?&lt;/a>&lt;/li>
+&lt;li>Psiturk runs on python 2, not python 3. You may want to be using an &lt;a href="https://conda.io/docs/user-guide/tasks/manage-environments.html">Anaconda virtual environment&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>We need a server to host the above components such that they are accessible via an internet connection
+&lt;ul>
+&lt;li>Services
+&lt;ul>
+&lt;li>Amazon Mechanical Turk: follow the &lt;a href="https://psiturk.readthedocs.io/en/latest/amt_setup.html#">psiturk documentation!&lt;/a>&lt;/li>
+&lt;li>Amazon EC2: follow the &lt;a href="https://psiturk.readthedocs.io/en/latest/amazon_ec2.html">psiturk documentation!&lt;/a>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;li>useful concepts
+&lt;ul>
+&lt;li>definitely keep the psiturk documentation open in a tab somewhere&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;/ul>&lt;/li>
+&lt;/ul>
+&lt;p>In reverse, the EC2 instance is the server that will host the experiment. Psiturk organizes a bunch of packages (which are primarily written in python) to function as the ‘backend,’ coordinating the different webpages that the turk worker will see. Although psiturk also includes a javascript library that could be used to write the actual experiment, it will probably be much easier to write the experiment with the jspsych package.&lt;/p>
+&lt;p>At the next deeper level, it’s useful to know how HTML, javascript, and CSS work to make websites run.&lt;/p>
+&lt;p>Next, the template part comes from the idea of a static site generator. The particular SSG is jinja. It’s useful to know about Flask, because the Flask syntax defines custom routes (e.g., helping determine which stimuli to show a given participant). Jinja might be useful, but I haven’t found it necessary to know more than the basics of what is an SSG.&lt;/p>
+&lt;p>&lt;a href="https://gureckislab.org/courses/spring14/online_data_collection/">Todd Gureckis’ videotapped course lectures&lt;/a>
+&lt;a href="https://bradylab.ucsd.edu/ttt/index.html">Tim Brady’s Mechanical Turk Tutorial&lt;/a>
+&lt;a href="https://wilmabainbridge.com/bigdataclass.html">Wilma Bainbridge organized a Big Data Tutorial at VSS 2018&lt;/a>. Note, this involves the package psitoolkit. That seemed like an okay alternative, but I worried that I would encounter a situation that psitoolkit wasn’t equipped to handle and would be stuck. Working with the psiturk + jspsych ensured that there would be the flexibility to run pretty much any kind of experiment&lt;/p>
+&lt;/div>
+&lt;div id="gotchas-and-extra-notes" class="section level1">
+&lt;h1>Gotcha’s and extra notes&lt;/h1>
+&lt;ul>
+&lt;li>&lt;p>Psiturk runs on python 2, not 3. If you’re trying to install psiturk and you immediately start getting errors, make sure to check which python version you’re on&lt;/p>&lt;/li>
+&lt;li>&lt;p>when setting up EC2, pay careful attention to the IP configuration settings. To be able to use ssh to access the instance, you’ll need to have your IP address match the IP it’s expecting. Or, just set it to receive traffic from ‘Anywhere.’ Likewise, make sure that the custom TCP is set to receive traffic from Anywhere&lt;/p>&lt;/li>
+&lt;li>&lt;p>Do read the tutorial on &lt;a href="https://javascript.info/callbacks">asynchronous programming in javascript&lt;/a>. It can be really confusing when you’re trying to debug and variables aren’t defined&lt;/p>&lt;/li>
+&lt;li>&lt;p>Speaking of debugging, your friend will be the ‘developer tools’ in whatever browser you’re using. Right click on the experiment and check ‘view source’ to get access to a console&lt;/p>&lt;/li>
+&lt;li>&lt;p>Using the psiturk &lt;code>debug&lt;/code> command will attempt to open up the experiment in the browser. This will only work if no browser is currently open.&lt;/p>&lt;/li>
+&lt;li>&lt;p>if an experiment involves a lot of media, the media can be optimized a bit using something like &lt;a href="http://optipng.sourceforge.net/">optipng&lt;/a>. This keeps the png looking fine but decreases load time&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;/div></description></item></channel></rss>

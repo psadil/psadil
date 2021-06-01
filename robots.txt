@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: https://psadil.github.io/psadil/sitemap.xml
