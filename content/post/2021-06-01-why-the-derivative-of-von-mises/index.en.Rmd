@@ -1,0 +1,54 @@
+---
+title: Why the derivative of von Mises?
+author: Patrick Sadil
+date: '2021-06-01'
+slug: why-the-derivative-of-von-mises
+categories:
+  - research
+tags:
+  - serial dependence
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-06-01T21:46:53-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+draft: true
+math: true
+bibliography: references.bib
+---
+
+
+[@alais2018]
+
+## Terminology
+
+Trials will be indexed by natural numbers. The "current trial" will be referred to as trial $n$, and the "previous trial" as trial $n-1$. The orientation and responses on each trial will be thought of as sequences. The variable $O_n$ means the orientation on trial $n$ (i.e., the current trial), whereas the variable $O_{n-1}$ means the orientation on trial $n-1$ (i.e., the previous trial). Similarly, the variable $R_n$ means the response on trial $n$, whereas the variable $R_{n-1}$ means the response on trial $n-1$.
+
+$$
+\begin{align}
+e_n & = & \left(\beta s_{n-1} + \left(1 - \beta\right) s_{n} \right) - s_n \\
+    & = & \beta s_{n-1} + s_n - \beta s_{n} - s_n \\
+    & = & \beta(s_{n-1} - s_n)
+\end{align}
+$$
+The neat trick here is that this defines a derivative. For example, in the case of a linear feature, let $w:=a\exp\left(\frac{-(s_{n-1} - s_n)^2}{2\sigma^2}\right)$. Then the error becomes $e_n = \frac{1}{\sigma\sqrt{2\pi}}\exp\left(\frac{-(s_{n-1} - s_n)^2}{2\sigma^2}\right)(s_{n-1} - s_n)$, which is the derivative with respect to $s_{n-1}$.
+
+This is extremely convenient, but why should this work? There is a trick with normalizing distances.
+
+In the case of a circular variable like orientation, we can incorporate the additional constraint that distances have a maximum. A natural choice is to define the distance with $d_n := \sin(s_{n-1} - s_n)$, so that the maximum distance is scaled to 1. Then, using the same trick, $w:= \frac{\exp(\kappa\cos(s_{n-1} - s_n))}{2\pi I_0(\kappa)}$
+
+$$
+e_n = \frac{\exp(\kappa\cos(s_{n-1} - s_n))}{2\pi I_0(\kappa)} \sin(s_{n-1} - s_n)
+$$
+
+```{r}
+f <- function(x, s) x * exp(-x^2/(2*s^2)) / s^2
+```
+
+
+# References

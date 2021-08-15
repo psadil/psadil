@@ -1,0 +1,53 @@
+---
+title: Why the derivative of von Mises?
+author: Patrick Sadil
+date: '2021-06-01'
+slug: why-the-derivative-of-von-mises
+categories:
+  - research
+tags:
+  - serial dependence
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-06-01T21:46:53-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+draft: true
+math: true
+bibliography: references.bib
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p><span class="citation">(<a href="#ref-alais2018" role="doc-biblioref">Alais et al. 2018</a>)</span></p>
+<div id="terminology" class="section level2">
+<h2>Terminology</h2>
+<p>Trials will be indexed by natural numbers. The “current trial” will be referred to as trial <span class="math inline">\(n\)</span>, and the “previous trial” as trial <span class="math inline">\(n-1\)</span>. The orientation and responses on each trial will be thought of as sequences. The variable <span class="math inline">\(O_n\)</span> means the orientation on trial <span class="math inline">\(n\)</span> (i.e., the current trial), whereas the variable <span class="math inline">\(O_{n-1}\)</span> means the orientation on trial <span class="math inline">\(n-1\)</span> (i.e., the previous trial). Similarly, the variable <span class="math inline">\(R_n\)</span> means the response on trial <span class="math inline">\(n\)</span>, whereas the variable <span class="math inline">\(R_{n-1}\)</span> means the response on trial <span class="math inline">\(n-1\)</span>.</p>
+<p><span class="math display">\[
+\begin{align}
+e_n &amp; = &amp; \left(\beta s_{n-1} + \left(1 - \beta\right) s_{n} \right) - s_n \\
+    &amp; = &amp; \beta s_{n-1} + s_n - \beta s_{n} - s_n \\
+    &amp; = &amp; \beta(s_{n-1} - s_n)
+\end{align}
+\]</span>
+The neat trick here is that this defines a derivative. For example, in the case of a linear feature, let <span class="math inline">\(w:=\frac{1}{\sigma\sqrt{2\pi}}\exp\left(\frac{-(s_{n-1} - s_n)^2}{2\sigma^2}\right)\)</span>. Then the error becomes <span class="math inline">\(e_n = \frac{1}{\sigma\sqrt{2\pi}}\exp\left(\frac{-(s_{n-1} - s_n)^2}{2\sigma^2}\right)(s_{n-1} - s_n)\)</span>, which is the derivative with respect to <span class="math inline">\(s_{n-1}\)</span>.</p>
+<p>This is extremely convenient, but why should this work?</p>
+<p>In the case of a circular variable like orientation, we can incorporate the additional constraint that distances have a maximum. A natural choice is to define the distance with <span class="math inline">\(d_n := \sin(s_{n-1} - s_n)\)</span>, so that the maximum distance is scaled to 1. Then, using the same trick, <span class="math inline">\(w:= \frac{\exp(\kappa\cos(s_{n-1} - s_n))}{2\pi I_0(\kappa)}\)</span></p>
+<p><span class="math display">\[
+e_n = \frac{\exp(\kappa\cos(s_{n-1} - s_n))}{2\pi I_0(\kappa)} \sin(s_{n-1} - s_n)
+\]</span></p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-alais2018" class="csl-entry">
+Alais, David, Garry Kong, Colin Palmer, and Colin Clifford. 2018. <span>“Eye Gaze Direction Shows a Positive Serial Dependency.”</span> <em>Journal of Vision</em> 18 (4): 11. <a href="https://doi.org/10.1167/18.4.11">https://doi.org/10.1167/18.4.11</a>.
+</div>
+</div>
+</div>
