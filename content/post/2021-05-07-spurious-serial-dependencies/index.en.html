@@ -15,7 +15,7 @@ featured: no
 image:
   caption: ''
   focal_point: ''
-  preview_only: no
+  preview_only: true
 projects: []
 bibliography: [scholar.bib]
 math: true
@@ -93,7 +93,7 @@ ang_diff &lt;- function(deg1, deg2){
     name = &quot;orientation on current trial&quot;,
     labels = c(0, 90, 180),
     breaks = c(0, 90, 180))</code></pre>
-<div class="figure"><span id="fig:oblique"></span>
+<div class="figure"><span style="display:block;" id="fig:oblique"></span>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/oblique-1.png" alt="The simulated data exhibit a clear oblique effect." width="672" />
 <p class="caption">
 Figure 1: The simulated data exhibit a clear oblique effect.
@@ -116,7 +116,7 @@ Figure 1: The simulated data exhibit a clear oblique effect.
     name = &quot;relative orientation/response on previous trial&quot;,
     labels = c(-90, 0, 90),
     breaks = c(-90, 0, 90))</code></pre>
-<div class="figure"><span id="fig:spurious"></span>
+<div class="figure"><span style="display:block;" id="fig:spurious"></span>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/spurious-1.png" alt="Errors do not depend on the previous orientation, but they do depend on the previous response. Since the data were generated without that dependence, it must be spurious." width="672" />
 <p class="caption">
 Figure 2: Errors do not depend on the previous orientation, but they do depend on the previous response. Since the data were generated without that dependence, it must be spurious.
@@ -151,7 +151,7 @@ Figure 2: Errors do not depend on the previous orientation, but they do depend o
     name = &quot;relative orientation/response on previous trial&quot;,
     labels = c(-90, 0, 90),
     breaks = c(-90, 0, 90))</code></pre>
-<div class="figure"><span id="fig:spuriouscol"></span>
+<div class="figure"><span style="display:block;" id="fig:spuriouscol"></span>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/spuriouscol-1.png" alt="Same figure as above, but colored based on the magnitude and direction of the oblique effect." width="672" />
 <p class="caption">
 Figure 3: Same figure as above, but colored based on the magnitude and direction of the oblique effect.
@@ -169,7 +169,7 @@ Figure 3: Same figure as above, but colored based on the magnitude and direction
     labels = c(0, 90, 180),
     breaks = c(0, 90, 180)) +
   geom_vline(xintercept = c(22.5, 112.5), color=&quot;blue&quot;) </code></pre>
-<div class="figure"><span id="fig:dep"></span>
+<div class="figure"><span style="display:block;" id="fig:dep"></span>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/dep-1.png" alt="When the previous orientation is 22.5 clockwise, the current orientation tends to be either 22.5 or 112.5, which is when the oblique effect causes maximal error." width="672" />
 <p class="caption">
 Figure 4: When the previous orientation is 22.5 clockwise, the current orientation tends to be either 22.5 or 112.5, which is when the oblique effect causes maximal error.
@@ -195,7 +195,7 @@ Figure 4: When the previous orientation is 22.5 clockwise, the current orientati
     name = &quot;orientation on current trial&quot;,
     labels = c(0, 90, 180),
     breaks = c(0, 90, 180))</code></pre>
-<div class="figure"><span id="fig:currbyprev"></span>
+<div class="figure"><span style="display:block;" id="fig:currbyprev"></span>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/currbyprev-1.png" alt="The current orientation is unrelated to the previous orientation, but there is a dependency on the previous response. " width="672" />
 <p class="caption">
 Figure 5: The current orientation is unrelated to the previous orientation, but there is a dependency on the previous response.
@@ -222,7 +222,7 @@ Figure 5: The current orientation is unrelated to the previous orientation, but 
     name = &quot;orientation on current trial&quot;,
     labels = c(0, 90, 180),
     breaks = c(0, 90, 180))</code></pre>
-<div class="figure"><span id="fig:currbyprevcolor"></span>
+<div class="figure"><span style="display:block;" id="fig:currbyprevcolor"></span>
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/currbyprevcolor-1.png" alt="This is the same plot as above, but now the data have been colored according to how the oblique effect will cause errors. The point is that the errors caused by the oblique effect on trial $n$ are balanced when looking at the orientation on the previous trial (consider a horizontal slice), but no such balancing happens when looking at the response on the previous trial." width="672" />
 <p class="caption">
 Figure 6: This is the same plot as above, but now the data have been colored according to how the oblique effect will cause errors. The point is that the errors caused by the oblique effect on trial <span class="math inline">\(n\)</span> are balanced when looking at the orientation on the previous trial (consider a horizontal slice), but no such balancing happens when looking at the response on the previous trial.
