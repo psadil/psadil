@@ -1,0 +1,11 @@
+# Font style metadata
+name = "Atkinson Hyperlegible"
+
+# Optional Google font URL
+google_fonts = "family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700"
+
+# Font families
+heading_font = "Atkinson Hyperlegible"
+body_font = "Atkinson Hyperlegible"
+nav_font = "Atkinson Hyperlegible"
+mono_font = "Atkinson Hyperlegible"
