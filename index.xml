@@ -1,4 +1,241 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>psadil</title><link>https://psadil.github.io/psadil/</link><atom:link href="https://psadil.github.io/psadil/index.xml" rel="self" type="application/rss+xml"/><description>psadil</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><copyright>© 2021 Patrick Sadil</copyright><lastBuildDate>Fri, 07 May 2021 00:00:00 +0000</lastBuildDate><image><url>https://psadil.github.io/psadil/media/icon_hu3896c2ce465988ba1fc8077f9a6388c6_268630_512x512_fill_lanczos_center_2.png</url><title>psadil</title><link>https://psadil.github.io/psadil/</link></image><item><title>Spurious Serial Dependencies</title><link>https://psadil.github.io/psadil/post/2021-05-07-spurious-serial-dependencies/</link><pubDate>Fri, 07 May 2021 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/2021-05-07-spurious-serial-dependencies/</guid><description>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>psadil</title><link>https://psadil.github.io/psadil/</link><atom:link href="https://psadil.github.io/psadil/index.xml" rel="self" type="application/rss+xml"/><description>psadil</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><copyright>© 2021 Patrick Sadil</copyright><lastBuildDate>Sat, 23 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>https://psadil.github.io/psadil/media/icon_hu3896c2ce465988ba1fc8077f9a6388c6_268630_512x512_fill_lanczos_center_2.png</url><title>psadil</title><link>https://psadil.github.io/psadil/</link></image><item><title>How to store a NifTi as a TFRecord</title><link>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</link><pubDate>Sat, 23 Apr 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</guid><description>&lt;h1 id="how-to-store-a-nifti-as-a-tfrecord">How to store a NifTi as a TFRecord&lt;/h1>
+&lt;p>Patrick Sadil
+2022-04-23&lt;/p>
+&lt;p>A recent project required sending brain images to TensorFlow.
+Unfortunately, the data exceeded memory and so during training would
+need to be read from the disk. Poking around the TF documentation, it
+seems like a recommended way to do this is to store the images as a
+&lt;a href="https://www.tensorflow.org/tutorials/load_data/tfrecord" target="_blank" rel="noopener">TFRecord&lt;/a>. The
+steps for doing that are collected in this gist&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>.&lt;/p>
+&lt;p>There are five main steps&lt;/p>
+&lt;ol>
+&lt;li>load the images as numpy array,&lt;/li>
+&lt;li>perform an preprocessing (e.g., resizing, masking),&lt;/li>
+&lt;li>serialize the preprocessed images and store with their labels (all
+in memory) as a
+&lt;a href="https://www.tensorflow.org/api_docs/python/tf/train/Example" target="_blank" rel="noopener">&lt;code>tf.train.Example&lt;/code>&lt;/a>,&lt;/li>
+&lt;li>store (on dist) the examples as
+&lt;a href="https://www.tensorflow.org/tutorials/load_data/tfrecord" target="_blank" rel="noopener">TFRecord&lt;/a>,
+and finally&lt;/li>
+&lt;li>create a
+&lt;a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset" target="_blank" rel="noopener">&lt;code>tf.Data.Dataset&lt;/code>&lt;/a>
+pipeline that serves the examples to the model.&lt;/li>
+&lt;/ol>
+&lt;pre>&lt;code class="language-python">import math
+from numbers import Number
+import numpy as np
+import tensorflow as tf
+import nibabel as nb
+from nilearn import plotting
+from typing import List
+import numpy.typing as npt
+&lt;/code>&lt;/pre>
+&lt;h2 id="preprocess">Preprocess&lt;/h2>
+&lt;p>A full implementation might involve several preprocessing steps (e.g.,
+registration, masking, cropping), but in this gist we&amp;rsquo;ll just rescale
+the images to have intensity values that range from 0-1.&lt;/p>
+&lt;pre>&lt;code class="language-python">def to_numpy(img: nb.Nifti1Image) -&amp;gt; np.ndarray:
+return np.asanyarray(img.dataobj)
+def load_and_preprocess(img: str) -&amp;gt; np.ndarray:
+# convert to numpy array and preprocess
+nii = to_numpy(nb.load(img))
+# rescale to 0-1
+preprocessed = (nii - nii.min())/(nii.max() - nii.min()).astype(np.float32)
+return preprocessed
+&lt;/code>&lt;/pre>
+&lt;p>Since this method of storing data was new for me, I wanted to ensure
+that I didn&amp;rsquo;t mess up the data. For that, I mainly relied on a basic
+plot of the images.&lt;/p>
+&lt;pre>&lt;code class="language-python">def plot_array(img: np.ndarray) -&amp;gt; None:
+nii = nb.Nifti1Image(img, affine=np.eye(4)*2)
+plotting.plot_anat(nii)
+&lt;/code>&lt;/pre>
+&lt;p>This first step is standard neuroimaging, but just to check that the
+functions are working preprocess an example brain and see how it looks.&lt;/p>
+&lt;pre>&lt;code class="language-python"># example images packaged with fsl, found at $FSLDIR/data/standard
+img = ['MNI152lin_T1_2mm.nii.gz']
+preprocesed = load_and_preprocess(img[0])
+plot_array(preprocesed)
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="index.en_files/figure-gfm/cell-5-output-1.png" width="653"
+height="269" />&lt;/p>
+&lt;p>Great! That looks like a brain. I&amp;rsquo;ll use it as a reference to ensure
+that the roundtrip processing, serializing and unserializing, returns
+the arrays we need.&lt;/p>
+&lt;h2 id="serialize">Serialize&lt;/h2>
+&lt;p>Here&amp;rsquo;s where tensorflow starts. As those that came before have always
+done, &lt;a href="https://www.tensorflow.org/tutorials/load_data/tfrecord" target="_blank" rel="noopener">we&amp;rsquo;ll rely on these
+incantations&lt;/a>.&lt;/p>
+&lt;pre>&lt;code class="language-python">def _bytes_feature(value: bytes):
+&amp;quot;&amp;quot;&amp;quot;
+Returns a bytes_list from a string / byte.
+Example:
+_bytes_feature(b'\x00')
+_bytes_feature(b'a')
+&amp;quot;&amp;quot;&amp;quot;
+return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+def _float_feature(value: Number):
+&amp;quot;&amp;quot;&amp;quot;
+Returns a float_list from a float / double.
+Example:
+_float_feature(2)
+_float_feature(2.)
+&amp;quot;&amp;quot;&amp;quot;
+return tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
+&lt;/code>&lt;/pre>
+&lt;p>Those functions seem to help ensure that the serialized data ends up
+with appropriate types. But the full steps involve serialzing both the
+image and the label together.&lt;/p>
+&lt;pre>&lt;code class="language-python">def serialize_example(img: str, label: Number):
+# convert to numpy array and preprocess
+preprocessed = load_and_preprocess(img)
+# Notice how the numpy array is converted into a byte_string. That's serialization in memory!
+feature = {
+'label': _float_feature(label),
+'image_raw': _bytes_feature(tf.io.serialize_tensor(preprocessed).numpy())
+}
+return tf.train.Example(features=tf.train.Features(feature=feature))
+&lt;/code>&lt;/pre>
+&lt;p>To get the image back out, we need two more functions: one to
+unpack/parse the example (&lt;code>decode_example&lt;/code>) and another to
+unserialize/parse (&lt;code>parse_1_example&lt;/code>) the unpacked example.&lt;/p>
+&lt;pre>&lt;code class="language-python">def decode_example(record_bytes) -&amp;gt; dict:
+example = tf.io.parse_example(
+record_bytes,
+features = {
+&amp;quot;label&amp;quot;: tf.io.FixedLenFeature([], dtype=tf.float32),
+'image_raw': tf.io.FixedLenFeature([], dtype=tf.string)
+}
+)
+return example
+def parse_1_example(example):
+&amp;quot;&amp;quot;&amp;quot;
+Note that the network I was using worked with 3D images, and so the batches of data were of shape `(batch_size, x_dim, y_dim, z_dim, 1)`, rather than what is typical for 2d images: `(batch_size, x_dim, y_dim, n_channels)`.
+&amp;quot;&amp;quot;&amp;quot;
+X = tf.io.parse_tensor(example['image_raw'], out_type=tf.float32)
+# the images output by tf.io.parse_tensor will have shape (x_dim, y_dim, z_dim), which is to say that they're missing the channels dimension. expand_dims is used to indicate channel (i.e., be explicit about grayscale)
+return tf.expand_dims(X, 3), example['label']
+&lt;/code>&lt;/pre>
+&lt;p>At this point, we have functions for preprocessing the images,
+serializing them, and packing them together with their labels into
+&lt;a href="https://www.tensorflow.org/api_docs/python/tf/train/Example" target="_blank" rel="noopener">&lt;code>tf.train.Example&lt;/code>s&lt;/a>.
+This is all for converting the data into a format that can then be more
+easily written to and read from the disk&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;h2 id="write-serialized-examples-as-tfrecords">Write serialized examples as TFRecords&lt;/h2>
+&lt;p>So far, everything has been in memory. Next comes a function that
+performs the above steps sequentially on several examples, and along the
+way writing
+to&lt;a href="https://www.tensorflow.org/tutorials/load_data/tfrecord" target="_blank" rel="noopener">&lt;code>TFRecord&lt;/code>s&lt;/a>.[^serialize2]&lt;/p>
+&lt;pre>&lt;code class="language-python">def write_records(niis: List[str], labels: npt.ArrayLike, n_per_record: int, outfile: str) -&amp;gt; None:
+&amp;quot;&amp;quot;&amp;quot;
+store list of niftis (and associated label) into tfrecords for use as dataset
+Args:
+niis: files that will be preprocessed and stored in record
+labels: true label associated with each element in niis. these are the &amp;quot;y&amp;quot;
+n_per_record: number of examples to store in each record. TF documentation advises that the files are +100Mb. Around 400 images cropped images at 2mm resolution seems to work.
+outfile: base prefix to use when writing the records
+Returns:
+Nothing, but the records will be written to disk.
+&amp;quot;&amp;quot;&amp;quot;
+n_niis = len(niis)
+n_records = math.ceil(len(niis) / n_per_record)
+for i, shard in enumerate(range(0, n_niis, n_per_record)):
+print(f&amp;quot;writing record {i} of {n_records-1}&amp;quot;)
+with tf.io.TFRecordWriter(
+f&amp;quot;{outfile}_{i:0&amp;gt;3}-of-{n_records-1:0&amp;gt;3}.tfrecords&amp;quot;,
+options= tf.io.TFRecordOptions(compression_type=&amp;quot;GZIP&amp;quot;)
+) as writer:
+for nii, label in zip(niis[shard:shard+n_per_record], labels[shard:shard+n_per_record]):
+example = serialize_example(img=nii, label=label)
+writer.write(example.SerializeToString())
+&lt;/code>&lt;/pre>
+&lt;h2 id="create-dataset">Create Dataset&lt;/h2>
+&lt;p>For this gist, let&amp;rsquo;s store several copies of the MNI 2mm brain.&lt;/p>
+&lt;pre>&lt;code class="language-python"># (e.g., put nifti of label MNI152_T1_1mm_brain.nii.gz in the working directory)
+n_imgs = 3
+mni_nii = ['MNI152lin_T1_2mm.nii.gz'] * n_imgs
+# store examples in each tfrecord. number of examples per record is configurable.
+# aim for as many examples as produces files of size &amp;gt; 100M
+prefix = &amp;quot;tmp&amp;quot;
+write_records(mni_nii, np.arange(n_imgs), n_imgs, prefix)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>writing record 0 of 0
+&lt;/code>&lt;/pre>
+&lt;p>Calling the above will write a TFRecord file to disk. To read that
+record, define a pipeline that will create a &lt;code>tf.Data.dataset&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-python">def get_batched_dataset(files, batch_size: int = 32) -&amp;gt; tf.data.Dataset:
+dataset = (
+tf.data.Dataset.list_files(files) # note shuffling is on by default, changes order when there are multiple records
+.flat_map(lambda x: tf.data.TFRecordDataset(x, compression_type=&amp;quot;GZIP&amp;quot;))
+.map(decode_example)
+.map(parse_1_example)
+.batch(batch_size)
+)
+return dataset
+&lt;/code>&lt;/pre>
+&lt;p>Now, use that function to read the records back.&lt;/p>
+&lt;pre>&lt;code class="language-python"># a full dataset will have a list with many records
+list_of_records=[f'{prefix}*.tfrecords']
+ds = get_batched_dataset(list_of_records, batch_size=2)
+&lt;/code>&lt;/pre>
+&lt;p>That dataset, &lt;code>ds&lt;/code>, can now be passed to methods of the &lt;code>tf.keras.Model&lt;/code>
+, like
+[&lt;code>tf.keras.Model.fit()&lt;/code>(&lt;a href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit&lt;/a>)]!
+That dataset was our goal in the gist.&lt;/p>
+&lt;p>But first, the serialization is a lot, so it is a good idea to verify
+that the images look okay when loaded. To do so, pluck a single example
+from the dataset.&lt;/p>
+&lt;pre>&lt;code class="language-python">(Xs, Ys) = next(ds.as_numpy_iterator())
+&lt;/code>&lt;/pre>
+&lt;p>The dimensions of the labels are easy, a 1d array corresponding to the
+number of elements within the batch (i.e., the &lt;code>batch_size&lt;/code> variable)&lt;/p>
+&lt;pre>&lt;code class="language-python"># (batch_size, )
+Ys.shape
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>(2,)
+&lt;/code>&lt;/pre>
+&lt;p>The order will depend on what shuffling is embedded in the dataset
+pipeline. In this case, there was no shuffling and so we should expect
+that the order is preserved.&lt;/p>
+&lt;pre>&lt;code class="language-python">Ys
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>array([0., 1.], dtype=float32)
+&lt;/code>&lt;/pre>
+&lt;p>The data, &lt;code>Xs&lt;/code>, also has a predictable shape.&lt;/p>
+&lt;pre>&lt;code class="language-python"># (batch_size, x_dim, y_dim, z_dim, 1)
+Xs.shape
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>(2, 91, 109, 91, 1)
+&lt;/code>&lt;/pre>
+&lt;p>Take that first element in the batch and plot.&lt;/p>
+&lt;pre>&lt;code class="language-python">parsed_img = np.squeeze(Xs[0,])
+plot_array(parsed_img)
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="index.en_files/figure-gfm/cell-17-output-1.png" width="653"
+height="269" />&lt;/p>
+&lt;p>That looks great! Just in case, let&amp;rsquo;s check more explictly&lt;/p>
+&lt;pre>&lt;code class="language-python">np.array_equal(preprocesed, parsed_img)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>True
+&lt;/code>&lt;/pre>
+&lt;p>Yay! done&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>Inspiration for writting came from responding to &lt;a href="https://neurostars.org/t/tensorflow-issue-when-trying-to-use-nibabel-in-dataset/22410/2" target="_blank" rel="noopener">this question on
+NeuroStars&lt;/a>,
+and also from an urge to try a python-based post.&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>It seems to me that this storage on disk involves a &lt;em>second&lt;/em>
+serialization step (where the first was done by
+&lt;code>tf.io.serialize_tensor&lt;/code> in &lt;code>serialize_example&lt;/code>). Even so, I assume
+the roundtrip isn&amp;rsquo;t so much of a big deal, considering that the data
+can be served to the model in parallel.&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>Spurious Serial Dependencies</title><link>https://psadil.github.io/psadil/post/2021-05-07-spurious-serial-dependencies/</link><pubDate>Fri, 07 May 2021 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/2021-05-07-spurious-serial-dependencies/</guid><description>
 &lt;script src="https://psadil.github.io/psadil/post/2021-05-07-spurious-serial-dependencies/index.en_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;pre class="r">&lt;code>knitr::opts_chunk$set(echo = TRUE)
 set.seed(1234)
