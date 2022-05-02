@@ -117,15 +117,16 @@ X = tf.io.parse_tensor(example['image_raw'], out_type=tf.float32)
 return tf.expand_dims(X, 3), example['label']
 &lt;/code>&lt;/pre>
 &lt;p>At this point, we have functions for preprocessing the images,
-serializing them&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>, and packing them together with their labels into
-&lt;a href="https://www.tensorflow.org/api_docs/python/tf/train/Example" target="_blank" rel="noopener">&lt;code>tf.train.Example&lt;/code>s&lt;/a>.
+serializing them&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>, and packing each of them along with their labels
+into a
+&lt;a href="https://www.tensorflow.org/api_docs/python/tf/train/Example" target="_blank" rel="noopener">&lt;code>tf.train.Example&lt;/code>&lt;/a>.
 This is all for converting the data into a format that can then be more
 easily written to and read from the disk.&lt;/p>
 &lt;h2 id="write-serialized-examples-as-tfrecords">Write serialized examples as TFRecords&lt;/h2>
 &lt;p>So far, everything has been in memory. Next comes a function that
 performs the above steps sequentially on several examples, and along the
-way writing
-to&lt;a href="https://www.tensorflow.org/tutorials/load_data/tfrecord" target="_blank" rel="noopener">&lt;code>TFRecord&lt;/code>s&lt;/a>.&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>&lt;/p>
+way writes the examples as a
+&lt;a href="https://www.tensorflow.org/tutorials/load_data/tfrecord" target="_blank" rel="noopener">&lt;code>TFRecord&lt;/code>&lt;/a>.&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>&lt;/p>
 &lt;pre>&lt;code class="language-python">def write_records(niis: List[str], labels: npt.ArrayLike, n_per_record: int, outfile: str) -&amp;gt; None:
 &amp;quot;&amp;quot;&amp;quot;
 store list of niftis (and associated label) into tfrecords for use as dataset
@@ -164,6 +165,7 @@ write_records(mni_nii, np.arange(n_imgs), n_imgs, prefix)
 &lt;p>Calling the above will write a TFRecord file to disk. To read that
 record, define a pipeline that will create a &lt;code>tf.Data.dataset&lt;/code>.&lt;/p>
 &lt;pre>&lt;code class="language-python">def get_batched_dataset(files, batch_size: int = 32) -&amp;gt; tf.data.Dataset:
+# Note: an actual pipeline would probably include at least the shuffle and prefetch methods
 dataset = (
 tf.data.Dataset.list_files(files) # note shuffling is on by default, changes order when there are multiple records
 .flat_map(lambda x: tf.data.TFRecordDataset(x, compression_type=&amp;quot;GZIP&amp;quot;))
@@ -178,17 +180,17 @@ return dataset
 list_of_records=[f'{prefix}*.tfrecords']
 ds = get_batched_dataset(list_of_records, batch_size=2)
 &lt;/code>&lt;/pre>
-&lt;p>That dataset, &lt;code>ds&lt;/code>, can now be passed to methods of the &lt;code>tf.keras.Model&lt;/code>
-, like
-[&lt;code>tf.keras.Model.fit()&lt;/code>(&lt;a href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit&lt;/a>)]!
-That dataset was our goal in the gist.&lt;/p>
+&lt;p>That dataset, &lt;code>ds&lt;/code>, was our goal in the gist. It can be passed to
+methods of the &lt;code>tf.keras.Model&lt;/code>, including
+[&lt;code>tf.keras.Model.fit()&lt;/code>(&lt;a href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit&lt;/a>)],
+serving up more data than can fit in memory.&lt;/p>
 &lt;p>But first, the serialization is a lot, so it is a good idea to verify
 that the images look okay when loaded. To do so, pluck a single example
 from the dataset.&lt;/p>
 &lt;pre>&lt;code class="language-python">(Xs, Ys) = next(ds.as_numpy_iterator())
 &lt;/code>&lt;/pre>
-&lt;p>The dimensions of the labels are easy, a 1d array corresponding to the
-number of elements within the batch (i.e., the &lt;code>batch_size&lt;/code> variable)&lt;/p>
+&lt;p>The dimensions of the labels are relatively easy. It&amp;rsquo;s a 1d array with
+as many elements as are in the batch.&lt;/p>
 &lt;pre>&lt;code class="language-python"># (batch_size, )
 Ys.shape
 &lt;/code>&lt;/pre>
@@ -229,7 +231,8 @@ and also from an urge to try a python-based post.&amp;#160;&lt;a href="#fnref:1"
 &lt;/li>
 &lt;li id="fn:2" role="doc-endnote">
 &lt;p>This serializing stuff is spooky black magic. I&amp;rsquo;m going to skip
-over those details and instead leave this reference
+over those details and instead leave this reference, a journey
+through serializing in &lt;code>R&lt;/code>
 &lt;a href="https://blog.djnavarro.net/posts/2021-11-15_serialisation-with-rds/">https://blog.djnavarro.net/posts/2021-11-15_serialisation-with-rds/&lt;/a>.&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li id="fn:3" role="doc-endnote">

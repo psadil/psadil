@@ -108,13 +108,14 @@ def parse_1_example(example):
     # the images output by tf.io.parse_tensor will have shape (x_dim, y_dim, z_dim), which is to say that they're missing the channels dimension. expand_dims is used to indicate channel (i.e., be explicit about grayscale)
     return tf.expand_dims(X, 3), example['label'] 
 </code></pre><p>At this point, we have functions for preprocessing the images,
-serializing them<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>, and packing them together with their labels into
-<a href=https://www.tensorflow.org/api_docs/python/tf/train/Example target=_blank rel=noopener><code>tf.train.Example</code>s</a>.
+serializing them<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>, and packing each of them along with their labels
+into a
+<a href=https://www.tensorflow.org/api_docs/python/tf/train/Example target=_blank rel=noopener><code>tf.train.Example</code></a>.
 This is all for converting the data into a format that can then be more
 easily written to and read from the disk.</p><h2 id=write-serialized-examples-as-tfrecords>Write serialized examples as TFRecords</h2><p>So far, everything has been in memory. Next comes a function that
 performs the above steps sequentially on several examples, and along the
-way writing
-to<a href=https://www.tensorflow.org/tutorials/load_data/tfrecord target=_blank rel=noopener><code>TFRecord</code>s</a>.<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup></p><pre><code class=language-python>def write_records(niis: List[str], labels: npt.ArrayLike, n_per_record: int, outfile: str) -&gt; None:
+way writes the examples as a
+<a href=https://www.tensorflow.org/tutorials/load_data/tfrecord target=_blank rel=noopener><code>TFRecord</code></a>.<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup></p><pre><code class=language-python>def write_records(niis: List[str], labels: npt.ArrayLike, n_per_record: int, outfile: str) -&gt; None:
     &quot;&quot;&quot;
     store list of niftis (and associated label) into tfrecords for use as dataset
 
@@ -151,6 +152,7 @@ write_records(mni_nii, np.arange(n_imgs), n_imgs, prefix)
 </code></pre><pre><code>writing record 0 of 0
 </code></pre><p>Calling the above will write a TFRecord file to disk. To read that
 record, define a pipeline that will create a <code>tf.Data.dataset</code>.</p><pre><code class=language-python>def get_batched_dataset(files, batch_size: int = 32) -&gt; tf.data.Dataset:
+    # Note: an actual pipeline would probably include at least the shuffle and prefetch methods
     dataset = (
         tf.data.Dataset.list_files(files) # note shuffling is on by default, changes order when there are multiple records
         .flat_map(lambda x: tf.data.TFRecordDataset(x, compression_type=&quot;GZIP&quot;))
@@ -162,14 +164,14 @@ record, define a pipeline that will create a <code>tf.Data.dataset</code>.</p><p
 </code></pre><p>Now, use that function to read the records back.</p><pre><code class=language-python># a full dataset will have a list with many records
 list_of_records=[f'{prefix}*.tfrecords']
 ds = get_batched_dataset(list_of_records, batch_size=2)
-</code></pre><p>That dataset, <code>ds</code>, can now be passed to methods of the <code>tf.keras.Model</code>
-, like
-[<code>tf.keras.Model.fit()</code>(<a href=https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit</a>)]!
-That dataset was our goal in the gist.</p><p>But first, the serialization is a lot, so it is a good idea to verify
+</code></pre><p>That dataset, <code>ds</code>, was our goal in the gist. It can be passed to
+methods of the <code>tf.keras.Model</code>, including
+[<code>tf.keras.Model.fit()</code>(<a href=https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit</a>)],
+serving up more data than can fit in memory.</p><p>But first, the serialization is a lot, so it is a good idea to verify
 that the images look okay when loaded. To do so, pluck a single example
 from the dataset.</p><pre><code class=language-python>(Xs, Ys) = next(ds.as_numpy_iterator())
-</code></pre><p>The dimensions of the labels are easy, a 1d array corresponding to the
-number of elements within the batch (i.e., the <code>batch_size</code> variable)</p><pre><code class=language-python># (batch_size, )
+</code></pre><p>The dimensions of the labels are relatively easy. It&rsquo;s a 1d array with
+as many elements as are in the batch.</p><pre><code class=language-python># (batch_size, )
 Ys.shape
 </code></pre><pre><code>(2,)
 </code></pre><p>The order will depend on what shuffling is embedded in the dataset
@@ -186,7 +188,8 @@ plot_array(parsed_img)
 </code></pre><p>Yay! done</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Inspiration for writting came from responding to <a href=https://neurostars.org/t/tensorflow-issue-when-trying-to-use-nibabel-in-dataset/22410/2 target=_blank rel=noopener>this question on
 NeuroStars</a>,
 and also from an urge to try a python-based post.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>This serializing stuff is spooky black magic. I&rsquo;m going to skip
-over those details and instead leave this reference
+over those details and instead leave this reference, a journey
+through serializing in <code>R</code>
 <a href=https://blog.djnavarro.net/posts/2021-11-15_serialisation-with-rds/>https://blog.djnavarro.net/posts/2021-11-15_serialisation-with-rds/</a>.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3 role=doc-endnote><p>It seems to me that this storage on disk involves a <em>second</em>
 serialization step (where the first was done by
 <code>tf.io.serialize_tensor</code> in <code>serialize_example</code>). Even so, I assume
