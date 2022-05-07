@@ -44,7 +44,7 @@ education:
 social:
 - icon: envelope
   icon_pack: fas
-  link: mailto:psadil@gmail.com
+  link: mailto:psadil1@jh.edu
 - icon: cv
   icon_pack: ai
   link: https://psadil.github.io/cv/cv.pdf
@@ -54,9 +54,6 @@ social:
 - icon: google-scholar
   icon_pack: ai
   link: https://scholar.google.co.uk/citations?user=HhPeElcAAAAJ
-- icon: gitlab
-  icon_pack: fab
-  link: https://gitlab.com/psadil
 - icon: github
   icon_pack: fab
   link: https://github.com/psadil

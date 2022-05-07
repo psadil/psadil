@@ -108,11 +108,10 @@ appointment_url = ""
 #   Set to `[]` to disable, or comment out unwanted lines with a hash `#`.
 contact_links = [
   {icon = "twitter", icon_pack = "fab", name = "Twitter", link = "//twitter.com/psadil"},
-  {icon = "envelope", icon_pack = "fa", name = "email", link = "mailto:psadil@gmail.com"},
+  {icon = "envelope", icon_pack = "fa", name = "email", link = "mailto:psadil1@jh.edu"},
   {icon = "orcid", icon_pack = "ai", name = "ORCID", link = "//orcid.org/0000-0003-4141-1343"},
   {icon = "google-scholar", icon_pack = "ai", name = "ORCID", link = "//scholar.google.com/citations?user=HhPeElcAAAAJ"},
-  {icon = "github", icon_pack = "fab", name = "github", link = "//github.com/psadil"},
-  {icon = "gitlab", icon_pack = "fab", name = "gitlab", link = "//gitlab.com/psadil"}
+  {icon = "github", icon_pack = "fab", name = "github", link = "//github.com/psadil"}
 ]
   
   
