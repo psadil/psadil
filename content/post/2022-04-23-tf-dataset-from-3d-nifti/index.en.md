@@ -34,7 +34,7 @@ There are five main steps
 3.  serialize the preprocessed images and store with their labels (all
     in memory) as a
     [`tf.train.Example`](https://www.tensorflow.org/api_docs/python/tf/train/Example),
-4.  store (on dist) the examples as
+4.  store (on disk) the examples as
     [TFRecord](https://www.tensorflow.org/tutorials/load_data/tfrecord),
     and finally
 5.  create a
@@ -100,7 +100,7 @@ the arrays we need.
 
 ## Serialize
 
-Here's where tensorflow starts. As those that came before have always
+Here's where TensorFlow starts. As those that came before have always
 done, [we'll rely on these
 incantations](https://www.tensorflow.org/tutorials/load_data/tfrecord).
 
@@ -127,7 +127,7 @@ def _float_feature(value: Number):
 ```
 
 Those functions seem to help ensure that the serialized data ends up
-with appropriate types. But the full steps involve serialzing both the
+with appropriate types. But the full steps involve serializing both the
 image and the label together.
 
 ``` python
@@ -230,6 +230,9 @@ write_records(mni_nii, np.arange(n_imgs), n_imgs, prefix)
 
     writing record 0 of 0
 
+    2022-05-13 15:00:56.962382: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
+    To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
 Calling the above will write a TFRecord file to disk. To read that
 record, define a pipeline that will create a `tf.Data.dataset`.
 
@@ -306,7 +309,7 @@ plot_array(parsed_img)
 <img src="index.en_files/figure-gfm/cell-17-output-1.png" width="653"
 height="269" />
 
-That looks great! Just in case, let's check more explictly
+That looks great! Just in case, let's check more explicitly
 
 ``` python
 np.array_equal(preprocesed, parsed_img)
@@ -316,7 +319,7 @@ np.array_equal(preprocesed, parsed_img)
 
 Yay! done
 
-[^1]: Inspiration for writting came from responding to [this question on
+[^1]: Inspiration for writing came from responding to [this question on
     NeuroStars](https://neurostars.org/t/tensorflow-issue-when-trying-to-use-nibabel-in-dataset/22410/2),
     and also from an urge to try a python-based post.
 
