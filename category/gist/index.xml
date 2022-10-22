@@ -1,4 +1,43 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>gist | psadil</title><link>https://psadil.github.io/psadil/category/gist/</link><atom:link href="https://psadil.github.io/psadil/category/gist/index.xml" rel="self" type="application/rss+xml"/><description>gist</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><copyright>© 2021 Patrick Sadil</copyright><lastBuildDate>Sat, 23 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>https://psadil.github.io/psadil/media/icon_hu3896c2ce465988ba1fc8077f9a6388c6_268630_512x512_fill_lanczos_center_2.png</url><title>gist</title><link>https://psadil.github.io/psadil/category/gist/</link></image><item><title>How to store a NifTi as a TFRecord</title><link>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</link><pubDate>Sat, 23 Apr 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</guid><description>&lt;h1 id="how-to-store-a-nifti-as-a-tfrecord">How to store a NifTi as a TFRecord&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>gist | psadil</title><link>https://psadil.github.io/psadil/category/gist/</link><atom:link href="https://psadil.github.io/psadil/category/gist/index.xml" rel="self" type="application/rss+xml"/><description>gist</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><copyright>© 2021 Patrick Sadil</copyright><lastBuildDate>Sun, 23 Oct 2022 00:00:00 +0000</lastBuildDate><image><url>https://psadil.github.io/psadil/media/icon_hu3896c2ce465988ba1fc8077f9a6388c6_268630_512x512_fill_lanczos_center_2.png</url><title>gist</title><link>https://psadil.github.io/psadil/category/gist/</link></image><item><title>Hinting Cache Decorator Types</title><link>https://psadil.github.io/psadil/post/typehint-callable/</link><pubDate>Sun, 23 Oct 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/typehint-callable/</guid><description>&lt;p>Recently, I encountered a python function that I didn&amp;rsquo;t want to modify, but whose output I wanted cached. Providing typehints for this seemed a bit complicated, so I&amp;rsquo;m posting this gist as a reminder. The main trick involves extensions from &lt;a href="https://peps.python.org/pep-0612/" target="_blank" rel="noopener">PEP 612&lt;/a>.&lt;/p>
+&lt;p>In words, the decorator will take some function &lt;code>f&lt;/code> that takes parameters &lt;code>P&lt;/code> and produces a &lt;code>str&lt;/code>. I want to be able to call &lt;code>f&lt;/code> and additionally provide a filename that will point to a file in which the string will be written. The cache will be super basic, checking just for the existence of the file and skipping &lt;code>f&lt;/code> if that file exists.&lt;/p>
+&lt;p>In code, that looks like the following&lt;/p>
+&lt;pre>&lt;code class="language-python">from pathlib import Path
+import typing
+P = typing.ParamSpec(&amp;quot;P&amp;quot;)
+def cache_str(f: typing.Callable[P, str]) -&amp;gt; typing.Callable[typing.Concatenate[Path, P], str]:
+def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -&amp;gt; Path:
+if _filename.exists():
+print(f&amp;quot;Found cached result {_filename}. Skipping!&amp;quot;)
+i = _filename.read_text()
+else:
+# run!
+i = f(*args, **kwargs)
+_filename.touch()
+_filename.write_text(i)
+return i
+return wrapper
+&lt;/code>&lt;/pre>
+&lt;p>And then the decorator could be used like&lt;/p>
+&lt;pre>&lt;code class="language-python">@cache_str
+def get_str(msg: str) -&amp;gt; str:
+print(&amp;quot;This function takes so long to run--I hope that I don't need to run it twice&amp;quot;)
+return msg
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">import tempfile
+msg = &amp;quot;cached message&amp;quot;
+with tempfile.TemporaryDirectory() as tmpdir:
+tmp_path = Path(tmpdir) / &amp;quot;cache.txt&amp;quot;
+get_str(tmp_path, msg=msg)
+print(&amp;quot;trying to read message from cache...&amp;quot;)
+print(f&amp;quot;{tmp_path.read_text()=}&amp;quot;)
+get_str(tmp_path, msg=msg)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>This function takes so long to run--I hope that I don't need to run it twice
+trying to read message from cache...
+tmp_path.read_text()='cached message'
+Found cached result /tmp/tmpz0ysdaam/cache.txt. Skipping!
+&lt;/code>&lt;/pre>
+&lt;p>This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.&lt;/p></description></item><item><title>How to store a NifTi as a TFRecord</title><link>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</link><pubDate>Sat, 23 Apr 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</guid><description>&lt;h1 id="how-to-store-a-nifti-as-a-tfrecord">How to store a NifTi as a TFRecord&lt;/h1>
 &lt;p>Patrick Sadil
 2022-04-23&lt;/p>
 &lt;p>A recent project required sending brain images to TensorFlow.
