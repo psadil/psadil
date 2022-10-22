@@ -1,5 +1,5 @@
 ---
-title: "Typehint "
+title: Hinting Cache Decorator Types
 format: html
 format: hugo
 jupyter: python3
