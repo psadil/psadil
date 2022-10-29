@@ -28,7 +28,7 @@ import typing
 P = typing.ParamSpec("P")
 
 def cache_str(f: typing.Callable[P, str]) -> typing.Callable[typing.Concatenate[Path, P], str]:
-    def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -> Path:
+    def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -> str:
         if _filename.exists():
             print(f"Found cached result {_filename}. Skipping!")
             i = _filename.read_text()

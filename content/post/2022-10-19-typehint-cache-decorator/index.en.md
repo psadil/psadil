@@ -1,5 +1,5 @@
 ---
-title: Hinting Cache Decorator Types
+title: "Hinting Cache Decorator Types"
 format: html
 format: hugo
 jupyter: python3
@@ -30,7 +30,7 @@ import typing
 P = typing.ParamSpec("P")
 
 def cache_str(f: typing.Callable[P, str]) -> typing.Callable[typing.Concatenate[Path, P], str]:
-    def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -> Path:
+    def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -> str:
         if _filename.exists():
             print(f"Found cached result {_filename}. Skipping!")
             i = _filename.read_text()
@@ -68,6 +68,6 @@ with tempfile.TemporaryDirectory() as tmpdir:
     This function takes so long to run--I hope that I don't need to run it twice
     trying to read message from cache...
     tmp_path.read_text()='cached message'
-    Found cached result /tmp/tmpz0ysdaam/cache.txt. Skipping!
+    Found cached result /tmp/tmpp44byo4s/cache.txt. Skipping!
 
 This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.
