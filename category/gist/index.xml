@@ -5,7 +5,7 @@
 import typing
 P = typing.ParamSpec(&amp;quot;P&amp;quot;)
 def cache_str(f: typing.Callable[P, str]) -&amp;gt; typing.Callable[typing.Concatenate[Path, P], str]:
-def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -&amp;gt; Path:
+def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -&amp;gt; str:
 if _filename.exists():
 print(f&amp;quot;Found cached result {_filename}. Skipping!&amp;quot;)
 i = _filename.read_text()
@@ -35,7 +35,7 @@ get_str(tmp_path, msg=msg)
 &lt;pre>&lt;code>This function takes so long to run--I hope that I don't need to run it twice
 trying to read message from cache...
 tmp_path.read_text()='cached message'
-Found cached result /tmp/tmpz0ysdaam/cache.txt. Skipping!
+Found cached result /tmp/tmpp44byo4s/cache.txt. Skipping!
 &lt;/code>&lt;/pre>
 &lt;p>This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.&lt;/p></description></item><item><title>How to store a NifTi as a TFRecord</title><link>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</link><pubDate>Sat, 23 Apr 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</guid><description>&lt;h1 id="how-to-store-a-nifti-as-a-tfrecord">How to store a NifTi as a TFRecord&lt;/h1>
 &lt;p>Patrick Sadil
