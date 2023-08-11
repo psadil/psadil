@@ -1,0 +1,44 @@
+---
+title: tidytuesday 220709
+author: Patrick Sadil
+date: '2022-07-19'
+slug: tidytuesday-220709
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2022-07-19T12:58:09-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+```{r, setup}
+library(dplyr)
+library(ggplot2)
+technology <- readr::read_csv(
+  'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-19/technology.csv')
+```
+
+
+```{r}
+technology
+```
+
+```{r}
+distinct(technology, group, category)
+```
+
+```{r}
+technology |>
+  group_by(group, year) |>
+  summarise(value = mean(value)) |>
+  ggplot(aes(x=year, y=value)) +
+  geom_point() +
+  facet_wrap(~group, scales = "free_y")
+```
+

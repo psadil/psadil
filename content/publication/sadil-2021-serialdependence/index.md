@@ -1,10 +1,10 @@
 ---
 # Documentation: https://sourcethemes.com/academic/docs/managing-content/
 
-title: "The Yin-yang of Serial Dependence Effects: Every Response is both an Attraction to the Prior Response and a Repulsion from the Prior Stimulus"
+title: "The Push–Pull of Serial Dependence Effects: Attraction to the Prior Response and Repulsion from the Prior Stimulus"
 authors: ["Patrick Sadil", "Rosemary A Cowell", "David E Huber"]
-date: 2021-01-18T14:35:30-05:00
-doi: "10.31234/osf.io/f52yz"
+date: 2023-08-11T14:35:30-05:00
+doi: "https://doi.org/10.3758/s13423-023-02320-3"
 
 # Schedule page publish date (NOT publication's date).
 publishDate: 2021-01-18T14:35:30-05:00
@@ -13,13 +13,14 @@ publishDate: 2021-01-18T14:35:30-05:00
 # Legend: 0 = Uncategorized; 1 = Conference paper; 2 = Journal article;
 # 3 = Preprint / Working Paper; 4 = Report; 5 = Book; 6 = Book section;
 # 7 = Thesis; 8 = Patent
-publication_types: ["3"]
+publication_types: ["2"]
 
 # Publication name and optional abbreviated publication name.
-publication: "PsyArXiv"
-publication_short: ""
+publication: "Psychonomic Bulletin & Review"
+publication_short: "PBR"
 
-abstract: "Visual perceptual decisions can be altered by recent experience. In the “serial dependence” effect, participants’ responses to visual stimuli appear to be biased toward (i.e., attracted to) recently encountered stimuli. Fischer and Whitney (2014) proposed that serial dependence reflects a “continuity field” that promotes visual stability by biasing perception toward the recent past. However, when participants are relatively accurate on the prior trial, there is no discernible difference between attraction to the prior stimulus and attraction to the prior response. To tease apart these alternative explanations of the attraction effect, we developed two complementary analysis techniques that rely on participants’ naturally occurring errors on a trial-by-trial basis, identifying any effect of the prior stimulus and, separately, any effect of the prior response (i.e., each effect could be attractive, repulsive, or absent). Applying these techniques to serial dependence data from a new experiment and four previously published studies, including Fischer and Whitney’s, we found that serial dependencies reflect an attraction to the previous response and repulsion from the previous stimulus, with these effects cancelling each other to different degrees for different experiments. In no case did we find evidence of an attraction to the prior stimulus. These results are consistent with literatures that predate the serial dependence effect: Attraction to prior responses is routinely observed in a wide variety of paradigms and repulsion from prior stimuli is ubiquitous, such as in the tilt aftereffect."
+abstract: "In the “serial dependence” effect, responses to visual stimuli appear biased toward the last trial's stimulus. However, several kinds of serial dependence exist, with some reflecting prior stimuli and others reflecting prior responses. One-factor analyses
+consider the prior stimulus alone or the prior response alone and can consider both variables only via separate analyses. We demonstrate that one-factor analyses are potentially misleading and can reach conclusions that are opposite from the truth if both dependencies exist. To address this limitation, we developed two-factor analyses (model comparison with hierarchical Bayesian modeling and an empirical “quadrant analysis”), which consider trial-by-trial combinations of prior response and prior stimulus. Two-factor analyses can tease apart the two dependencies if applied to a sufficiently large dataset. We applied these analyses to a new study and to four previously published studies. When applying a model that included the possibility of both dependencies, there was no evidence of attraction to the prior stimulus in any dataset, but there was evidence of attraction to the prior response in all datasets. Two of the datasets contained sufficient constraint to determine that both dependencies were needed to explain the results. For these datasets, the dependency on the prior stimulus was repulsive rather than attractive. Our results are consistent with the claim that both dependencies exist in most serial dependence studies (the two-dependence model was not ruled out for any dataset) and, furthermore, that the two dependencies work against each other."
 
 # Summary. An optional shortened abstract.
 summary: ""
@@ -36,14 +37,15 @@ featured: false
 #   icon_pack: fab
 #   icon: twitter
 
-url_pdf: https://psyarxiv.com/f52yz/
+url_pdf: "//psadil.github.io/psadil/files/publications/sadil_pushpull__2023.pdf"
 url_code: 
 url_dataset: https://osf.io/7js3w/
 url_poster: "//psadil.github.io/psadil/files/presentations/sadil-2020-serialdependence.pdf"
 url_project: https://osf.io/w4kcj/ 
 url_slides:
 url_source:
-url_video: "https://youtu.be/_8vOetUVGtw"
+url_video: https://youtu.be/_8vOetUVGtw
+url_preprint: https://psyarxiv.com/f52yz/
 
 # Featured image
 # To use, add an image named `featured.jpg/png` to your page's folder. 
