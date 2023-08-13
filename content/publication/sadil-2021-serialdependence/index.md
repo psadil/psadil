@@ -37,7 +37,7 @@ featured: false
 #   icon_pack: fab
 #   icon: twitter
 
-url_pdf: "//psadil.github.io/psadil/files/publications/sadil_pushpull__2023.pdf"
+url_pdf: "//psadil.github.io/psadil/files/publications/sadil_pushpull_2023.pdf"
 url_code: 
 url_dataset: https://osf.io/7js3w/
 url_poster: "//psadil.github.io/psadil/files/presentations/sadil-2020-serialdependence.pdf"
