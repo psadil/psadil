@@ -37,71 +37,7 @@ trying to read message from cache...
 tmp_path.read_text()='cached message'
 Found cached result /tmp/tmpp44byo4s/cache.txt. Skipping!
 &lt;/code>&lt;/pre>
-&lt;p>This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.&lt;/p></description></item><item><title>tidytuesday 220709</title><link>https://psadil.github.io/psadil/post/tidytuesday-220709/</link><pubDate>Tue, 19 Jul 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tidytuesday-220709/</guid><description>
-&lt;script src="https://psadil.github.io/psadil/post/tidytuesday-220709/index.en_files/header-attrs/header-attrs.js">&lt;/script>
-&lt;pre class="r">&lt;code>library(dplyr)&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>##
-## Attaching package: &amp;#39;dplyr&amp;#39;&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## The following objects are masked from &amp;#39;package:stats&amp;#39;:
-##
-## filter, lag&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## The following objects are masked from &amp;#39;package:base&amp;#39;:
-##
-## intersect, setdiff, setequal, union&lt;/code>&lt;/pre>
-&lt;pre class="r">&lt;code>library(ggplot2)
-technology &amp;lt;- readr::read_csv(
-&amp;#39;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-19/technology.csv&amp;#39;)&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## Rows: 491636 Columns: 7&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &amp;quot;,&amp;quot;
-## chr (5): variable, label, iso3c, group, category
-## dbl (2): year, value
-##
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.&lt;/code>&lt;/pre>
-&lt;pre class="r">&lt;code>technology&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## # A tibble: 491,636 × 7
-## variable label iso3c year group category value
-## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
-## 1 BCG % children who received a BCG immu… AFG 1982 Cons… Vaccines 10
-## 2 BCG % children who received a BCG immu… AFG 1983 Cons… Vaccines 10
-## 3 BCG % children who received a BCG immu… AFG 1984 Cons… Vaccines 11
-## 4 BCG % children who received a BCG immu… AFG 1985 Cons… Vaccines 17
-## 5 BCG % children who received a BCG immu… AFG 1986 Cons… Vaccines 18
-## 6 BCG % children who received a BCG immu… AFG 1987 Cons… Vaccines 27
-## 7 BCG % children who received a BCG immu… AFG 1988 Cons… Vaccines 40
-## 8 BCG % children who received a BCG immu… AFG 1989 Cons… Vaccines 38
-## 9 BCG % children who received a BCG immu… AFG 1990 Cons… Vaccines 30
-## 10 BCG % children who received a BCG immu… AFG 1991 Cons… Vaccines 21
-## # … with 491,626 more rows&lt;/code>&lt;/pre>
-&lt;pre class="r">&lt;code>distinct(technology, group, category)&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## # A tibble: 15 × 2
-## group category
-## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;
-## 1 Consumption Vaccines
-## 2 Production Agriculture
-## 3 Non-Tech Agriculture
-## 4 Consumption Transport
-## 5 Production Industry
-## 6 Consumption Financial
-## 7 Production Transport
-## 8 Non-Tech Other
-## 9 Non-Tech Hospital (non-drug medical)
-## 10 Consumption Communications
-## 11 Consumption Hospital (non-drug medical)
-## 12 Production Energy
-## 13 Creation Other
-## 14 Production Other
-## 15 Production Communications&lt;/code>&lt;/pre>
-&lt;pre class="r">&lt;code>technology |&amp;gt;
-group_by(group, year) |&amp;gt;
-summarise(value = mean(value)) |&amp;gt;
-ggplot(aes(x=year, y=value)) +
-geom_point() +
-facet_wrap(~group, scales = &amp;quot;free_y&amp;quot;)&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>## `summarise()` has grouped output by &amp;#39;group&amp;#39;. You can override using the
-## `.groups` argument.&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="https://psadil.github.io/psadil/post/tidytuesday-220709/index.en_files/figure-html/unnamed-chunk-3-1.png" width="672" />&lt;/p></description></item><item><title>How to store a NifTi as a TFRecord</title><link>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</link><pubDate>Sat, 23 Apr 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</guid><description>&lt;h1 id="how-to-store-a-nifti-as-a-tfrecord">How to store a NifTi as a TFRecord&lt;/h1>
+&lt;p>This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.&lt;/p></description></item><item><title>How to store a NifTi as a TFRecord</title><link>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</link><pubDate>Sat, 23 Apr 2022 00:00:00 +0000</pubDate><guid>https://psadil.github.io/psadil/post/tf-dataset-from-3d-nifti/</guid><description>&lt;h1 id="how-to-store-a-nifti-as-a-tfrecord">How to store a NifTi as a TFRecord&lt;/h1>
 &lt;p>Patrick Sadil
 2022-04-23&lt;/p>
 &lt;p>A recent project required sending brain images to TensorFlow.
