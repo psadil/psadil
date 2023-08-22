@@ -10,12 +10,12 @@ authors:
 superuser: true
 
 # Role/position
-role: Post-Doctoral Researcher
+role: Research Associate; Biostatistics Faculty
 
 # Organizations/Affiliations
 organizations:
 - name: Johns Hopkins Bloomberg School of Public Health
-  url: https://www.jhsph.edu/departments/biostatistics/directory/postdoctoral-fellows/
+  url: https://publichealth.jhu.edu/faculty/4503/patrick-sadil
 
 # Short bio (displayed in user profile at end of posts)
 bio: 
@@ -59,7 +59,7 @@ social:
   link: https://github.com/psadil
 
 # Enter email to display Gravatar (if Gravatar enabled in Config)
-email: "psadil@gmail.com"
+email: "psadil1@jh.edu"
 
 # Organizational groups that you belong to (for People widget)
 #   Set this to `[]` or comment out if you are not using People widget.
@@ -67,6 +67,4 @@ email: "psadil@gmail.com"
 # - Researchers
 # - Visitors
 ---
-
-I am a post-doctoral researcher in Biostatistics. During graduate school, I studied the neural and cognitive mechanisms of visual perception and memory in the labs of [Drs. Rosemary Cowell](https://people.umass.edu/cmap-lab/People.html) and [David Huber](https://people.umass.edu/dehuber/). My research involved [adapting a neural network for modeling cognition](https://psadil.github.io/psadil/publication/sadil-2017-computational/), investigating [associative learning and recollection for low-level visual information](https://psadil.github.io/psadil/publication/sadil-2019-connecting/), looking at [sequential effects in perceptual decisions](https://psadil.github.io/psadil/publication/sadil-2021-serialdependence/), and developing new ways to apply Bayesian inference to [behavioral](https://psadil.github.io/psadil/publication/sadil-2019-hierarchical/) or [neuroimaging](https://psadil.github.io/psadil/publication/sadil-2021-nmm/) data. 
 
