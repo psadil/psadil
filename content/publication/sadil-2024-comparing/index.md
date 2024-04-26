@@ -3,11 +3,11 @@
 
 title: "Comparing Automated Subcortical Volume Estimation Methods; Amygdala Volumes Estimated by FSL and FreeSurfer Have Poor Consistency"
 authors: ["Patrick Sadil", "Martin A Lindquist"]
-date: 2024-14-06
+date: 2024-06-14
 doi: "https://doi.org/10.1101/2024.03.07.583900"
 
 # Schedule page publish date (NOT publication's date).
-publishDate: 2024-14-06
+publishDate: 2024-14-06T00:00:00Z
 
 # Publication type.
 # Legend: 0 = Uncategorized; 1 = Conference paper; 2 = Journal article;
