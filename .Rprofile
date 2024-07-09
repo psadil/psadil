@@ -1,4 +1,5 @@
 source("renv/activate.R")
+# Sys.setenv(PATH=glue::glue("/usr/bin:/usr/local/bin:/opt/homebrew/bin:{Sys.getenv('PATH')}"))
 options(
   blogdown.author = "Patrick Sadil", 
   blogdown.hugo.args = '--minify',
