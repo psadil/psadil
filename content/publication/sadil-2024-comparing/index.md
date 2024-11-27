@@ -36,7 +36,7 @@ featured: false
 #   icon_pack: fab
 #   icon: twitter
 
-url_pdf: //psadil.github.io/psadil/files/publications/sadil_comparing_2023.pdf
+url_pdf: //psadil.github.io/psadil/files/publications/sadil_comparing_2024.pdf
 url_code: https://github.com/psadil/auto-volume-comparisons
 url_dataset: 
 url_poster: 
