@@ -36,7 +36,7 @@ featured: false
 #   icon_pack: fab
 #   icon: twitter
 
-url_pdf: //psadil.github.io/psadil/files/publications/motion_ohbm-2025.pdf
+url_pdf: //psadil.github.io/psadil/files/presentations/motion_ohbm-2025.pdf
 url_code: 
 url_dataset: 
 url_poster: 
