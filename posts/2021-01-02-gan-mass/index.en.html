@@ -1,0 +1,66 @@
+---
+title: New England GAN
+author: Patrick Sadil
+date: '2021-01-17'
+slug: []
+categories: []
+tags:
+  - python
+  - machine learning
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-01-17T19:43:37-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>A friend recently moved away from Western Mass, so I wanted to send them a gift to help remind them of the area. I also happened to want to learn a bit more about Generative Adversarial Networks (GANs).</p>
+<div id="goals" class="section level1">
+<h1>Goals</h1>
+<ul>
+<li>Briefly overview GANs</li>
+<li>Link to fun code for acquiring data from Google Street View</li>
+<li>Share a neat set of photographs</li>
+</ul>
+<p>Note that this isn’t an ‘intro to GANs’. If that’s what you’re after, keep browsing.</p>
+</div>
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p>Computers have gotten very good at extracting information from images, particularly at identifying images’ contents. Such categorization is powerful, but it often requires access to labeled data – hundreds of thousands of pictures for which we can tell the computer: this is a cat, that is a dog, no that’s also a dog, yes that’s a dog but it’s also a husky. However, many applications remain where computer-aided categorization would be invaluable, but for which there isn’t sufficient labeled data. If an algorithm can learn to recognize the subtle features distinguishing <a href="https://en.wikipedia.org/wiki/ImageNet">120 dog breeds</a>, it could probably learn visual features that help radiologists locate potential anomalies. But the guess-and-check strategy, despite being sufficient for many advanced computer vision algorithms, flounders when it has access to only a few hundred training examples. Computers have the potential to do some very clever things, but there is not always enough data to supervise their training.</p>
+<p>To mitigate a lack of data, one developing solution is a GAN. A common analogy for these networks envisions art forgery (<a href="https://www.tensorflow.org/tutorials/generative/dcgan">e.g.</a>), a forger and a critic collaborating to learn about an artist. The forger paints fake works in the style of van Gough, while the critic distinguishes the fake from the real van Goughs. For the forger to succeed, it must paint the essences of van Gough: the reductionist features like the strokes and the yellows, and the holistic feelings of urgency and presence. For the critic to succeed, it must identify those essences, learning the sharp boundaries between longing and yearning. As the forgeries improve, the critic becomes more discerning, further inspiring the forger. Although the networks are taught the essences – the labels – explicitly, the two together learn about van Gough. And they’ll learn without supervision.</p>
+<p>After learning, the critic can be deployed for standard categorization tasks (e.g., aiding medical diagnoses). But the training also produces another useful machine, a machine that is capable of generating images. Predictably, there are challenges to training a generator that is capable of producing good quality, large, and diverse images. But I didn’t need the images to be stellar, so long as their content was clear (to a human). A lack of photorealism – imperfect training – could make the pictures more interesting<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. To make a gift, I wanted a forger that could paint New England.</p>
+</div>
+<div id="setup" class="section level1">
+<h1>Setup</h1>
+<p>I wanted the forger to generate images of New England, so I first needed a bunch of pictures of New England. I have photographed a few hundred pictures, but this wouldn’t be nearly enough<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. Instead, I relied on a combination of Google’s <a href="https://developers.google.com/maps/documentation/streetview/overview">Street View Static</a> and <a href="https://developers.google.com/maps/documentation/directions/overview">Directions</a> APIs. The Street View API gives a picture associated with a location, and those locations were provided by the Directions API. <a href="https://github.com/psadil/gan-mass">The repository</a> for the network has the details, but the result was that I could input an origin and a destination – meandering through a few waypoints – and download whatever the Street View Car recorded when it traveled along those directions<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. In the end, I collected ~25,000 images.</p>
+<p>25k may feel like a lot of images. But skimming online suggested that <a href="https://blogs.nvidia.com/blog/2020/12/07/neurips-research-limited-data-gan/">even 25k would not have been enough to adequately constrain the networks</a>. GANs may not require labeled examples, but they are still data-hungry. Given my relatively small dataset, I picked an adversarial architecture that incorporates a few extra tricks to glean information from smaller datasets: <a href="https://github.com/NVlabs/stylegan2-ada">stylegan2-ada</a><a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. To train the network, I used free credits on the Google’s cloud console.</p>
+</div>
+<div id="curated-samples" class="section level1">
+<h1>Curated Samples</h1>
+<p>After one day of training<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>, the network started producing some useful images.</p>
+<div class="figure">
+<img src="print_5x7_256.png" alt="" />
+<p class="caption">These six images are fake, produced from a collaboration to learn about New England.</p>
+</div>
+<p>I chose these six – and the seventh at the top – because they illustrate a few fun features of what the GAN learned. For example, the GAN learned, very early, that pictures of New England always have, in the bottom corners, the word “Google”<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. That machine learning can produce realistic text surprises me (e.g., <a href="https://www.facebook.com/botsofnewyork/photos/a.2028566864113743/2490502274586864/?type=3&amp;theater">if the face is weird, how are all of the pixels in place to spell out a word</a>?!). I assume that text comes out clean because most lettering is tightly constrained. That is, when the forger paints something that could be categorized as lettering, the critic severely constrains those pixels; fuzzy letters betray forgery, and real photographs don’t have nonsense like UNS;QD*LKJ. So if the training images contain enough text that the generator starts producing letters, there is also enough text for the critic to learn what text is realistic.</p>
+<p>The forger had difficulty with buildings. I downloaded mostly images of the highways connecting cities. This means that there were enough cityscapes for the GAN to generate buildings, but relative to a road, it was much slower at learning the intricacies of a building. Of course, the roads are imperfect, too (the telephone pole in the upper middle ripples, the upper left has too many roads, the colors of the painted lines mismatch, etc). But unlike, say, a bad photoshop, these errors have a kind of global coherence that, subjectively, allows the images to seem not fake but instead surreal.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>If I wanted perfect pictures, I could have just used a camera.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>The van Gough example is slightly misleading; in practice, van Gough didn’t paint enough pictures to train a GAN. Training a GAN from scratch doesn’t require labeled data, but it still requires many images. There are tricks that could help a GAN, but simply training his images would likely be insufficient.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Having not owned a car during graduate school, I found it funny that these networks learned about New England through its highways<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>But also, they provided a helpful docker image, functions to prep the data, and decent documentation. This is a good reminder about the benefits of polishing a repository.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>After one day, the training error was still decreasing. But I was using a <a href="https://cloud.google.com/compute/docs/instances/preemptible">preemptible virtual machine</a>, and so after 24 hours it was automatically shutdown.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>I removed the text from the curated examples, but it can be seen in the preview image at the top.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
