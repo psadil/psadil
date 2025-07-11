@@ -1,0 +1,12 @@
+[workspace]
+authors = ["Patrick Sadil <psadil@gmail.com>"]
+channels = ["conda-forge"]
+name = "psadil"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+render = "quarto render index.qmd"
+
+[dependencies]
+quarto = ">=1.7.32,<2"

@@ -17,3 +17,6 @@ resources/
 /.quarto/
 /_site/
 /_freeze/
+
+# pixi environments
+.pixi

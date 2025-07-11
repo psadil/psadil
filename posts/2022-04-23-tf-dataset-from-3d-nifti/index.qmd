@@ -1,5 +1,5 @@
 ---
-title: "How to store a NifTi as a TFRecord"
+title: "How to store a NIfTI as a TFRecord"
 jupyter: python3
 author: Patrick Sadil
 date: '2022-04-23'
