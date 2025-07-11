@@ -1,0 +1,145 @@
+---
+title: Modulations to tuning functions can bias evidence accumulation
+author: Patrick Sadil
+date: '2019-10-18'
+slug: neural-modulation-for-serial-dependence
+categories:
+  - dissertation
+tags: []
+link-citations: true
+bibliography: [one.bib]
+---
+
+```{r setup, include=FALSE}
+renv::use(lockfile = "renv.lock")
+knitr::opts_chunk$set(dev = "ragg_png")
+library(ragg)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(purrr)
+
+great_circ <- function(phi_1,
+                       reference_angle,
+                       range_dist,
+                       max_diff = 180,
+                       sym = TRUE){
+  # sym: should the function attend to the direction (clockwise or counterclockwise) of the comparison?
+
+  raw_diff <- abs(phi_1 - reference_angle)
+  mod_diff <- raw_diff %% range_dist
+  out <- dplyr::if_else(mod_diff > max_diff, range_dist - mod_diff, mod_diff)
+  if(!sym){
+    # which transition gets us closer to the moving angle, phi_1?
+    cw <- great_circ(reference_angle+out,
+                     phi_1,
+                     range_dist,
+                     max_diff,
+                     TRUE)
+    ccw <- great_circ(reference_angle-out,
+                      phi_1,
+                      range_dist,
+                      max_diff,
+                      TRUE)
+    # if a clockwise transition brings us closer to phi_1,
+    # return positive angle. If counterclockwise, return negative
+    out <- dplyr::if_else(cw < ccw, out, -out)
+  }
+
+  return(out)
+}
+
+dog <- function(x,
+                a = 1,
+                b = 1/20,
+                c = sqrt(2*exp(1))){
+  return(a * b * c * x * exp(-(b*x)^2))
+}
+
+```
+
+Perceptual decisions can be deconstructed with evidence accumulation models. These models formalize expectations about how participants behave, when that behavior involves repeatedly sampling information towards until surpassing a necessary threshold of information. At a cognitive level, the different models instantiate the components differently, but at a neural level the models rely on common mechanisms. To accumulate evidence the models assume two distinct populations of neurons. One population responds to available information. This population can be thought of as a sensory population, such that each neuron in the population represents one of the available options. The second population listens to the first, transforming the sensory activity into evidence for each decision and accumulating the evidence through time. This second population can be called an integrating population. While the location of the sensory population depends on the information that needs to be represented, the location of the integrating population depends on the required behavior. If participants must make decisions about orientations, the sensory population might be striatal neurons tuned to different orientations. If participants make decisions with saccades, the integrating population might be in the frontal eye fields. Understanding how these two populations reveals different ways that decisions can be biased.
+
+::: {#fig-readout}
+
+```{r, readout}
+n <- 8
+kappa <- 3
+
+d <- tibble(orientation = seq(-pi, pi, length.out = 500)) |>
+  crossing(mu = seq(-pi, pi-(2*pi)/n, length.out = n)) |>
+  mutate(channel = as.numeric(factor(mu)))
+
+d2 <- d |>
+  mutate(Sensory = CircStats::dvm(orientation,mu,kappa)) |>
+  group_by(orientation) |>
+  mutate(Integrating = sum(Sensory)) |>
+  ungroup() |>
+  gather("Population", "y", Sensory, Integrating) |>
+  mutate(channel = if_else(str_detect(Population, "Integrating"), 0, channel),
+         channel = factor(channel, labels = c("Integrating", as.character(1:8))),
+         Population = factor(Population, levels = c("Sensory", "Integrating")))
+
+d3 <- d2 |>
+  filter(orientation %in% unique(orientation)[seq(20, 480, 50)]) |>
+  mutate(y = y + rnorm(n(), 0, .1),
+         y = map_dbl(y, ~max(.x,0)))
+
+d2 |>
+  ggplot(aes(x=orientation, color=channel)) +
+  # geom_vline(aes(xintercept=orientation),
+  #            data=d3,
+  #            alpha = 0.5) +
+  geom_line(aes(y=y, linetype=Population)) +
+  scale_color_viridis_d(option = "inferno", guide=FALSE) +
+  scale_y_continuous(name = "Activity", labels = NULL)
+# +
+#   geom_point(aes(y=y),
+#              data=d3) 
+```
+
+Sensory channels evenly represent orientations. The curves from the sensory population represent the average activity of each neuron to a given orientation. Although the curves show average activity, at any given moment the actual activity of each neuron may be higher or lower. The integrating curve reflects the average evidence that the integrating population will record. The flatness of the integrating curve reflects an unbiased representation. Only eight neurons from the sensory population are shown to avoid overcrowding.
+
+:::
+
+For the integrating population to accumulate evidence, it must transform the activity of the sensory population into a meaningful signal. @fig-readout depicts that transformation when participants must report orientations. Each neuron in the sensory population responds most strongly to a specific orientation, but all of them are active whenever an orientation is present. The function describing how a sensory neuron respond to different orientations is called the neuron's tuning function. The integrating population will respond according to some other function of that sensory activity. One simple integrating function associates each neuron with its preferred orientation; the integrating population then tallies evidence based on whichever neuron is most active. This function requires the sensory population to represent each orientation with at least one neuron. If there are enough sensory neurons, the integrating population will be able to accumulate evidence for each orientation without bias. 
+
+::: {#fig-modulations}
+
+```{r, modulations}
+b <- d |>
+  mutate(beta = 1+CircStats::dvm(pi/4, mu, 2),
+         Sensory = CircStats::dvm(orientation,mu,kappa) * beta,
+         modulation = "Gain") 
+
+c <- d |>
+  mutate(mu = mu + dog(great_circ(mu, pi/4, 2*pi,pi, FALSE), a=2, b=1/(.2*pi)),
+         Sensory = CircStats::dvm(orientation,mu,kappa),
+         modulation = "Shift") 
+
+bind_rows(b,c) |>
+  group_by(orientation, modulation) |>
+  mutate(Integrating = sum(Sensory)) |>
+  ungroup() |>
+  # group_by(modulation) |>
+  # mutate(readout = readout / mean(readout)) |>
+  # ungroup() |>
+  gather("Population", "y", Sensory, Integrating) |>
+  mutate(channel = if_else(str_detect(Population, "Integrating"), 0 ,channel),
+         channel = factor(channel, labels = c("Integrating", as.character(1:8))),
+         Population = factor(Population, levels = c("Sensory", "Integrating"))) |>
+  ggplot(aes(x=orientation, y=y, color=channel)) +
+  geom_line(aes(color=channel, linetype=Population))  +
+  facet_wrap(~modulation)  +
+  scale_color_viridis_d(option = "inferno", guide=FALSE) +
+  scale_y_continuous(name = "Activity", labels = NULL) 
+
+```
+
+Modulations to activity of the sensory population will provide the integrating population a biased representation of the orientation. Unlike in @fig-readout, the sensory population in both panels provides the integrating population with an uneven representation of orientation.
+
+:::
+
+The tuning characteristics of sensory neurons are variable, and this variability causes biases to emerge in the evidence accumulation process (@fig-modulations). One common alteration is an increased gain, whereby the tuning function is multiplied by some value. When the gains of tuning functions are altered heterogeneously, a neuron may have a higher activity even when the orientation it is responsible for is not present. The neurons with the highest gain will bias the evidence gathered by the integrating population. Alternatively, tuning functions might shift, along with the orientation each neuron signals. The shift causes the sensory population to over-represent of some orientations and leave others underrepresented. These alterations can provide advantages in certain circumstances. For example, a heterogeneously increased gain will be useful when some orientations are known to be more likely than others, and a shift will be useful when different orientations require differently precise responses. But to accumulate evidence without bias, the sensory population must restore more uniform tuning.
+

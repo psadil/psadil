@@ -1,5 +1,0 @@
-*.nii.gz
-*tfrecords
-*ipynb_checkpoints
-*ipynb
-.env

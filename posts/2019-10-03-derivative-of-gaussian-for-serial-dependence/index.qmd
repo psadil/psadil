@@ -1,0 +1,131 @@
+---
+title: derivative of gaussian for serial dependence
+author: Patrick Sadil
+date: '2019-10-03'
+slug: derivative-of-gaussian-for-serial-dependence
+categories:
+  - dissertation
+tags: []
+---
+
+```{r setup, include=FALSE}
+renv::use(lockfile = "renv.lock")
+library(formatR)
+library(ragg)
+library(patchwork)
+knitr::opts_chunk$set(tidy = TRUE, message = FALSE, dev = "ragg_png")
+```
+
+Cognitive experiments can require participants to complete hundreds of trials, but completing so many trials invariably alters participants' behavior. Their behavior late in the experiment can depend on their behavior early in the experiment. Although such dependence can be an experimental confound,
+the dependence itself can provide clues about cognition. One simple kind of dependence occurs through learning; hundreds of trials provides participants ample practice. A more subtle dependence can emerge between sequential trials, an effect called serial dependence. Theoretical interpretations of serial dependence vary, and some of that variability may relate to how the dependence is measured. In this post, I review a statistical method commonly used to analyze serial dependence and discuss one way that method can fail. 
+
+I will focus on the analysis of an orientation judgment task, in which participants simply see an oriented bar on each trial, remember the bar's orientation for a short period, and then report the orientation. Participants' responses on one trial can depend on the orientation they saw in the previous trial. The dependence follows a Gaussian's derivative function. @fig-dog0 a shows a Gaussian function with its derivative, and @fig-dog0 b shows the derivative modeling a range of different serial dependence patterns. The derivative captures three key features of the data. First, different changes in orientation between trials result in serial dependencies of different magnitude. The responsiveness of dependence is captured by the width of the derivative. Second, serial dependence can have a different magnitude. The magnitude is captured by the amplitude of the derivative. Finally, responses on the current trial can either be attracted towards or repulsed away from the orientation of the previous trial. The direction of the effect is captured with the sign of the amplitude. The direction of the effect--and the experimental manipulations that change that direction--are often critical to different theoretical interpretations of serial dependence.
+
+::: {#fig-dog0}
+
+```{r, dog0}
+
+dog0 <- function(x,
+                sigma=1){
+  return( -x*exp(-(x^2)/(2*sigma^2)) / (sqrt(2*pi)*sigma^3) )
+}
+
+dog <- function(x,
+                a = 1,
+                b = 1/20,
+                c = sqrt(2*exp(1))){
+  return(a * b * c * x * exp(-(b*x)^2))
+}
+
+
+a <- tibble::tibble(
+  x = seq(-5, 5, length.out = 1000),
+  sigma = 1) |>
+  tidyr::crossing(Function = c("Gaussian", "Derivative")) |>
+  dplyr::mutate(y = dplyr::if_else(Function=="Derivative", 
+                                   dog0(x=x, sigma=sigma), 
+                                   dnorm(x, sd=sigma))) |>
+  ggplot2::ggplot(ggplot2::aes(x=x, y=y, linetype=Function)) +
+  ggplot2::geom_line() +
+  ggplot2::theme(
+    axis.ticks = ggplot2::element_blank(),
+    axis.text = ggplot2::element_blank(),
+    axis.title = ggplot2::element_blank()
+  )
+
+b <- tibble::tibble(x = seq(-60, 60, length.out = 1000)) |>
+  tidyr::crossing(Amplitude = c(-1,-0.5,0.5,1),
+                  Width = c(10, 20, 30)) |>
+  dplyr::mutate(
+    y = dog(x=x, a=Amplitude, b = 1/Width),
+    Sign = factor(sign(Amplitude), labels = c("Repulsive", "Attractive")),
+    Amplitude = factor(Amplitude)) |>
+  ggplot2::ggplot(ggplot2::aes(x=x, y=y, color=Amplitude, linetype=Sign)) +
+  ggplot2::geom_line() +
+  ggplot2::facet_wrap(~Width, labeller = "label_both") +
+  ggplot2::scale_color_viridis_d(option="inferno", end = 0.8) +
+  ggplot2::ylab("Error on current trial (Degrees)") +
+  ggplot2::xlab("Orientation on previous trial relative to current (Degrees)")
+
+
+a + b + 
+  patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")") + 
+  patchwork::plot_layout(nrow = 2)
+```
+Models. a) A Gaussian function and its derivative. b) The derivative captures how errors on the current trial can depend on how the relationship between the orientation seen in the current and previous trials. Positive values on the horizontal axis signify a clockwise difference and negative values a counterclockwise difference. Likewise, positive errors signify responses on the current trial which were clockwise to the true orientation, and negative errors are counterclockwise. When errors are in the same direction as the difference in orientations, the error is said to be attractive. Otherwise, the error is repulsive. Whether errors are attractive or repulsive is given by the sign of the derivative's amplitude.
+
+:::
+
+Although the Gaussian's derivative adequately models the serial dependence between trials with similar orientations (less than 45 degree differences), the derivative fits poorly the dependencies following large changes. When sequential trials have a large orientation difference, the sign of the dependence often changes; small orientation differences can elicit an attractive dependence even while large differences are repulsive. These sign flips are called the peripheral bumps, and they are not captured by the Gaussian's derivative. If the bumps are large enough, they can interpretations about the sign to of dependencies following small changes can be inverted (@fig-bumps). Unfortunately, noticing the peripheral bumps can be hard with sparse data. But even with sparse data, the width of the best-fitting derivative can help identify bumps. If the best-fitting derivative is abnormally wide (with peaks larger than approximately 35 degrees), then the derivative is tracking dependencies wider than it should. In that circumstance, it may be best to focus analyses on only the trials with smaller orientation differences. 
+
+::: {#fig-bumps}
+
+```{r, bumps}
+
+xx <- seq(-1,0, length.out = 500)
+d <- tibble::tibble(xx = c(xx, rev(xx)),
+                    x = seq(-1,1, length.out = 1000),
+                    ss = rep(c(1, -1),each=500)) |>
+  dplyr::mutate(
+    truth = exp(-xx)*sin(x=2*pi*xx)*ss,
+    y = truth + rnorm(dplyr::n(), 0, 3))
+
+ff <- function(p, x, y){
+  prediction <- dog(x=x, a=p[1], b=p[2])
+  return(sum((prediction-y)^2))
+}
+
+fit <- optim(par=c(-2,1), fn=ff, x=d$x, y=d$y, lower = c(-Inf,0), method="L-BFGS-B")
+
+d |>
+  dplyr::mutate(estimate = dog(x=x, a=fit$par[1], b=fit$par[2])) |>
+  tidyr::gather("model", "value", truth,estimate) |>
+  ggplot2::ggplot(ggplot2::aes(x=x)) +
+  ggplot2::geom_point(ggplot2::aes(y=y)) +
+  ggplot2::geom_line(ggplot2::aes(y=value, 
+                                  linetype=model,
+                                  color = model), 
+                     size = 2) +
+  ggplot2::scale_color_viridis_d(option="inferno", 
+                                 end = 0.8, 
+                                 begin=0.5) +
+  ggplot2::scale_x_continuous(breaks=c(-0.75,0,0.75), 
+                              labels=c("Large Counterclockwise",
+                                       "0",
+                                       "Large Clockwise"),
+                              name = "Orientation on previous trial relative to current") +
+    ggplot2::scale_y_continuous(breaks=c(-4,0,4), 
+                              labels=c("Counterclockwise",
+                                       "0",
+                                       "Clockwise"),
+                              name = "Error on current trial")  +
+  ggplot2::theme(
+    axis.ticks = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+```
+
+Misfits of the Gaussian's derivative. The dots give hypothetical data. The data were generated with a function whose average is traced by the dashed line. The data were fit with a derivative of Guassian function, and the best-fitting derivative is shown with a solid line. The derivative does not match the data-generating function.
+
+:::

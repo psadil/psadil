@@ -13,4 +13,6 @@ resources/
 
 .httr-oauth
 
-content/post/*/*_cache/**/*
+/.quarto/
+/_site/
+/_freeze/

@@ -1,0 +1,44 @@
+[
+  {
+    "listing": "/posts.html",
+    "items": [
+      "/posts/2022-10-19-typehint-cache-decorator/index.html",
+      "/posts/2022-04-23-tf-dataset-from-3d-nifti/index.html",
+      "/posts/2021-05-07-spurious-serial-dependencies/index.html",
+      "/posts/2021-01-02-gan-mass/index.html",
+      "/posts/2020-03-14-counterbalanced-continuous-designs-with-eulerian-walks/index.html",
+      "/posts/2019-11-21-thoughts-on-eye-movement/index.html",
+      "/posts/2019-11-15-half-of-a-parameter/index.html",
+      "/posts/2019-11-08-staircases-for-thresholds-part2/index.html",
+      "/posts/2019-10-30-staircases-for-thresholds/index.html",
+      "/posts/2019-10-24-forward-encoding-model/index.html",
+      "/posts/2019-10-18-neural-modulation-for-serial-dependence/index.html",
+      "/posts/2019-10-11-serial-dependence-reflects-a-preference-for-low-variability/index.html",
+      "/posts/2019-10-03-derivative-of-gaussian-for-serial-dependence/index.html",
+      "/posts/2019-09-27-population-receptive-field-mapping/index.html",
+      "/posts/2019-09-19-serial-dependence/index.html",
+      "/posts/2019-09-12-circular-diffusion-model-of-response-times/index.html",
+      "/posts/2019-05-25-eyetracking-with-eyelink-in-psychtoolbox-now-with-oop/index.html",
+      "/posts/2018-11-10-importance-sampling/index.html",
+      "/posts/2018-08-07-anonymizing-mturk-worker-ids/index.html",
+      "/posts/2018-06-05-eyetracking-with-eyelink-in-psychtoolbox/index.html"
+    ]
+  },
+  {
+    "listing": "/research.html",
+    "items": [
+      "/publications/sadil-2025-motion/index.html",
+      "/publications/sadil-2024-comparing/index.html",
+      "/publications/halchenko_heudiconv_2024/index.html",
+      "/publications/sadil-2021-serialdependence/index.html",
+      "/publications/sadil-2022-population/index.html",
+      "/publications/sadil-2021-nmm/index.html",
+      "/publications/cowell-2019-roadmap/index.html",
+      "/publications/sadil-2019-connecting/index.html",
+      "/publications/sadil-2019-hierarchical/index.html",
+      "/publications/sadil-2018-hierarchical/index.html",
+      "/publications/sadil-2017-computational/index.html",
+      "/publications/ross-2017-hippocampal/index.html"
+    ]
+  }
+]

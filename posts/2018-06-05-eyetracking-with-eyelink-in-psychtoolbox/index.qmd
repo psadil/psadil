@@ -1,0 +1,370 @@
+---
+title: eyetracking with eyelink in psychtoolbox
+author: Patrick Sadil
+date: '2018-06-05'
+categories:
+  - experiments
+tags:
+  - eyelink
+  - matlab
+  - psychtoolbox
+slug: eyetracking-init
+pandoc_args:
+      - "--indented-code-classes"
+      - "matlab"
+execute: 
+  echo: true
+  eval: false
+  warning: false
+---
+
+```{r setup, include=FALSE}
+renv::use(lockfile = "renv.lock")
+
+eng_dummy <- function(options) {
+    knitr::engine_output(options, options$code, "")
+}
+knitr::knit_engines$set(matlab = eng_dummy)
+```
+
+UPDATE: I now think that the examples I've presented here obscure the interface with Eyelink. Much cleaner to use MATLAB's object oriented programming. This is covered in [another post](https://psadil.github.io/psadil/post/eyetracking-in-psychtoolbox-oop/).
+
+This post is designed as minimal documentation for using the Eyelink software at the UMass Amherst [hMRC](https://www.umass.edu/ials/hmrc). The goals are very modest
+
+1. Provide sample [Psychtoolbox](http://psychtoolbox.org) (PTB) and MATLAB code for integrating eyelink
+2. Explain a few parameters that you might want to change in your experiment
+
+The main audience includes members of the cMAP and CEMNL labs at UMass, but other users of the hMRC may also benefit. This post includes various lines of code throughout this post, but the full files can be downloaded from the links at the bottom. Many of those links are private and will only work if you are a member of one of those labs.
+
+NOTE: This post is not designed to be a full introduction to the Eyelink toolbox within PTB. I'm not qualified to give a detailed tutorial. These are just a few bits of code that I have found useful. But, my needs have so far been really simple (i.e., make a record of where the eyes were during each run so that runs can be discarded if fixations during that run deviate more than x degrees from the center of the screen). The main resource in this post is probably the collection of links in the next section.
+
+# Background links + installing extra software
+
+You'll need to download the Eyelink API provided by SR Research. To do that, register an account [here](https://www.sr-support.com). Note that they moderate the accounts fairly heavily, so it may take 24 hrs+ for the registration to go though. Once you're registered, you can download the developers kit API ( [Windows](https://www.sr-support.com/forum/downloads/eyelink-display-software/39-eyelink-developers-kit-for-windows-windows-display-software), [Linux](https://www.sr-support.com/forum/downloads/eyelink-display-software/46-eyelink-developers-kit-for-linux-linux-display-software) ). You'll need that kit to be able to call Eyelink functions from within matlab (otherwise you get an error about missing mex files whenever you search for help pages). Registering also gives access to a support forum.
+
+Before moving to the next session, it may make sense to look through their [manuals](https://www.sr-support.com/forum/downloads/manuals). If you have access to our box folder, here's a link to the relevant [Eyelink II manual](https://umass.box.com/s/1nr9m302wqn5l2jd9kaf9guv8ngqa9wp) and the [Data Viewer](https://umass.box.com/s/n8ki3br7watw2niuangxxflj6ulpnk67q). The manuals are, well, manuals, but reading through them takes less time than their length might suggest. If you are not a member of our lab, you may be able to ask a member of the hMRC to share the manuals.
+
+Without a licensing key, the version of the data viewer that can be downloaded is more or less useless (but, [here it is](https://www.sr-support.com/forum/downloads/data-analysis/4557-eyelink-data-viewer?4434-EyeLink-Data-Viewer=)). Instead, for working with the data in R, see [edfR](https://github.com/jashubbard/edfR) and [itrackR](https://github.com/jashubbard/itrackR). Note that these are only working on Mac and Linux. So, you may need to be working on the server to install / use those libraries. Alternatively, you can also read the edf files directly into matlab using [EDFMEX](https://www.sr-support.com/forum/downloads/data-analysis/5446-edfmex-reading-edf-data-directly-into-matlab). However, I won't be able to help much with using these packages, given that I only discovered them while writing this post. 
+
+Kwan-Jin Jung wrote a technical note about the eyetracking system, [see here](https://www.umass.edu/ials/sites/default/files/hmrc_tn_eye_monitoring_during_fmri_scan.pdf), and here's the [advertisement for our tracker](https://www.sr-research.com/products/eyelink-1000-plus/#LongRangeMount).
+
+# Initializing Eyelink {#sec:init}
+
+This section walks through a function that initializes the eyelink system. The first step to interfacing with the Eyelink is to call the PTB command [`EyelinkInitDefaults`](https://web.archive.org/web/20171214112707/http://docs.psychtoolbox.org/EyelinkInitDefaults). This defines a struct with a number of default parameters, `el` about how the eyetracker will operate. I generally don't want all of those defaults, so the function below modifies them as needed. After the parameters in `el` have been  modified, this function calls [`EyelinkUpdateDefaults(el)`](https://web.archive.org/web/20171214035622/http://docs.psychtoolbox.org/EyelinkUpdateDefaults) to indicate to inform the eyelink system that the parameters should change.
+
+The main other point of this function is to start the eyetracker calibration. That should be done at the start of each run.
+
+```{matlab}
+
+function [el, exit_flag] = setupEyeTracker( tracker, window, constants )
+% SET UP TRACKER CONFIGURATION. Main goal is to modify defaults set in EyelinkInitDefaults.
+
+%{
+  REQUIRED INPUT:
+    tracker: string, either 'none' or 'T60'
+  window: struct containing at least the fields
+  window.background: background color (whatever was set during call to e.g., PsychImaging('OpenWindow', window.screenNumber, window.background))
+  window.white: numeric defining the color white for the open window (e.g., window.white = WhiteIndex(window.screenNumber);)
+  window.pointer: scalar pointing to main screen (e.g., [window.pointer, window.winRect] = PsychImaging('OpenWindow', ...
+                                                                                                        window.screenNumber,window.background);)
+  window.winRect; PsychRect defining size of main window (e.g., [window.pointer, window.winRect] = PsychImaging('OpenWindow', ...
+                                                                                                                window.screenNumber,window.background);)
+  constants: struct containing at least
+  constants.eyelink_data_fname: string defining eyetracking data to be saved. Cannot be longer than 8 characters (before file extention). File extension must be '.edf'. (e.g., constants.eyelink_data_fname = ['scan', num2str(input.runnum, '%02d'), '.edf'];)
+  
+  OUTPUT:
+    if tracker == 'T60'
+  el: struct defining parameters that have been set up about the eyetracker (see EyelinkInitDefaults)
+  if tracker == 'none'
+  el == []
+  exit_flag: string that can be used to check whether this function exited successfully
+  
+  SIDE EFFECTS:
+    When tracker == 'T60', calibration is started
+  %}
+
+%%
+  exit_flag = 'OK';
+
+switch tracker
+
+case 'T60'
+% Provide Eyelink with details about the graphics environment
+% and perform some initializations. The information is returned
+% in a structure that also contains useful defaults
+% and control codes (e.g. tracker state bit and Eyelink key values).
+el = EyelinkInitDefaults(window.pointer);
+
+% overrride default gray background of eyelink, otherwise runs end
+% up gray! also, probably best to calibrate with same colors of
+% background / stimuli as participant will encounter
+el.backgroundcolour = window.background;
+el.foregroundcolour = window.white;
+el.msgfontcolour = window.white;
+el.imgtitlecolour = window.white;
+el.calibrationtargetcolour=[window.white window.white window.white];
+EyelinkUpdateDefaults(el);
+
+if ~EyelinkInit(0, 1)
+fprintf('\n Eyelink Init aborted \n');
+exit_flag = 'ESC';
+return;
+end
+
+%Reduce FOV
+Eyelink('command','calibration_area_proportion = 0.5 0.5');
+Eyelink('command','validation_area_proportion = 0.48 0.48');
+
+% open file to record data to
+i = Eyelink('Openfile', constants.eyelink_data_fname);
+if i ~= 0
+fprintf('\n Cannot create EDF file \n');
+exit_flag = 'ESC';
+return;
+end
+
+Eyelink('command', 'add_file_preamble_text ''Recorded by NAME OF EXPERIMENT''');
+
+% Setting the proper recording resolution, proper calibration type,
+% as well as the data file content;
+Eyelink('command','screen_pixel_coords = %ld %ld %ld %ld', 0, 0, window.winRect(3)-1, window.winRect(4)-1);
+Eyelink('message', 'DISPLAY_COORDS %ld %ld %ld %ld', 0, 0, window.winRect(3)-1, window.winRect(4)-1);
+% set calibration type.
+Eyelink('command', 'calibration_type = HV5');
+
+% set EDF file contents using the file_sample_data and
+% file-event_filter commands
+% set link data thtough link_sample_data and link_event_filter
+Eyelink('command', 'file_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT');
+Eyelink('command', 'link_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT');
+
+% check the software version
+% add "HTARGET" to record possible target data for EyeLink Remote
+Eyelink('command', 'file_sample_data  = LEFT,RIGHT,GAZE,HREF,GAZERES,AREA,HTARGET,STATUS,INPUT');
+Eyelink('command', 'link_sample_data  = LEFT,RIGHT,GAZE,HREF,GAZERES,AREA,HTARGET,STATUS,INPUT');
+
+% make sure we're still connected.
+        if Eyelink('IsConnected')~=1 && input.dummymode == 0
+            exit_flag = 'ESC';
+            return;
+        end
+
+        % possible changes from EyelinkPictureCustomCalibration
+
+        % set sample rate in camera setup screen
+        Eyelink('command', 'sample_rate = %d', 1000);
+
+        % Will call the calibration routine
+        EyelinkDoTrackerSetup(el);
+
+
+    case 'none'
+        el = [];
+end
+
+end
+
+```
+
+Here are a few parts of that function that you will probably want to adapt for your experiment.
+
+1. The various color arguments
++ Eyelink changes the background color of whatever screen is open. So, these colors (e.g., `el.backgroundcolour`) should match whatever background your stimuli will be displayed on.
+
+2. `Eyelink('command','calibration_area_proportion = 0.5 0.5');` and `Eyelink('command','validation_area_proportion = 0.48 0.48');`
++ The setup at the scanner has a hard time tracking eyes that are fixating near the edges of the screen. The issue is bad enough that it can be almost impossible to calibrate the tracker when the calibration dots appear on the edges. I only really use the eyetracker to have a record confirming that participants were more-or-less fixating during a run, so good calibration at the edges isn't important to me. For this reason, I reduce the size of the calibration.
+
+3. Related to 2: `Eyelink('command', 'calibration_type = HV5');`
++ This sets the calibration routine to only use 5 dots, rather than 9. Again, my needs are pretty simple and calibration can be challenging, so 5 seems good enough.
+
+4. Wrapping the function in a switch argument (e.g., `tracker ==`)
++ See the next section for some of the logic in writing code with a switch statement or two that all depends on how an initial variable is set^[though, I've already broken some of the logic I outline in that section by having more than one function with a switch statement.].
+
+# The Eyelink functions
+
+In `setupEyeTracker`, you may have noticed many calls that took the following format [`Eyelink('dosomethingspecial');`](https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink). Commands like these are PTB's way of communicating with the Eyelink software.
+
+There are a few such functions that you'll need to include to record any usable data. First, the function we defined above, `setupEyeTracker`, called the function [`EyelinkDoTrackerSetup(el)`](https://web.archive.org/web/20171214112703/http://docs.psychtoolbox.org/EyelinkDoTrackerSetup). This is a function internal to PTB. It runs the calibration routine. So, you'll want a call to `[el, exitflag] = setupEyeTracker( input.tracker, window, constants );` somewhere early in your code. I rerun the calibration at the start of each experimental run.
+
+Next, the following commands make sure that you've turned on the eyetracker
+
+```{matlab}
+% Must be offline to draw to EyeLink screen
+Eyelink('Command', 'set_idle_mode');
+
+% clear tracker display
+Eyelink('Command', 'clear_screen 0');
+
+Eyelink('StartRecording');
+
+% always wait a moment for recording to have definitely started
+WaitSecs(0.1);
+```
+
+Eyelink will save it's files in a specialized format^[The options relating to saving data are for another post. It seems like you can do quite a lot with the Eyelink Data Viewer when various event tags have been set up properly (see [manual, on box](https://umass.box.com/s/n8ki3br7watw2niuangxxflj6ulpk67q) ), but my needs are so simple that I haven't bothered digging too deeply.]. For that file, it's useful to mark when the experiment has actually started. So, include a command like
+
+```{matlab}
+Eyelink('message', 'SYNCTIME');
+```
+
+to mark the start. Since this will probably be run in the scanner, a sensible time to place that would be shortly after receiving the scanner trigger, but before the next flip.
+
+When you're done with the experiment run [`Eyelink('Command', 'set_idle_mode');`](https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink) before saving data. Here's an example of a short routine to save the data. I've defined a variable `constants.eyelink_data_fname` to be a string that ends in '.edf'. Note that the filename can be no longer than 8 characters and cannot contain any special characters (only digits and letters).
+
+```{matlab}
+%  the Eyelink('ReceiveFile') function does not wait for the file
+% transfer to complete so you must have the entire try loop
+% surrounding the function to ensure complete transfer of the EDF.
+try
+fprintf('Receiving data file ''%s''\n',  constants.eyelink_data_fname );
+status = eyetrackerFcn('ReceiveFile');
+if status > 0
+fprintf('ReceiveFile status %d\n', status);
+end
+if 2==exist(edfFile, 'file')
+fprintf('Data file ''%s'' can be found in ''%s''\n',  constants.eyelink_data_fname, pwd );
+end
+catch
+fprintf('Problem receiving data file ''%s''\n',  constants.eyelink_data_fname );
+end
+
+```
+
+
+# Sample script
+
+Unfortunately, attempting to call these function from a computer that does not have Eyelink's software installed will produce an error. This makes developing and testing an experimental script challenging, because if we litter our code with calls to [`Eyelink(...)`](https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink), then when we're not at the scanner computer we need to comment out all of those lines. I have no faith that I'll remember to uncomment all of these lines when I'm at the scanner each time, so when I'm writing code that calls these functions I place them in a wrapper. Credit goes to [Will Hopper](https://people.umass.edu/whopper/) for showing me this strategy when designing functions that receive input.
+
+The main idea is two wrap all calls to `Eyelink(...)` with a function that starts like this
+
+```{matlab}
+
+function eyelinkFcn = makeEyelinkFcn(handlerName)
+
+valid_types = {'none','T60'};
+assert(ismember(handlerName, valid_types),...
+       ['"handlerType" argument must be one of the following: ' strjoin(valid_types,', ')])
+
+switch handlerName
+case 'T60'
+eyelinkFcn = @T60;
+case 'none'
+eyelinkFcn = @do_nothing;
+end
+
+% more code to follow
+
+end
+
+```
+
+The outer function, `makeEyelinkFcn` receives as input the variable `handlerName`, which can be either `none` or `T60`. Depending on that variable, the output to eyelinkFcn is then a call to an anonymous function which implements the actual calls to Eyelink. When `handlerName == 'T60'`, `makeEyelinkFcn` returns a function that is going to try to call various `Eyelink(...)` routines (shown below). But, when `handlerName == 'none'` `makeEyelinkFcn` will return a function that does nothing.
+
+This enables the writing of code that will call the eyelink functions when desired (e.g., when at the scanner), but calls to those functions can also be avoided when desired (by calling `makeEyeLinkFcn('none')` instead of `makeEyeLinkFcn('T60')`).
+
+```{matlab}
+
+% ...
+
+eyetrackerFcn = makeEyelinkFcn(input.tracker);
+
+eyetrackerFcn('message', 'SYNCTIME');
+
+% ...
+
+```
+
+So long as input.tracker is taking different values, there's no need to comment or uncomment when I'm working on a computer that has or doesn't have an eyelink hooked up^[Of course, a similar effect could be achieved by littering the experimental code with a bunch of `if then else` statements. However, this method has the advantage of massively reducing the number of switch statements in the code. Fewer switch statements can be easier to follow and modify, because most of the effect of the `input.tracker` variable can be localized to a single function (the definition of `makeEyelinkFcn`)].
+
+The remainder of this script defines the local function `T60`, which allows all of the necessary wrapping to the different `Eyelink(...)` commands.
+
+```{matlab}
+
+function eyelinkFcn = makeEyelinkFcn(handlerName)
+
+valid_types = {'none','T60'};
+assert(ismember(handlerName, valid_types),...
+       ['"handlerType" argument must be one of the following: ' strjoin(valid_types,', ')])
+
+switch handlerName
+case 'T60'
+eyelinkFcn = @T60;
+case 'none'
+eyelinkFcn = @do_nothing;
+end
+
+function status = T60(varargin)
+status = [];
+switch varargin{1}
+case 'EyelinkDoDriftCorrection'
+% Do a drift correction at the beginning of each trial
+% Performing drift correction (checking) is optional for
+% EyeLink 1000 eye trackers.
+EyelinkDoDriftCorrection(varargin{2},[],[],0);
+
+case 'Command'
+Eyelink('Command', varargin{2})
+
+case 'ImageTransfer'
+%transfer image to host
+transferimginfo = imfinfo(varargin{2});
+[width, height] = Screen('WindowSize', 0);
+
+% image file should be 24bit or 32bit b5itmap
+% parameters of ImageTransfer:
+  % imagePath, xPosition, yPosition, width, height, trackerXPosition, trackerYPosition, xferoptions
+transferStatus =  Eyelink('ImageTransfer',transferimginfo.Filename,...
+                          0, 0, transferimginfo.Width, transferimginfo.Height, ...
+                          width/2-transferimginfo.Width/2 ,height/2-transferimginfo.Height/2, 1);
+if transferStatus ~= 0
+fprintf('*****Image transfer Failed*****-------\n');
+end
+
+case 'StartRecording'
+Eyelink('StartRecording');
+
+case 'Message'
+if nargin == 2
+Eyelink('Message', varargin{2});
+elseif nargin == 3
+Eyelink('Message', varargin{2}, varargin{3});
+elseif nargin == 4
+Eyelink('Message', varargin{2}, varargin{3}, varargin{4});
+end
+case 'StopRecording'
+Eyelink('StopRecording');
+case 'CloseFile'
+Eyelink('CloseFile');
+case 'ReceiveFile'
+Eyelink('ReceiveFile');
+case 'EyeAvailable'
+status = Eyelink('EyeAvailable');
+end
+
+end
+
+function do_nothing(varargin)
+% do nothing with arguments
+end
+
+end
+
+```
+
+# Extra Resourcess
+
+For examples of these methods in action, check out [an experiment on Voxel Tuning Functions](https://github.com/psadil/VTF). In particular, see [setupEyeTracker](https://github.com/psadil/VTF/blob/master/lib/PsychSetup/setupEyeTracker.m), [makeEyelinkFcn](https://github.com/psadil/VTF/blob/master/lib/PsychEyelink/makeEyelinkFcn.m). That repository also has examples of using the value returned by `makeEyelinkFcn` in [runContrast](https://github.com/psadil/VTF/blob/master/lib/PsychTasks/runContrast.m). Note that the repository may change from time to time and might not match the code in this post exactly. To download the exact files defined above, see [setupEyeTracker](https://psadil.github.io/psadil/files/matlab/setupEyeTracker.m), [makeEyelinkFcn](https://psadil.github.io/psadil/files/matlab/makeEyelinkFcn.m)
+
+[Here's the original publication](https://link.springer.com/article/10.3758/BF03195489) that introduced the Eyelink interface to PTB.
+
+Also, for inspiration about the cool experiments that can be run with Eyelink's software, see the [PTB Demos](https://github.com/kleinerm/Psychtoolbox-3/tree/master/Psychtoolbox/PsychHardware/EyelinkToolbox/EyelinkDemos). See a list of `Eyelink` functions [here](http://psychtoolbox.org/docs/EyelinkToolbox). You'll need to look at this page if you want access to the help files for these commands on a computer without Eyelink installed.
+
+Finally, thanks to [Ramiro](https://www.umass.edu/pbs/people/ramiro-reyes) for sharing a PTB script that got me started with Eyelink.
+
+
+```{js, echo=FALSE}
+document.querySelectorAll('pre').forEach(function(el) {
+  // the class name is the language name
+  if (!el.className) el.className = 'matlab';
+});
+```
