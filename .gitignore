@@ -12,6 +12,7 @@ profile
 resources/
 
 .httr-oauth
+*.quarto_ipynb
 
 /.quarto/
 /_site/
