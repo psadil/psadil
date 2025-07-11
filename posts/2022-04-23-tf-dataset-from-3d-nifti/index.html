@@ -9,7 +9,7 @@
 <meta name="author" content="Patrick Sadil">
 <meta name="dcterms.date" content="2022-04-23">
 
-<title>How to store a NIfTi as a TFRecord – psadil</title>
+<title>How to store a NIfTI as a TFRecord – psadil</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -323,7 +323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">How to store a NIfTi as a TFRecord</h1>
+      <h1 class="title">How to store a NIfTI as a TFRecord</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">gist</div>
               </div>
@@ -383,7 +383,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>store (on disk) the examples as <a href="https://www.tensorflow.org/tutorials/load_data/tfrecord">TFRecord</a>, and finally</li>
 <li>create a <a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset"><code>tf.Data.Dataset</code></a> pipeline that serves the examples to the model.</li>
 </ol>
-<div id="bf7d0963" class="cell" data-execution_count="1">
+<div id="8667e17f" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numbers <span class="im">import</span> Number</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -397,7 +397,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="preprocess" class="level2">
 <h2 class="anchored" data-anchor-id="preprocess">Preprocess</h2>
 <p>A full implementation might involve several preprocessing steps (e.g., registration, masking, cropping), but in this gist we’ll just rescale the images to have intensity values that range from 0-1.</p>
-<div id="36ab015f" class="cell" data-execution_count="2">
+<div id="b93713fb" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> to_numpy(img: nb.Nifti1Image) <span class="op">-&gt;</span> np.ndarray:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.asanyarray(img.dataobj)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -409,13 +409,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> preprocessed</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Since this method of storing data was new for me, I wanted to ensure that I didn’t mess up the data. For that, I mainly relied on a basic plot of the images.</p>
-<div id="a278e4b8" class="cell" data-execution_count="3">
+<div id="f3a41758" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_array(img: np.ndarray) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    nii <span class="op">=</span> nb.Nifti1Image(img, affine<span class="op">=</span>np.eye(<span class="dv">4</span>)<span class="op">*</span><span class="dv">2</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    plotting.plot_anat(nii)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This first step is standard neuroimaging, but just to check that the functions are working preprocess an example brain and see how it looks.</p>
-<div id="68dadc8e" class="cell" data-execution_count="4">
+<div id="2a71ec37" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example images packaged with fsl, found at $FSLDIR/data/standard</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> [<span class="st">'MNI152lin_T1_2mm.nii.gz'</span>]</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>preprocesed <span class="op">=</span> load_and_preprocess(img[<span class="dv">0</span>])</span>
@@ -433,7 +433,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="serialize" class="level2">
 <h2 class="anchored" data-anchor-id="serialize">Serialize</h2>
 <p>Here’s where TensorFlow starts. As those that came before have always done, <a href="https://www.tensorflow.org/tutorials/load_data/tfrecord">we’ll rely on these incantations</a>.</p>
-<div id="2e987b99" class="cell" data-execution_count="5">
+<div id="5efb2782" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _bytes_feature(value: <span class="bu">bytes</span>):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns a bytes_list from a string / byte.</span></span>
@@ -455,7 +455,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tf.train.Feature(float_list<span class="op">=</span>tf.train.FloatList(value<span class="op">=</span>[value]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Those functions seem to help ensure that the serialized data ends up with appropriate types. But the full steps involve serializing both the image and the label together.</p>
-<div id="48e6cc42" class="cell" data-execution_count="6">
+<div id="c47ab918" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> serialize_example(img: <span class="bu">str</span>, label: Number):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># convert to numpy array and preprocess</span></span>
@@ -470,7 +470,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tf.train.Example(features<span class="op">=</span>tf.train.Features(feature<span class="op">=</span>feature))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>To get the image back out, we need two more functions: one to unpack/parse the example (<code>decode_example</code>) and another to unserialize/parse (<code>parse_1_example</code>) the unpacked example.</p>
-<div id="f2662f38" class="cell" data-execution_count="7">
+<div id="cafb46be" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decode_example(record_bytes) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    example <span class="op">=</span> tf.io.parse_example(</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        record_bytes,     </span>
@@ -495,7 +495,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="write-serialized-examples-as-tfrecords" class="level2">
 <h2 class="anchored" data-anchor-id="write-serialized-examples-as-tfrecords">Write serialized examples as TFRecords</h2>
 <p>So far, everything has been in memory. Next comes a function that performs the above steps sequentially on several examples, and along the way writes the examples as a <a href="https://www.tensorflow.org/tutorials/load_data/tfrecord"><code>TFRecord</code></a>.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
-<div id="5c49c9d1" class="cell" data-execution_count="8">
+<div id="92e21ff8" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> write_records(niis: List[<span class="bu">str</span>], labels: npt.ArrayLike, n_per_record: <span class="bu">int</span>, outfile: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">    store list of niftis (and associated label) into tfrecords for use as dataset</span></span>
@@ -527,7 +527,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="create-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="create-dataset">Create Dataset</h2>
 <p>For this gist, let’s store several copies of the MNI 2mm brain.</p>
-<div id="aeb8cf58" class="cell" data-execution_count="9">
+<div id="7ce9fc04" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (e.g., put nifti of label MNI152_T1_1mm_brain.nii.gz in the working directory)</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>n_imgs <span class="op">=</span> <span class="dv">3</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>mni_nii <span class="op">=</span> [<span class="st">'MNI152lin_T1_2mm.nii.gz'</span>] <span class="op">*</span> n_imgs</span>
@@ -541,7 +541,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Calling the above will write a TFRecord file to disk. To read that record, define a pipeline that will create a <code>tf.Data.dataset</code>.</p>
-<div id="fedb9328" class="cell" data-execution_count="10">
+<div id="86979c9f" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_batched_dataset(files, batch_size: <span class="bu">int</span> <span class="op">=</span> <span class="dv">32</span>) <span class="op">-&gt;</span> tf.data.Dataset:</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Note: an actual pipeline would probably include at least the shuffle and prefetch methods</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> (</span>
@@ -554,18 +554,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dataset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now, use that function to read the records back.</p>
-<div id="2ffab847" class="cell" data-execution_count="11">
+<div id="4f8f7a8a" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a full dataset will have a list with many records</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>list_of_records<span class="op">=</span>[<span class="ss">f'</span><span class="sc">{</span>prefix<span class="sc">}</span><span class="ss">*.tfrecords'</span>]</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> get_batched_dataset(list_of_records, batch_size<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>That dataset, <code>ds</code>, was our goal in the gist. It can be passed to methods of the <code>tf.keras.Model</code>, including [<code>tf.keras.Model.fit()</code>(https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit)], serving up more data than can fit in memory.</p>
 <p>But first, the serialization is a lot, so it is a good idea to verify that the images look okay when loaded. To do so, pluck a single example from the dataset.</p>
-<div id="b006eb66" class="cell" data-execution_count="12">
+<div id="93e10952" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>(Xs, Ys) <span class="op">=</span> <span class="bu">next</span>(ds.as_numpy_iterator())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The dimensions of the labels are relatively easy. It’s a 1d array with as many elements as are in the batch.</p>
-<div id="1077da87" class="cell" data-execution_count="13">
+<div id="3cb9c46e" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (batch_size, )</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Ys.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
@@ -573,14 +573,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The order will depend on what shuffling is embedded in the dataset pipeline. In this case, there was no shuffling and so we should expect that the order is preserved.</p>
-<div id="28d2789e" class="cell" data-execution_count="14">
+<div id="199dfe2a" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Ys</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>array([0., 1.], dtype=float32)</code></pre>
 </div>
 </div>
 <p>The data, <code>Xs</code>, also has a predictable shape.</p>
-<div id="5fc4d586" class="cell" data-execution_count="15">
+<div id="30e950d2" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (batch_size, x_dim, y_dim, z_dim, 1)</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>Xs.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
@@ -588,7 +588,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Take that first element in the batch and plot.</p>
-<div id="1a1c4d0e" class="cell" data-execution_count="16">
+<div id="d9b744f3" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>parsed_img <span class="op">=</span> np.squeeze(Xs[<span class="dv">0</span>,])</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>plot_array(parsed_img)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -600,7 +600,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>That looks great! Just in case, let’s check more explicitly</p>
-<div id="0aa7eec3" class="cell" data-execution_count="17">
+<div id="153a57a9" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>np.array_equal(preprocesed, parsed_img)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>True</code></pre>
