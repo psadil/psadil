@@ -1,0 +1,46 @@
+---
+title: "Patrick Sadil"
+image: https://gravatar.com/userimage/192989381/5e87c5ce288236c0de0d4673c35523f9.jpeg?size=512
+toc: false
+about:   
+    template: trestles
+    image-width: 15em
+    image-shape: round
+    links: 
+      - text: "{{< iconify fa:github size=Huge >}}"
+        href: https://github.com/psadil
+
+      - text: "{{< iconify academicons:google-scholar size=Huge >}}"
+        href: https://scholar.google.com/citations?user=HhPeElcAAAAJ=en
+
+      - text: "{{< iconify academicons:orcid size=Huge >}}"
+        href: https://orcid.org/0000-0003-4141-1343
+
+      - text: "{{< iconify academicons:cv size=Huge >}}"
+        href: https://psadil.github.io/cv/cv.pdf
+
+      - text: "{{< iconify fa:envelope size=Huge >}}"
+        href: mailto:psadil1@jh.edu
+
+---
+
+
+:::{#hero-heading}
+
+## Experience
+
+**Research Associate Faculty, Department of Biostatistics** | 2022-Present | Johns Hopkins Bloomberg School of Public Health
+
+## Education
+
+**Post-Doc, Biostatistics** | 2021-2022 | Johns Hopkins Bloomberg School of Public Health
+
+**Post-Doc, Cognitive Psychology** | 2020-2021 | University of Massachusetts, Amherst
+
+**PhD, Cognitive Psychology** | 2020 | University of Massachusetts, Amherst
+
+**MS, Cognitive Psychology** | 2019 | University of Massachusetts, Amherst
+
+**BA, Biology** | 2014 | Reed College
+
+:::

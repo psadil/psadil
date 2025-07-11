@@ -1,0 +1,40 @@
+---
+title: Forward encoding model
+author: Patrick Sadil
+date: '2019-10-24'
+slug: forward-encoding-model
+categories: []
+tags:
+  - fmri
+link-citations: true
+bibliography: [2019-10-24-forward-encoding-model.bib]
+---
+
+Functional magnetic resonance imaging records brain activity with spatially distinct voxels, but this segmentation will be misaligned with a brain's meaningful boundaries. The segmentation results in some voxels recording activity from different types of tissue -- types that are both neural an non-neural -- but even voxels that exclusively sample gray matter can span functionally distinct cortex. For example, a 3T scanner allows voxels in the range of 1.5-3 mm$^3$, but orientation columns have an average width of 0.8 mm [@yacoub2008]. Studying orientation columns with such low resolution requires statistical tools.
+
+One statistical tool models voxel activity as a linear combination of the activity of a small number of neural channels [@brouwer2009; @kay2008]. These models are called forward models, describing how the channel activity transforms into voxel activity. In early sensory cortex, the channels are analogous to cortical columns. In later cortex, the channels are more abstract dimensions of a representational space. Developing a forward model requires assuming not only how many channels contribute of a voxel's activity, but also the tuning properties of those channels. With these assumptions, regression allows inferring the contribution of each channel to each voxel's activity. Let $N$ be the number of observations for each voxel, $M$ be the number of voxels, and $K$ be the number of channels within a voxel. The forward model specifies that the data ($B$, $M \times N$) result from a weighted combination of the assumed channels responses ($C$, $K \times N$), where the weights ($W$, $M \times K$) are unknown.
+
+$$
+B = WC
+$$
+
+Taking the pseudoinverse of the channel matrix and multiplying the result by the data gives an estimate of the weight matrix:
+
+$$
+\widehat{W} = BC^T(CC^T)^{-1}
+$$
+
+Assumptions about $C$ are assumptions about how the channels encode stimuli. Different encoding schemes can be instantiated with different $C$, and any method for comparing linear models could be used to compare the schemes. 
+
+The forward encoding model enables comparison of static encoding schemes, but neural encoding schemes are dynamic. Attentional fluctuations, perceptual learning, and stimulation history all modulate neural tuning functions [@mcadams1999; @reynolds2000; @siegel2015; @yang2004]. To explore modulations with functional magnetic resonance imaging, some researchers have inverted the encoding model [@garcia2013; @rahmati2018; @saproo2014; @scolari2012; @sprague2013; @vo2017]. The inversion is a variation of cross validation. The method estimates the weight matrix with only some of the data (e.g., all data excluding a single run). The held out data, $B_H$, contains observations from all experimental condition across which the tuning functions might vary. The encoding model is inverted by multiplying the pseudoinverse of the weight matrix with the held out data to estimate a new channel response matrix.
+
+$$
+\widehat{C} = \widehat{W}^T(\widehat{W}\widehat{W}^T)^{-1}B_H
+$$
+
+The new channel response matrix estimates how the channels respond in each experimental condition. 
+
+Although validation studies demonstrated that the inverted encoding model enables inferences that recapitulate some modulations observed with electrophysiology [@sprague2018; @sprague2015], the inversion also misleads inferences about certain fundamental modulations [@gardner2019; @liu2018]. In particular, increasing the contrast of an orientation increases the gain of neurons tuned to orientation without altering their tuning bandwidth [@alitto2004; @sclar1982; @skottun1987], but the inverted encoding model (incorrectly) suggests that higher contrast decreases bandwidth [@liu2018]. Inferences are misled because the estimated channel responses are constrained by the initial assumptions about $C$ [@gardner2019]. Using the encoding model to study modulations requires a way to estimate the contribution of each channel without assuming a fixed channel response function. 
+
+# References
+

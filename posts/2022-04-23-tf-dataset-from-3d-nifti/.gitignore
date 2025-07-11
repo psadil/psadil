@@ -1,0 +1,6 @@
+*.nii.gz
+*tfrecords
+*ipynb_checkpoints
+*ipynb
+.env# pixi environments
+.pixi

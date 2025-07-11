@@ -1,0 +1,25 @@
+---
+title: serial dependence reflects a preference for low variability
+author: Patrick Sadil
+date: '2019-10-11'
+slug: serial-dependence-reflects-a-preference-for-low-variability
+categories:
+  - dissertation
+tags: []
+link-citations: true
+bibliography: [one.bib]
+---
+
+```{r setup, include=FALSE}
+renv::use(lockfile = "renv.lock")
+```
+
+One framework for understanding perception casts it as inference: just as a statistician uncovers noisy data to uncover patterns, an organism perceives when it converts sensations into guesses about its environment. The framework not concrete enough to be called a theory of perception, since it is not clear what data could falsify it^[A perceptual system does need to be limited to the statistical tools that have already been developed, so even a demonstration that organisms don't employ any known statistical tool would not rule out the framework.]. But the framework can remind perceptual researchers about the many strategies available for modeling the world. Do perceiving organisms employ similar strategies?
+  
+One property that distinguishes many statistical strategies is a tradeoff between bias and variability Consider this tradeoff with an example. A statistician must estimate the average height of college-level soccer players. The true average could be uncovered by measuring the height of every player at every college--the statistician would not need inference. But the statistician is constrained by limited resources. They can only measure the players from a single college, though they may measure the heights of any student at the college. The statistician must now decide between an unbiased but variable or biased but precise strategy. Measuring only the soccer players gives an unbiased estimate, but with so few players the team's average may be far from the true average. The statistician cannot be confident that the single team resembles all teams. Alternatively, the statistician may supplement their estimate with the heights of players from another, related sport. Since ultimate frisbee players may have similar heights to soccer players, incorporating their heights into the estimate may counteract any anomalously sized soccer players. However, incorporating even a single player from another sport biases the estimate, in the sense that the average height of all soccer players will not equal the average height of all soccer players and the one ultimate player^[Assume that the ultimate player is not as tall as the average soccer player]. One strategy -- measure only soccer players -- would give the true answer if there were enough resources, but the other strategy -- measure everyone that is similar to a soccer player -- may approximate the truth well with limited resources.
+
+The bias-variability tradeoff gives a functional interpretation to the perceptual effect called serial dependence [@fischer2014;@cicchini2018]. Serial dependence occurs when participants judge perceptual stimuli across many trials, and their judgments on one trial depend on their immediately preceding judgment. Like the constrained statistician, participants may not process each stimulus completely: participants only see stimuli for brief durations, their judgments are made after the stimuli are masked, and their attention fluctuates throughout the hundreds of trials. The bias is often attractive, meaning that participants' judgments reflect a blending of the stimuli on the current and previous trials. Serial dependence may reflect a strategy -- not necessarily intentional -- that reduces variability across judgments by combining information. Although the strategy biases the judgments, it may help each individual estimate approach truth. 
+
+# References
+
+

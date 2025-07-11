@@ -1,0 +1,13 @@
+[workspace]
+authors = ["Patrick Sadil <psadil@gmail.com>"]
+channels = ["conda-forge"]
+name = "2022-10-19-typehint-cache-decorator"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+render = "export QUARTO_PYTHON=.pixi/envs/default/bin/python; quarto render index.qmd"
+
+[dependencies]
+jupyter = ">=1.1.1,<2"
+quarto = ">=1.7.32,<2"

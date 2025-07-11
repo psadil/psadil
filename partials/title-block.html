@@ -1,0 +1,76 @@
+<header id="title-block-header">
+    $if(title)$<h1 class="title">$title$</h1>$endif$
+    <p> 
+    $if(coauthors)$
+        Joint with 
+        $if(coauthors/allbutlast)$
+            $for(coauthors/allbutlast)$
+                $if(coauthors.link)$<a href="$coauthors.link$">$coauthors.name$</a>$else$$coauthors.name$$endif$$sep$,
+                
+            $endfor$
+            $for(coauthors/last)$
+                $if(coauthors.link)$ 
+                    <a href="$coauthors.link$">and $coauthors.name$.</a> 
+                $else$
+                    and $coauthors.name$.
+                $endif$ 
+            $endfor$
+        $else$
+            $for(coauthors)$
+                $coauthors.name$. 
+            $endfor$
+        $endif$    
+        <br/>
+    $endif$
+    $if(journ)$$if(issue)$<i>$journ$</i>, $date$, $issue$. <br/>$endif$$endif$ 
+    $if(publink)$ 
+        <a href="$publink$"> 
+            <button type="button" class="btn btn-outline-primary btn-sm">Paper</button>
+        </a>
+        $if(slideslink)$
+            <a href="$slideslink$"> 
+                <button type="button" class="btn btn-outline-primary btn-sm">Slides</button>
+            </a>
+        $endif$
+        $if(videolink)$
+        <a href="$videolink$"> 
+            <button type="button" class="btn btn-outline-primary btn-sm">Video</button>
+        </a>
+        $endif$
+        $if(codelink)$
+        <a href="$codelink$"> 
+            <button type="button" class="btn btn-outline-primary btn-sm">Code</button>
+        </a>
+        $endif$
+        $if(wplink)$
+        <a href="$wplink$"> 
+            <button type="button" class="btn btn-outline-primary btn-sm">Working Paper</button>
+        </a>
+        $endif$
+    $else$
+        $if(wplink)$
+        <a href="$wplink$"> 
+            <button type="button" class="btn btn-outline-primary btn-sm">Working Paper</button>
+        </a>
+        $endif$
+        $if(slideslink)$
+            <a href="$slideslink$"> 
+                <button type="button" class="btn btn-outline-primary btn-sm">Slides</button>
+            </a>
+        $endif$
+        $if(videolink)$
+        <a href="$videolink$"> 
+            <button type="button" class="btn btn-outline-primary btn-sm">Video</button>
+        </a>
+        $endif$
+    $endif$
+    </p>
+    <p> 
+        $if(image)$<img src="$image$" alt="image" class="img-fluid" style="max-width: 80%; height: auto;"/>$endif$
+    $if(abstract)$
+    <div class="abstract">
+    <div class="abstract-title">$abstract-title$</div>
+    $abstract$
+    </div>
+    $endif$
+</header>
