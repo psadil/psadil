@@ -3,6 +3,7 @@ project:
 
 website:
   title: "psadil"
+  google-analytics: G-SP0TP763NP
   navbar:
     left:
       - href: https://scholar.google.com/citations?user=HhPeElcAAAAJ
