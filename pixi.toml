@@ -1,8 +1,10 @@
+#:schema https://pixi.sh/v0.73.0/schema/manifest/schema.json
+
 [workspace]
-authors = ["Patrick Sadil <psadil@gmail.com>"]
-channels = ["conda-forge"]
+authors = [ "Patrick Sadil <psadil@gmail.com>" ]
+channels = [ "conda-forge" ]
 name = "psadil"
-platforms = ["osx-arm64"]
+platforms = [ "osx-arm64" ]
 version = "0.1.0"
 
 [tasks]

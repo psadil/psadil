@@ -7,3 +7,43 @@ $mainFont: "Atkinson Hyperlegible";
 $headingFont: "Atkinson Hyperlegible";
 $font-family-sans-serif: "Atkinson Hyperlegible";
 $presentation-heading-font: "Atkinson Hyperlegible";
+
+/*-- scss:rules --*/
+// Neither bootstrap's reboot nor quarto's css constrains plain <img>, so a
+// matplotlib figure wider than the column overflows and the page scrolls
+// sideways. Scale figures to the column instead.
+figure img,
+p img,
+.cell-output-display img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Same problem for long code lines: white-space is `pre`, and quarto's inline
+// `.sourceCode { overflow: visible }` means anything past the column width is
+// clipped and unreachable rather than scrollable. Needs `pre.sourceCode` to
+// outrank that class selector; leave the wrapping div alone so the copy button
+// stays put. Wide tables need the same treatment.
+pre,
+pre.sourceCode {
+  overflow-x: auto;
+}
+
+// Markdown tables sit directly in the section with no wrapper to scroll, and a
+// table has a minimum content width it will not go below, so on a narrow screen
+// it pushes the page instead. `display: block` is what makes overflow apply;
+// `width: fit-content` keeps a narrow table from collapsing to its content and
+// losing the full-width look it has now.
+main table {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+// And once more for display equations: MathJax lays them out at their natural
+// width, so a long one pushes the whole page sideways on a narrow screen.
+mjx-container[display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+}

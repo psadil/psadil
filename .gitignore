@@ -20,3 +20,5 @@ resources/
 
 # pixi environments
 .pixi
+
+**/*.quarto_ipynb
