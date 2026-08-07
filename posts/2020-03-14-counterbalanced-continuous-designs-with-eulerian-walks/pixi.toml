@@ -1,0 +1,21 @@
+#:schema https://pixi.sh/v0.73.0/schema/manifest/schema.json
+
+[workspace]
+authors = [ "Patrick Sadil <psadil@gmail.com>" ]
+channels = [ "conda-forge" ]
+name = "2020-03-14-counterbalanced-continuous-designs-with-eulerian-walks"
+platforms = [ "osx-arm64" ]
+version = "0.1.0"
+
+[tasks]
+render = "quarto render index.qmd"
+
+[dependencies]
+quarto = ">=1.9.38,<2"
+r-base = ">=4.5.3,<4.6"
+r-knitr = ">=1.51,<2"
+r-rmarkdown = ">=2.31,<3"
+r-diagrammer = ">=1.0.12,<2"
+r-ragg = ">=1.5.2,<2"
+r-dplyr = ">=1.2.1,<2"
+r-tibble = ">=3.3.1,<4"

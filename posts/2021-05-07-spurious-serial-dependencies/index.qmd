@@ -15,7 +15,6 @@ execute:
 ---
 
 ```{r setup, message=FALSE, warning=FALSE}
-renv::use(lockfile = "renv.lock", verbose = FALSE)
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
 
 set.seed(1234)

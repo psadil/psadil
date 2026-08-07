@@ -19,8 +19,6 @@ execute:
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
-
 eng_dummy <- function(options) {
     knitr::engine_output(options, options$code, "")
 }

@@ -15,11 +15,9 @@ execute:
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
 knitr::opts_chunk$set(tidy = TRUE)
 library(magrittr)
 library(magick)
-library(gifski)
 set.seed(1234)
 ```
 

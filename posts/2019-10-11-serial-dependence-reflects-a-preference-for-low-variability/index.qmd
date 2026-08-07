@@ -11,7 +11,6 @@ bibliography: [one.bib]
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
 ```
 
 One framework for understanding perception casts it as inference: just as a statistician uncovers noisy data to uncover patterns, an organism perceives when it converts sensations into guesses about its environment. The framework not concrete enough to be called a theory of perception, since it is not clear what data could falsify it^[A perceptual system does need to be limited to the statistical tools that have already been developed, so even a demonstration that organisms don't employ any known statistical tool would not rule out the framework.]. But the framework can remind perceptual researchers about the many strategies available for modeling the world. Do perceiving organisms employ similar strategies?

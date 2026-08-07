@@ -1,0 +1,195 @@
+---
+title: "FSL's MELODIC and Estimating Noise"
+jupyter: python3
+author: Patrick Sadil
+date: "2026-08-07"
+slug: estimating-noise
+categories: [research]
+tags: [python, fmri, mri]
+lastmod: "2026-08-07T12:00:00-04:00"
+draft: true
+execute:
+  echo: true
+  warning: false
+format:
+  html:
+    code-fold: true
+    code-summary: "Show code"
+---
+
+## TLDR;
+
+Every correction MELODIC applies has to estimate something about the noise from data that also contains signal. In exactly one place --- variance normalization --- it holds the signal out first, projecting away the leading 30 components before it measures anything. That instinct is right, the constant implementing it is undocumented, and it is the only place in the pipeline the instinct appears. The [previous post's](../2026-08-04-smoothing-components/index.qmd) best-case discount, the one fitted straight to the eigenspectrum, is unbiased on pure noise and wrong by a factor of eight once a fifth of the variance is real.
+
+```{python}
+#| label: setup
+#| include: false
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.ndimage import gaussian_filter
+from scipy.optimize import minimize_scalar
+
+import melodic_chain as mc
+
+SHAPE = (48, 48, 30)
+P = 400
+K = 10            # planted components
+FW = 2.0          # noise smoothing, where the last post's derivation held
+MAP_FW = 4.0      # planted maps are smoother than the noise, as real ones are
+
+MASK = np.zeros(SHAPE, dtype=bool)
+MASK[4:-4, 4:-4, 3:-3] = True
+IDX = np.flatnonzero(MASK.ravel())
+NVOX = len(IDX)
+
+FRACS = [0.0, 0.02, 0.05, 0.10, 0.20, 0.40]
+
+CODE, SPEC, GREEN, GRAY = "#2166ac", "#b2182b", "#1b7837", "0.45"
+plt.rcParams.update({"figure.dpi": 130, "font.size": 9,
+                     "axes.spines.top": False, "axes.spines.right": False})
+
+
+def sigma(fwhm):
+    return fwhm / np.sqrt(8 * np.log(2))
+
+
+def evals_of(X):
+    """Eigenvalues of the temporal covariance of a `(p, n)` matrix, ascending."""
+    Xc = X - X.mean(axis=0, keepdims=True)
+    return np.sort(np.linalg.eigvalsh(np.cov(Xc, bias=True)))
+
+
+def fit_r(ev, p=P, n=NVOX, drop_top=0):
+    """The discount fitted to the observed spectrum.
+
+    As in the last post, with one addition: `drop_top` excludes the leading
+    eigenvalues from the fit, so the reference is matched to the bulk rather
+    than to the whole spectrum.
+    """
+    e = ev[::-1] / ev[::-1].mean()
+
+    def loss(g):
+        f = mc.feta(p, int(np.exp(g)))
+        a, b = e[drop_top:], (f / f.mean())[drop_top:]
+        return float(((a - b) ** 2).sum())
+
+    hit = minimize_scalar(loss, method="bounded",
+                          bounds=(np.log(p + 3), np.log(5 * n)))
+    return n / int(np.exp(hit.x))
+```
+
+```{python}
+#| label: generate
+#| include: false
+
+# Noise, smoothed the way the last post smoothed it.
+s = sigma(FW)
+NOISE = gaussian_filter(
+    np.random.default_rng(7000).normal(size=SHAPE + (P,)), (s, s, s, 0.0))
+SD_N = NOISE[MASK].std()
+
+# K components: smooth spatial maps, independent Gaussian time courses. Both
+# unit variance, so the whole signal is scaled by one number below.
+rng = np.random.default_rng(99)
+MAPS = [gaussian_filter(rng.normal(size=SHAPE), sigma(MAP_FW)) for _ in range(K)]
+MAPS = np.stack([m / m[MASK].std() for m in MAPS])
+TC = rng.normal(size=(K, P))
+TC = (TC - TC.mean(1, keepdims=True)) / TC.std(1, keepdims=True)
+SIG = np.tensordot(MAPS, TC, axes=(0, 0))
+
+
+def planted(frac):
+    """Noise plus signal carrying `frac` of the total variance."""
+    if frac == 0:
+        return NOISE
+    return NOISE + np.sqrt(frac * SD_N ** 2 / (K * (1 - frac))) * SIG
+
+
+def score(frac):
+    vol = planted(frac)
+    ev = evals_of(vol.reshape(-1, P)[IDX].T)
+    resels = mc.est_resels(vol, MASK)
+    fitted = fit_r(ev)                       # as the last post wrote it
+    held_out = fit_r(ev, drop_top=K)         # bulk only
+    derived = mc.effective_discount(resels)
+    return {
+        "signal variance": f"{100 * frac:.0f}%",
+        "resels": f"{resels:.2f}",
+        "r fitted": f"{fitted:.1f}",
+        "r fitted, signal held out": f"{held_out:.1f}",
+        "r derived": f"{derived:.1f}",
+        "fitted": mc.order_from_evals(ev, NVOX, discount=fitted)[0],
+        "held out": mc.order_from_evals(ev, NVOX, discount=held_out)[0],
+        "derived": mc.order_from_evals(ev, NVOX, discount=derived)[0],
+        "MELODIC": mc.order_from_evals(ev, NVOX, resels=resels)[0],
+    }
+
+
+RES = pd.DataFrame([score(f) for f in FRACS]).set_index("signal variance")
+
+
+def pct(frac):
+    """The row label, so prose and table cannot drift apart."""
+    return f"{100 * frac:.0f}%"
+
+
+def cell(frac, col):
+    return RES.loc[pct(frac), col]
+```
+
+## The oracle stops being one
+
+The [last post](../2026-08-04-smoothing-components/index.qmd) compared three ways of setting the discount $r$ that MELODIC applies to its sample size: the shipped $2.5\cdot\mathrm{resels}$, a derived $1.206\cdot\mathrm{resels}$, and a third arm fitted directly to the observed eigenspectrum by finding the sample size whose Marchenko--Pastur bulk matched it. I called that third arm an oracle, on the grounds that it already knows the answer it is being asked to recover, and treated it as a best case --- a floor on how well any choice of discount could do.
+
+It is not a best case. On the data that post used it happened to be unbiased, but every one of those volumes was pure noise. The fitted arm stops working the moment the data contains anything worth finding, and it fails in the direction that manufactures components.
+
+The setup is the last post's, with something planted in it. Noise on a `{python} "×".join(str(s) for s in SHAPE)` grid, `{python} P` volumes, smoothed to `{python} f"{FW:g}"` voxels FWHM --- the width where the derivation held cleanly. Into that go `{python} K` components, each a smooth spatial map with an independent Gaussian time course, scaled together so that they account for a set fraction of the total variance. The truth is `{python} K` everywhere below.
+
+```{python}
+#| label: tbl-contaminated
+#| tbl-cap: "Model order with real components planted in smoothed noise. `r fitted` matches the Marchenko-Pastur bulk to the whole spectrum, as the last post did; `signal held out` matches it to everything below the leading 10. `r derived` is 1.206 · resels, computed from spatial smoothness alone. The truth is 10 in every row, and the correct discount is about 9.3."
+
+RES
+```
+
+At `{python} pct(0.0)` signal the fitted discount is `{python} cell(0.0, 'r fitted')`, which is the right answer, and the reason the last post could use it. By `{python} pct(0.05)` it has drifted to `{python} cell(0.05, 'r fitted')`, and by `{python} pct(0.20)` it reads `{python} cell(0.20, 'r fitted')` against a truth near 9.3 --- inflated by a factor of eight, on data where a fifth of the variance is real.
+
+The mechanism is not subtle once stated. The fit is least squares over the *whole* spectrum, and planted components put eigenvalues above the bulk. The only way a Marchenko--Pastur curve can reach up to an outlier is to get wider, and the way it gets wider is to assume fewer samples. So the fit absorbs the signal into its estimate of the noise, and reports a sample size far smaller than the truth.
+
+What that does downstream is the part I did not expect. A discount that is too large is *over*-discounting, which by the last post is the regime that tilts the adjusted spectrum and invents components out of the tail. So the count does not fall as the signal gets buried --- it climbs, from `{python} cell(0.0, 'fitted')` at no signal to `{python} cell(0.10, 'fitted')` at `{python} pct(0.10)` and `{python} cell(0.20, 'fitted')` at `{python} pct(0.20)`, against a truth of `{python} K`. The signal is not lost in a flattened spectrum. It is buried under a few hundred components manufactured from the noise.
+
+Holding the leading `{python} K` eigenvalues out of the fit fixes it exactly. The discount stays near the truth, and the model order comes back at `{python} cell(0.05, 'held out')`, `{python} cell(0.10, 'held out')` and `{python} cell(0.20, 'held out')` --- the planted rank, at every amplitude that matters.
+
+## MELODIC already knows this
+
+Which is a peculiar thing to have to discover, because MELODIC does exactly that, in a different part of the pipeline, and has since at least FSL 4.0.2.
+
+Before anything else happens, the data are variance normalized. Both technical reports describe this as normalizing time courses "to zero mean and unit variance." [`varnorm`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L152) does something considerably more careful. It runs a PCA, keeps the leading 30 components, projects the data onto that subspace, zeroes every entry of the whitened projection with $\lvert z \rvert < 2.3$, reconstructs what survives, subtracts it, and divides each voxel by the standard deviation of the *residual*.
+
+That is the same idea, spelled out in C++. You cannot measure a voxel's noise level from a time course that has signal in it, so you take a guess at where the signal is, remove it, and measure what is left. The leading 30 components are the guess.
+
+Two constants are doing the work, and neither is documented. Both are bare defaults in [`melhlprfns.h`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.h#L44), with no comment and no named constant next to them:
+
+```cpp
+RowVector varnorm(Matrix& in, int dim = 30, float level = 1.6, int econ = 20000);
+```
+
+`dim = 30` is the number of components assumed to be signal. `level` is the threshold, and `melodic` does not use the header's 1.6 --- it passes [`--vn_level`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/meloptions.h#L224), which defaults to 2.3 and is hidden from `melodic --help`.[^callers] So the same function holds out a 30-dimensional subspace whichever tool calls it, but thresholds that subspace differently depending on who is asking.
+
+[^callers]: `melodic` calls it as `varnorm(tmpData, std::min(30, tmpData.Nrows() - 1), opts.vn_level.value(), ...)` at [`meldata.cc:142`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/meldata.cc#L142). `fsl_regfilt`, `fsl_glm` and `fsl_mvlm` take the header default of 1.6.
+
+So MELODIC contains, in one function, a correct account of why you cannot estimate a noise quantity from data that has signal in it --- and then estimates the smoothness, the sample size and the noise reference for the model-order chain from the full data, signal and all.
+
+## Where this is going
+
+Three questions, which are the rest of this post.
+
+1. **Does the 30 matter?** It is a fixed number in a pipeline whose whole purpose is to decide how many components there are. If the answer is 150, holding out 30 leaves 120 components' worth of signal in the noise estimate; if the answer is 5, it removes 25 components of noise and calls them signal. The HCP pipelines' [`icaDim.m`](https://github.com/Washington-University/HCPpipelines/blob/master/global/matlab/icaDim/icaDim.m), by an overlapping set of authors, drops the fixed cut and iterates the normalization against the current dimensionality estimate instead --- which suggests somebody thought it mattered.
+
+2. **Does the same fix work upstream?** The table above says holding out the leading components repairs the fitted discount completely. That was an oracle to begin with, so it does not directly recommend anything. The question is whether the same hold-out applied to `est_resels` --- which measures spatial autocorrelation over signal and noise together --- moves the smoothness estimate enough to matter.
+
+3. **What does variance normalization do to the model order?** The two steps are not independent: normalization changes the eigenspectrum that the dimensionality estimate is then computed from. Working out which direction that pushes is the last piece.
+
+The short version of what is already visible in the table: the derived constant, which reads spatial smoothness rather than the spectrum, barely notices any of this. It returns `{python} cell(0.05, 'derived')`, `{python} cell(0.10, 'derived')` and `{python} cell(0.20, 'derived')` --- the planted rank --- at the same amplitudes that take the fitted arm past twenty and then into the hundreds, and only bends at `{python} pct(0.40)` signal. Estimating smoothness from contaminated data turns out to be a much easier problem than estimating a spectrum from it.

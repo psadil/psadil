@@ -11,9 +11,19 @@ bibliography: [one.bib]
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
-library(gifski)
 library(ragg)
+
+# gifski has no osx-arm64 build on conda-forge, so gifs come from magick instead.
+# magick's own fps handling requires a whole-number centisecond delay, which the
+# fractional fps below are not, so give it the delay directly.
+options(gganimate.renderer = function(frames, fps) {
+  magick::image_animate(
+    magick::image_read(frames),
+    delay = round(100 / fps),
+    loop = 0
+  )
+})
+
 # https://www.science-emergence.com/Articles/How-to-plot-a-Gabor-filter-using-python-and-matplotlib-/
 ChangeBase <- function(x,y,theta){
   x_theta <- x * cos(theta) + y * sin(theta)

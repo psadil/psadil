@@ -9,7 +9,6 @@ tags: []
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
 library(formatR)
 library(ragg)
 library(patchwork)

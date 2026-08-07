@@ -11,7 +11,6 @@ bibliography: [2019-10-30-staircases-for-thresholds.bib]
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
 knitr::opts_chunk$set(dev = "ragg_png")
 library(R6)
 library(ragg)

@@ -1,0 +1,19 @@
+[workspace]
+authors = ["Patrick Sadil <psadil@gmail.com>"]
+channels = ["conda-forge"]
+name = "2026-08-07-estimating-noise"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+render = "export QUARTO_PYTHON=.pixi/envs/default/bin/python; quarto render index.qmd"
+
+[dependencies]
+python = ">=3.13,<3.14"
+numpy = ">=2.3,<3"
+scipy = ">=1.16,<2"
+pandas = ">=2.3,<3"
+matplotlib-base = ">=3.10,<4"
+scikit-learn = ">=1.7,<2"
+jupyter = ">=1.1.1,<2"
+quarto = ">=1.7.32,<2"

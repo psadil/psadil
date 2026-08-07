@@ -10,10 +10,8 @@ bibliography: [2019-11-21-thoughts-on-eye-movement.bib]
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
 knitr::opts_chunk$set(dev = "ragg_png")
 library(ragg)
-library(gifski)
 
 reformat_mat <- function(.x,c){
   if(c==1){
@@ -137,18 +135,31 @@ Time course of fixations from @fig-density. The blue dot shows where the partici
 dx <- c(0, -1*diff(edf$gxR))
 dy <- c(0, -1*diff(edf$gyR))
 
-grating2 <- imager::load.image("grating.png")
+# imager has no osx-arm64 build on conda-forge, so the image is loaded as a plain
+# [x, y, channel] array and shifted here. This is imager::imshift with
+# boundary = 2, which wraps the content around periodically.
+grating2 <- aperm(png::readPNG("grating.png"), c(2, 1, 3))
+
+imshift <- function(im, delta_x, delta_y) {
+  nx <- dim(im)[1]
+  ny <- dim(im)[2]
+  im[
+    ((seq_len(nx) - 1L - as.integer(delta_x)) %% nx) + 1L,
+    ((seq_len(ny) - 1L - as.integer(delta_y)) %% ny) + 1L,
+    ,
+    drop = FALSE
+  ]
+}
 
 grating_df <- tibble::tibble(
   dx = dx,
-  dy = dy, 
+  dy = dy,
   img = replicate(nrow(edf), grating2, simplify = FALSE)) |>
   dplyr::mutate(
     img = purrr::pmap(
-      list(im = img, delta_x = dx, delta_y = dy), 
-      imager::imshift, 
-      boundary=2),
-    img = purrr::map(img, ~.x[xx,yy,1,]),
+      list(im = img, delta_x = dx, delta_y = dy),
+      imshift),
+    img = purrr::map(img, ~.x[xx,yy,]),
     r = purrr::map(img, reformat_mat, c=1),
     g = purrr::map(img, reformat_mat, c=2),
     b = purrr::map(img, reformat_mat, c=3)) |>

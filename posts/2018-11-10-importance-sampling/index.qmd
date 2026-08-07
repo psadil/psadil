@@ -16,7 +16,6 @@ execute:
 
 ```{r setup, include=FALSE}
 library(formatR)
-renv::use(lockfile = "renv.lock")
 knitr::opts_chunk$set(tidy = TRUE)
 ```
 

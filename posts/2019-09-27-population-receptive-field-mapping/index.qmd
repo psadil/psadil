@@ -11,7 +11,6 @@ bibliography: [one.bib]
 ---
 
 ```{r setup, include=FALSE}
-renv::use(lockfile = "renv.lock")
 library(magick)
 library(formatR)
 library(ragg)

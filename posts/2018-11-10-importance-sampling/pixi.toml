@@ -3,14 +3,16 @@
 [workspace]
 authors = [ "Patrick Sadil <psadil@gmail.com>" ]
 channels = [ "conda-forge" ]
-name = "psadil"
+name = "2018-11-10-importance-sampling"
 platforms = [ "osx-arm64" ]
 version = "0.1.0"
 
 [tasks]
-preview = "quarto preview"
-publish = "quarto publish gh-pages"
 render = "quarto render index.qmd"
 
 [dependencies]
 quarto = ">=1.7.32,<2"
+r-base = ">=4.4,<5"
+r-formatr = ">=1.14,<2"
+r-knitr = ">=1.49,<2"
+r-rmarkdown = ">=2.31,<3"
