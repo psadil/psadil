@@ -121,15 +121,19 @@ def est_resels(vol, mask=None) -> float:
     sd = vol.std(axis=3, ddof=1)
     usable = mask & (sd > 0)
     z = np.zeros_like(vol)
-    np.divide(vol - vol.mean(axis=3, keepdims=True), sd[..., None],
-              out=z, where=usable[..., None])
+    np.divide(
+        vol - vol.mean(axis=3, keepdims=True),
+        sd[..., None],
+        out=z,
+        where=usable[..., None],
+    )
 
     use_z = nz > 1
     ss, s2 = np.zeros(3), np.zeros(3)
-    for ax, (a, b) in enumerate([(z[1:, 1:, :], z[:-1, 1:, :]),
-                                 (z[1:, 1:, :], z[1:, :-1, :])]):
-        m = usable[1:, 1:, :] & (usable[:-1, 1:, :] if ax == 0
-                                 else usable[1:, :-1, :])
+    for ax, (a, b) in enumerate(
+        [(z[1:, 1:, :], z[:-1, 1:, :]), (z[1:, 1:, :], z[1:, :-1, :])]
+    ):
+        m = usable[1:, 1:, :] & (usable[:-1, 1:, :] if ax == 0 else usable[1:, :-1, :])
         ss[ax] = (a * b)[m].sum()
         s2[ax] = 0.5 * ((a**2)[m].sum() + (b**2)[m].sum())
     if use_z:
@@ -166,15 +170,21 @@ def axis_fwhm(vol, mask=None) -> np.ndarray:
     sd = vol.std(axis=3, ddof=1)
     usable = mask & (sd > 0)
     z = np.zeros_like(vol)
-    np.divide(vol - vol.mean(axis=3, keepdims=True), sd[..., None],
-              out=z, where=usable[..., None])
+    np.divide(
+        vol - vol.mean(axis=3, keepdims=True),
+        sd[..., None],
+        out=z,
+        where=usable[..., None],
+    )
 
     c = z[1:, 1:, 1:]
     keep = usable[1:, 1:, 1:]
     out = []
-    for nb, km in ((z[:-1, 1:, 1:], usable[:-1, 1:, 1:]),
-                   (z[1:, :-1, 1:], usable[1:, :-1, 1:]),
-                   (z[1:, 1:, :-1], usable[1:, 1:, :-1])):
+    for nb, km in (
+        (z[:-1, 1:, 1:], usable[:-1, 1:, 1:]),
+        (z[1:, :-1, 1:], usable[1:, :-1, 1:]),
+        (z[1:, 1:, :-1], usable[1:, 1:, :-1]),
+    ):
         m = keep & km
         ss = float((c * nb)[m].sum())
         s2 = float(0.5 * ((c**2)[m].sum() + (nb**2)[m].sum()))
@@ -187,8 +197,16 @@ def axis_fwhm(vol, mask=None) -> np.ndarray:
 # --------------------------------------------------------------------------
 
 
-def adj_eigspec(evals, n_features, resels, *, drop_two=True, use_resels=True,
-                ceiling=0.98, discount=None):
+def adj_eigspec(
+    evals,
+    n_features,
+    resels,
+    *,
+    drop_two=True,
+    use_resels=True,
+    ceiling=0.98,
+    discount=None,
+):
     """`adj_eigspec`. ``evals`` ascending.
 
     Builds the noise reference at the *discounted* sample size and divides the
@@ -225,9 +243,14 @@ def adj_eigspec(evals, n_features, resels, *, drop_two=True, use_resels=True,
         max_ev = d // 2
     max_ev = int(np.clip(max_ev, 1, d))
 
-    return {"candidates": np.abs(adjusted[:max_ev]), "max_ev": max_ev,
-            "percent": perc, "n_eff": n_eff, "reference": cl,
-            "ratio": np.sort(kept / cl)[::-1]}
+    return {
+        "candidates": np.abs(adjusted[:max_ev]),
+        "max_ev": max_ev,
+        "percent": perc,
+        "n_eff": n_eff,
+        "reference": cl,
+        "ratio": np.sort(kept / cl)[::-1],
+    }
 
 
 def ppca_est(ev, n):
@@ -275,8 +298,14 @@ def ppca_est(ev, n):
     l_az = np.cumsum(gap) + np.cumsum(inv)
 
     ln_n = np.log(nf)
-    lap = (l_prob_u + l_nu + l_az + l_lam
-           + 0.5 * np.log(2 * np.pi) * (m + k) - 0.5 * ln_n * k)
+    lap = (
+        l_prob_u
+        + l_nu
+        + l_az
+        + l_lam
+        + 0.5 * np.log(2 * np.pi) * (m + k)
+        - 0.5 * ln_n * k
+    )
     bic = l_lam + l_nu - 0.5 * ln_n * (m + k)
     rrn = -0.5 * nf * k * np.log(np.cumsum(ev) / k) + l_nu
     aic = -(-2 * nf * disc * l_lhood + 2 * (1 + df * k + 0.5 * (k - 1)))
@@ -307,8 +336,7 @@ def ppca_select(curves, max_ev, which="lap"):
     if which == "median":
         return int(np.sort(est)[2]), est
     if which == "aut":
-        perc = (np.cumsum(norm[0] / norm[0].sum()) if norm[0].sum()
-                else np.zeros(d))
+        perc = np.cumsum(norm[0] / norm[0].sum()) if norm[0].sum() else np.zeros(d)
         lap_e, bic_e = est[0], est[1]
         if bic_e < lap_e and perc[max(bic_e - 1, 0)] > 0.8:
             return bic_e, est
@@ -330,15 +358,22 @@ def order_from_evals(evals, n, resels=1.0, which="lap", **kw):
     Sweeping ``discount`` re-scores one spectrum, so the covariance -- the
     expensive part -- is computed once and reused.
     """
-    spec = adj_eigspec(evals, n, resels,
-                       drop_two=kw.pop("drop_two", True),
-                       use_resels=kw.pop("use_resels", True),
-                       ceiling=kw.pop("ceiling", 0.98),
-                       discount=kw.pop("discount", None))
+    spec = adj_eigspec(
+        evals,
+        n,
+        resels,
+        drop_two=kw.pop("drop_two", True),
+        use_resels=kw.pop("use_resels", True),
+        ceiling=kw.pop("ceiling", 0.98),
+        discount=kw.pop("discount", None),
+    )
     curves = ppca_est(spec["candidates"], spec["n_eff"])
     dim, est = ppca_select(curves, spec["max_ev"], which)
     return int(np.clip(dim, 1, len(evals))), {
-        "max_ev": spec["max_ev"], "n_eff": spec["n_eff"], "estimators": est}
+        "max_ev": spec["max_ev"],
+        "n_eff": spec["n_eff"],
+        "estimators": est,
+    }
 
 
 # --------------------------------------------------------------------------

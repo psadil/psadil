@@ -1,13 +1,13 @@
 ---
 title: New England GAN
 author: Patrick Sadil
-date: '2021-01-17'
+date: "2021-01-17"
 slug: []
 categories: []
 tags:
   - python
   - machine learning
-lastmod: '2021-01-17T19:43:37-05:00'
+lastmod: "2021-01-17T19:43:37-05:00"
 image: featured.png
 ---
 
@@ -15,9 +15,9 @@ A friend recently moved away from Western Mass, so I wanted to send them a gift 
 
 # Goals
 
- - Briefly overview GANs
- - Link to fun code for acquiring data from Google Street View
- - Share a neat set of photographs
+- Briefly overview GANs
+- Link to fun code for acquiring data from Google Street View
+- Share a neat set of photographs
 
 Note that this isn't an 'intro to GANs'. If that's what you're after, keep browsing.
 
@@ -43,6 +43,4 @@ After one day of training^[After one day, the training error was still decreasin
 
 I chose these six -- and the seventh at the top -- because they illustrate a few fun features of what the GAN learned. For example, the GAN learned, very early, that pictures of New England always have, in the bottom corners, the word "Google"^[I removed the text from the curated examples, but it can be seen in the preview image at the top.]. That machine learning can produce realistic text surprises me (e.g., [if the face is weird, how are all of the pixels in place to spell out a word](https://www.facebook.com/botsofnewyork/photos/a.2028566864113743/2490502274586864/?type=3&theater)?!). I assume that text comes out clean because most lettering is tightly constrained. That is, when the forger paints something that could be categorized as lettering, the critic severely constrains those pixels; fuzzy letters betray forgery, and real photographs don't have nonsense like UNS;QD*LKJ. So if the training images contain enough text that the generator starts producing letters, there is also enough text for the critic to learn what text is realistic. 
 
-The forger had difficulty with buildings. I downloaded mostly images of the highways connecting cities. This means that there were enough cityscapes for the GAN to generate buildings, but relative to a road, it was much slower at learning the intricacies of a building. Of course, the roads are imperfect, too (the telephone pole in the upper middle ripples, the upper left has too many roads, the colors of the painted lines mismatch, etc). But unlike, say, a bad photoshop, these errors have a kind of global coherence that, subjectively, allows the images to seem not fake but instead surreal. 
-
-
+The forger had difficulty with buildings. I downloaded mostly images of the highways connecting cities. This means that there were enough cityscapes for the GAN to generate buildings, but relative to a road, it was much slower at learning the intricacies of a building. Of course, the roads are imperfect, too (the telephone pole in the upper middle ripples, the upper left has too many roads, the colors of the painted lines mismatch, etc). But unlike, say, a bad photoshop, these errors have a kind of global coherence that, subjectively, allows the images to seem not fake but instead surreal.

@@ -1,8 +1,11 @@
 project:
   type: website
+  resources:
+    - files
 
 website:
   title: "psadil"
+  favicon: favicon.png
   google-analytics: G-SP0TP763NP
   navbar:
     left:
@@ -18,8 +21,8 @@ format:
      <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     highlight-style: atom-one
     theme:
-      light: [flatly, static/custom.scss]
-      dark: [solar, static/custom.scss]
+      light: [flatly, custom.scss]
+      dark: [solar, custom.scss]
     toc: true
     respect-user-color-scheme: true
     

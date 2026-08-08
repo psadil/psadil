@@ -11,6 +11,12 @@ version = "0.1.0"
 preview = "quarto preview"
 publish = "quarto publish gh-pages"
 render = "quarto render index.qmd"
+render-posts = "bash scripts/render-posts.sh"
+
+# re-execute every post in its own environment, then build the site
+[tasks.render-all]
+cmd = "quarto render"
+depends-on = [ "render-posts" ]
 
 [dependencies]
 quarto = ">=1.7.32,<2"

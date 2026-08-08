@@ -67,7 +67,7 @@ Main experiment
             % subsequent flips will be based on this event
             flip_when = triggerSent + (1 - window.slack) * window.ifi;
         else
-            % how many refresh cycles could the last event have occured
+            % how many refresh cycles could the last event have occurred
             % for?
             cycles_in_event = flut.duration(flip-1) / window.ifi;
             

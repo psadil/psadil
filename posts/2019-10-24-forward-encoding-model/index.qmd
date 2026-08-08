@@ -1,7 +1,7 @@
 ---
 title: Forward encoding model
 author: Patrick Sadil
-date: '2019-10-24'
+date: "2019-10-24"
 slug: forward-encoding-model
 categories: []
 tags:
@@ -37,4 +37,3 @@ The new channel response matrix estimates how the channels respond in each exper
 Although validation studies demonstrated that the inverted encoding model enables inferences that recapitulate some modulations observed with electrophysiology [@sprague2018; @sprague2015], the inversion also misleads inferences about certain fundamental modulations [@gardner2019; @liu2018]. In particular, increasing the contrast of an orientation increases the gain of neurons tuned to orientation without altering their tuning bandwidth [@alitto2004; @sclar1982; @skottun1987], but the inverted encoding model (incorrectly) suggests that higher contrast decreases bandwidth [@liu2018]. Inferences are misled because the estimated channel responses are constrained by the initial assumptions about $C$ [@gardner2019]. Using the encoding model to study modulations requires a way to estimate the contribution of each channel without assuming a fixed channel response function. 
 
 # References
-

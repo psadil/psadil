@@ -1,7 +1,7 @@
 ---
 title: Staircases for Thresholds, Part 2
 author: Patrick Sadil
-date: '2019-11-08'
+date: "2019-11-08"
 slug: staircases-for-thresholds-part2
 categories:
   - dissertation
@@ -10,24 +10,28 @@ link-citations: true
 bibliography: [2019-10-30-staircases-for-thresholds.bib]
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false
+
 knitr::opts_chunk$set(dev = "ragg_png")
 library(R6)
 library(ragg)
 set.seed(1234)
-Participant <- R6Class("Participant",
-                       public = list(
-                         threshold = NULL,
-                         slope = NULL,
-                         initialize = function(threshold = NA, slope = NA) {
-                           self$threshold <- threshold
-                           self$slope <- slope
-                         },
-                         test = function(contrast) {
-                           prob = pnorm(contrast, mean=self$threshold, sd=self$slope)
-                           return(rbinom(1, 1, prob))
-                         }
-                       )
+Participant <- R6Class(
+  "Participant",
+  public = list(
+    threshold = NULL,
+    slope = NULL,
+    initialize = function(threshold = NA, slope = NA) {
+      self$threshold <- threshold
+      self$slope <- slope
+    },
+    test = function(contrast) {
+      prob <- pnorm(contrast, mean = self$threshold, sd = self$slope)
+      return(rbinom(1, 1, prob))
+    }
+  )
 )
 
 
@@ -49,12 +53,14 @@ Staircase <- R6Class(
     all_obs = NULL,
     pest = NULL,
     down = NULL,
-    initialize = function(starting_contrast=NA, 
-                          starting_step=NA,
-                          stopping_step_size = 1/16,
-                          max_trials = 500,
-                          pest = FALSE,
-                          down = 1){
+    initialize = function(
+      starting_contrast = NA,
+      starting_step = NA,
+      stopping_step_size = 1 / 16,
+      max_trials = 500,
+      pest = FALSE,
+      down = 1
+    ) {
       self$current_contrast <- starting_contrast
       self$current_step <- starting_step
       self$stopping_step_size <- stopping_step_size
@@ -62,85 +68,94 @@ Staircase <- R6Class(
       self$pest <- pest
       self$down <- down
     },
-    do_trial = function(participant){
+    do_trial = function(participant) {
       self$total_trial <- self$total_trial + 1
-      self$tested_contrast <- c(self$tested_contrast,
-                                self$current_contrast)
-      self$trials <- c(self$trials, 
-                       participant$test(contrast=self$current_contrast))
+      self$tested_contrast <- c(self$tested_contrast, self$current_contrast)
+      self$trials <- c(
+        self$trials,
+        participant$test(contrast = self$current_contrast)
+      )
       self$n_trials <- length(self$trials)
       self$all_obs <- c(self$all_obs, self$trials[self$n_trials])
-      
-      
-      if(any(self$trials == 0)) {
+
+      if (any(self$trials == 0)) {
         godown <- FALSE
         goup <- TRUE
-      }else if(length(self$trials)==self$down){
+      } else if (length(self$trials) == self$down) {
         godown <- TRUE
         goup <- FALSE
-      }else{
+      } else {
         godown <- FALSE
         goup <- FALSE
       }
-      
-      if(godown || goup){
-        if(self$pest){
+
+      if (godown || goup) {
+        if (self$pest) {
           # conditions for reversal
           # - you made it easy, and they got it right
           # - you made it harder, and they got a bunch wrong
-          if((self$current_step > 0 && godown) || 
-             (self$current_step < 0 && goup)){ 
-            if(self$run_number > 1){
-              self$current_step <- -1*self$current_step/2
+          if (
+            (self$current_step > 0 && godown) ||
+              (self$current_step < 0 && goup)
+          ) {
+            if (self$run_number > 1) {
+              self$current_step <- -1 * self$current_step / 2
               self$last_reversal_is_double <- self$last_step_is_double
-            }else{
-              if(godown) self$current_step <- abs(self$current_step)*-1
-              else self$current_step <- abs(self$current_step)
+            } else {
+              if (godown) {
+                self$current_step <- abs(self$current_step) * -1
+              } else {
+                self$current_step <- abs(self$current_step)
+              }
             }
             self$run_number <- 2 # next time !inbounds[1] means this is second run already
-          }
-          else if(self$run_number > 3){
-            self$current_step <- self$current_step*2
+          } else if (self$run_number > 3) {
+            self$current_step <- self$current_step * 2
             self$run_number <- self$run_number + 1
             self$last_step_is_double <- TRUE
-          }else if(self$run_number == 3){
-            if(self$last_reversal_is_double){
+          } else if (self$run_number == 3) {
+            if (self$last_reversal_is_double) {
               self$current_step <- self$current_step
               self$last_step_is_double <- FALSE
-            }else{
-              self$current_step <- self$current_step*2
+            } else {
+              self$current_step <- self$current_step * 2
               self$last_step_is_double <- TRUE
             }
             self$run_number <- self$run_number + 1
-          }else if(self$run_number == 2){
+          } else if (self$run_number == 2) {
             self$current_step <- self$current_step
             self$last_step_is_double <- FALSE
             self$run_number <- self$run_number + 1
           }
           self$current_contrast <- self$current_contrast + self$current_step
-        }else{
-          if(goup) self$current_contrast <- self$current_contrast + abs(self$current_step)
-          else self$current_contrast <- self$current_contrast - abs(self$current_step)
+        } else {
+          if (goup) {
+            self$current_contrast <- self$current_contrast +
+              abs(self$current_step)
+          } else {
+            self$current_contrast <- self$current_contrast -
+              abs(self$current_step)
+          }
         }
-        self$trials <- NULL 
+        self$trials <- NULL
       }
       invisible(self)
     },
-    do_experiment = function(participant){
-      while((abs(self$current_step) > self$stopping_step_size) & 
-            (self$max_trials > self$total_trial)){
+    do_experiment = function(participant) {
+      while (
+        (abs(self$current_step) > self$stopping_step_size) &
+          (self$max_trials > self$total_trial)
+      ) {
         self$do_trial(participant)
       }
       invisible(self)
     }
   )
 )
-
 ```
 
 <!--Incantation to add equation numbers
 https://stackoverflow.com/questions/35026405/auto-number-equations-in-r-markdown-documents-in-rstudio--> 
-
 
 In [last week's post](https://psadil.github.io/psadil/post/staircases-for-thresholds/), I discussed how some experiments in cognitive psychology require researchers to pick a differently intense stimulus for each participant. In particular, I discussed a procedure for picking an intensity that elicits positive responses on approximately half of trials, the staircase procedure. In the staircase procedure, the researcher increases the intensity after every positive response and decreases the intensity after every negative response. If the participant completes another set of trials in which the intensity is fixed to the average of the intensities that were used during the staircase, the participant will provide positive responses approximately half of the time. But a researcher may want participants to give positive responses with a different proportion. A different proportion of responses can be achieved by transforming the staircase [@levitt1997]. 
 
@@ -182,39 +197,57 @@ The original staircase procedure capitalized on the idea that the stimulus inten
 
 ::: {#fig-staircase}
 
-```{r, staircase}
-ps <- Participant$new(threshold=0, slope=1)
+```{r}
+#| label: staircase
 
-sc <- Staircase$new(starting_contrast = -1,
-                    starting_step = .25,
-                    stopping_step_size = 1/(2^6),
-                    max_trials = 75,
-                    down = 2,
-                    pest = FALSE)
+ps <- Participant$new(threshold = 0, slope = 1)
+
+sc <- Staircase$new(
+  starting_contrast = -1,
+  starting_step = .25,
+  stopping_step_size = 1 / (2^6),
+  max_trials = 75,
+  down = 2,
+  pest = FALSE
+)
 
 sc$do_experiment(participant = ps)
 
-threshs <- tibble::tibble(q=c(.5, 1/sqrt(2)),
-                          `Proportion Positive Responses` = factor(q),
-                          thresh = qnorm(q,0,1))
+threshs <- tibble::tibble(
+  q = c(.5, 1 / sqrt(2)),
+  `Proportion Positive Responses` = factor(q),
+  thresh = qnorm(q, 0, 1)
+)
 
-p <- tibble::tibble(contrast = sc$tested_contrast,
-               Response = factor(sc$all_obs, labels = c("Negative", "Positive"))) |>
+p <- tibble::tibble(
+  contrast = sc$tested_contrast,
+  Response = factor(sc$all_obs, labels = c("Negative", "Positive"))
+) |>
   dplyr::mutate(Trial = 1:dplyr::n()) |>
-  ggplot2::ggplot(ggplot2::aes(x=Trial, y=contrast)) +
+  ggplot2::ggplot(ggplot2::aes(x = Trial, y = contrast)) +
   ggplot2::geom_hline(
-    ggplot2::aes(yintercept = thresh,
-                 linetype = `Proportion Positive Responses`), 
-    data = threshs) +
-  ggplot2::geom_step(direction="hv", col="blue", alpha = 0.3) +
+    ggplot2::aes(
+      yintercept = thresh,
+      linetype = `Proportion Positive Responses`
+    ),
+    data = threshs
+  ) +
+  ggplot2::geom_step(direction = "hv", col = "blue", alpha = 0.3) +
   ggplot2::scale_y_continuous(
-    name="Stimulus Intensity",
-    breaks = c(-2,2),
+    name = "Stimulus Intensity",
+    breaks = c(-2, 2),
     labels = c("Lower", "Higher"),
-    limits = c(-3,3)) +
-  ggplot2::geom_point(ggplot2::aes(shape=Response), size=6, color = "orange") +
-  ggplot2::scale_shape_manual(values=c("\u2212","\u002B")) +
-  ggplot2::scale_linetype_discrete(labels = c("0.5", expression(frac(1, sqrt(2))))) + 
+    limits = c(-3, 3)
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(shape = Response),
+    size = 6,
+    color = "orange"
+  ) +
+  ggplot2::scale_shape_manual(values = c("\u2212", "\u002B")) +
+  ggplot2::scale_linetype_discrete(
+    labels = c("0.5", expression(frac(1, sqrt(2))))
+  ) +
   ggplot2::theme(legend.position = "bottom")
 
 # ragg::agg_png("featured.png")

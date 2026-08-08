@@ -1,7 +1,7 @@
 ---
 title: Half of a parameter
 author: Patrick Sadil
-date: '2019-11-15'
+date: "2019-11-15"
 slug: half-of-a-parameter
 categories:
   - dissertation
@@ -17,4 +17,3 @@ In cognitive psychology, measures of information criteria, specifically Akaike's
 For intuition on why tallying the number of parameters is an insufficient measure complexity, consider two models of response time. Both models assume that response times are distributed according to a normal distribution. In this simple example, the variability of the distributions are known, and so the models have only a single free parameter, which is the average response time. In one model, that average can be any number, a value from negative to positive infinity. This is the kind of model implicitly assumed when we conduct a t-test on the averages of response times. Of course the model is a simplification of response times, but this model also has the glaring flaw that it allows the average response time to be negative; a participant cannot respond to stimulation before the stimulus appears. The second model addresses this flaw by adding the constraint that the average response time cannot be negative. Although the second model is more constrained, the models have the same number of parameters. The second model can only account for half of the patterns of data as the first; the second model is twice as parsimonious as the first [@gelman2014]. To adjudicate between these model requires a measure that is sensitive to complexity but does not simply tally the number of parameters in each model.
 
 # References
-

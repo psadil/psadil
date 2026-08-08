@@ -45,8 +45,14 @@ IDX = np.flatnonzero(MASK.ravel())
 NVOX = len(IDX)
 
 CODE, SPEC, GREEN, GRAY = "#2166ac", "#b2182b", "#1b7837", "0.45"
-plt.rcParams.update({"figure.dpi": 130, "font.size": 9,
-                     "axes.spines.top": False, "axes.spines.right": False})
+plt.rcParams.update(
+    {
+        "figure.dpi": 130,
+        "font.size": 9,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    }
+)
 
 
 def kernel(fwhm, mode):
@@ -91,7 +97,7 @@ def resel_floor(n_terms):
 
 def rho_from_fwhm(f):
     """Invert `est_resels`' FWHM back to the correlation it was read from."""
-    return float(np.exp(-2 * np.log(2) / f ** 2))
+    return float(np.exp(-2 * np.log(2) / f**2))
 
 
 def fit_r(ev_asc, p=P, n=NVOX):
@@ -106,8 +112,7 @@ def fit_r(ev_asc, p=P, n=NVOX):
         f = mc.feta(p, int(np.exp(g)))
         return float(((e - f / f.mean()) ** 2).sum())
 
-    hit = minimize_scalar(loss, method="bounded",
-                          bounds=(np.log(p + 3), np.log(5 * n)))
+    hit = minimize_scalar(loss, method="bounded", bounds=(np.log(p + 3), np.log(5 * n)))
     return n / int(np.exp(hit.x))
 ```
 
@@ -118,8 +123,7 @@ def fit_r(ev_asc, p=P, n=NVOX):
 def sweep(mode, with_axis=False, with_mle=False):
     """One pass over (seed, FWHM). Stores eigenvalues so every later section
     can re-score the same spectra instead of rebuilding the volumes."""
-    out = {fw: {k: [] for k in ("resels", "r_fit", "ev", "fz", "mle")}
-           for fw in FWHM}
+    out = {fw: {k: [] for k in ("resels", "r_fit", "ev", "fz", "mle")} for fw in FWHM}
     for s in range(SEEDS):
         base = np.random.default_rng(7000 + s).normal(size=SHAPE + (P,))
         for fw in FWHM:
@@ -134,9 +138,11 @@ def sweep(mode, with_axis=False, with_mle=False):
             if with_mle and s == 0:
                 # Minka's MLE at the full voxel count, from scikit-learn.
                 # One seed only: it costs ~5 s a call and the effect is not subtle.
-                rec["mle"].append(PCA(n_components="mle",
-                                      svd_solver="covariance_eigh")
-                                  .fit(V).n_components_)
+                rec["mle"].append(
+                    PCA(n_components="mle", svd_solver="covariance_eigh")
+                    .fit(V)
+                    .n_components_
+                )
     return out
 
 
@@ -151,16 +157,21 @@ def med(vals):
 def arm(res, fw, how):
     """Model order at each seed, under one choice of discount."""
     r = res[fw]
-    if how == "melodic":                       # 2.5 * resels, as shipped
-        return [mc.order_from_evals(e, NVOX, resels=rr)[0]
-                for e, rr in zip(r["ev"], r["resels"])]
-    if how == "matched":                       # the discount the data needs
-        return [mc.order_from_evals(e, NVOX, discount=rr)[0]
-                for e, rr in zip(r["ev"], r["r_fit"])]
-    if how == "derived":                       # 1.206 * resels, computable
-        return [mc.order_from_evals(e, NVOX,
-                                    discount=mc.effective_discount(rr))[0]
-                for e, rr in zip(r["ev"], r["resels"])]
+    if how == "melodic":  # 2.5 * resels, as shipped
+        return [
+            mc.order_from_evals(e, NVOX, resels=rr)[0]
+            for e, rr in zip(r["ev"], r["resels"])
+        ]
+    if how == "matched":  # the discount the data needs
+        return [
+            mc.order_from_evals(e, NVOX, discount=rr)[0]
+            for e, rr in zip(r["ev"], r["r_fit"])
+        ]
+    if how == "derived":  # 1.206 * resels, computable
+        return [
+            mc.order_from_evals(e, NVOX, discount=mc.effective_discount(rr))[0]
+            for e, rr in zip(r["ev"], r["resels"])
+        ]
     raise ValueError(how)
 
 
@@ -195,9 +206,14 @@ def zero_ranks(res, fw):
     the reference genuinely has `p - n_eff` zero eigenvalues, and `Feta`
     returns them.
     """
-    return int(np.median([
-        (mc.adj_eigspec(e, NVOX, rr)["reference"] <= mc.CIRCLE_LAW_FLOOR).sum()
-        for e, rr in zip(res[fw]["ev"], res[fw]["resels"])]))
+    return int(
+        np.median(
+            [
+                (mc.adj_eigspec(e, NVOX, rr)["reference"] <= mc.CIRCLE_LAW_FLOOR).sum()
+                for e, rr in zip(res[fw]["ev"], res[fw]["resels"])
+            ]
+        )
+    )
 
 
 def derived_neff(res, fw):
@@ -234,11 +250,19 @@ shown = FWHM[:-1]
 fig, ax = plt.subplots(figsize=(5.6, 3.4))
 cis = [mc.boot_ci(arm(ISO, fw, "melodic")) for fw in shown]
 ax.plot(shown, [c[0] for c in cis], "o-", color=SPEC, lw=2, ms=5)
-ax.fill_between(shown, [c[1] for c in cis], [c[2] for c in cis],
-                color=SPEC, alpha=0.2, lw=0)
+ax.fill_between(
+    shown, [c[1] for c in cis], [c[2] for c in cis], color=SPEC, alpha=0.2, lw=0
+)
 ax.axhline(1, ls=":", color=GRAY, lw=1.1)
-ax.annotate("truth: 1 component", (0.0, 1), fontsize=8, color=GRAY,
-            va="bottom", xytext=(2, 4), textcoords="offset points")
+ax.annotate(
+    "truth: 1 component",
+    (0.0, 1),
+    fontsize=8,
+    color=GRAY,
+    va="bottom",
+    xytext=(2, 4),
+    textcoords="offset points",
+)
 ax.set_yscale("log")
 ax.set_xlabel("smoothing applied (FWHM, voxels)")
 ax.set_ylabel("components MELODIC reports")
@@ -265,8 +289,7 @@ m3 = volume(seed=0, fwhm=3)
 fig, axes = plt.subplots(1, 3, figsize=(7.4, 3.0))
 for a, axis in enumerate(axes):
     sl = m3[:, :, SHAPE[2] // 2, a]
-    axis.imshow(np.where(np.abs(sl) > .1, sl, np.nan).T, origin="lower",
-             cmap="RdBu_r")
+    axis.imshow(np.where(np.abs(sl) > 0.1, sl, np.nan).T, origin="lower", cmap="RdBu_r")
     axis.set_axis_off()
 plt.tight_layout()
 plt.show()
@@ -288,11 +311,16 @@ If the problem is that the voxel count overstates the sample size, then any mode
 #| label: tbl-generic
 #| tbl-cap: "Model order under two methods. `sklearn`'s `PCA(n_components='mle')` is Minka's Laplace approximation scored at the full voxel count, with no smoothness correction of any kind. MELODIC applies one. The truth is 1 in every cell."
 
-pd.DataFrame([{
-    "FWHM (voxels)": fw,
-    "sklearn, no correction": ISO[fw]["mle"][0],
-    "MELODIC, corrected": order(ISO, fw),
-} for fw in FWHM]).set_index("FWHM (voxels)")
+pd.DataFrame(
+    [
+        {
+            "FWHM (voxels)": fw,
+            "sklearn, no correction": ISO[fw]["mle"][0],
+            "MELODIC, corrected": order(ISO, fw),
+        }
+        for fw in FWHM
+    ]
+).set_index("FWHM (voxels)")
 ```
 
 The `scikit-learn` implementation returns essentially the full rank from `{python} onset([ISO[fw]['mle'][0] for fw in FWHM])` voxels FWHM upward. MELODIC does not break until `{python} onset([order(ISO, fw) for fw in FWHM])` voxels. So, MELODIC has a correction that helps. Let's dive into it.
@@ -354,8 +382,10 @@ ev_w = evals_of(np.random.default_rng(6000).normal(size=(P, 8000)))
 kept = ev_w[2:][::-1]
 
 fig, ax = plt.subplots(figsize=(6.6, 3.3))
-for r_, col, lab in ((1.0, CODE, "r = 1  (correct here)"),
-                     (2.5, SPEC, "r = 2.5  (MELODIC's default)")):
+for r_, col, lab in (
+    (1.0, CODE, "r = 1  (correct here)"),
+    (2.5, SPEC, "r = 2.5  (MELODIC's default)"),
+):
     cl = mc.adj_eigspec(ev_w, 8000, 1.0, discount=r_)["reference"]
     q = kept / cl
     ax.plot(np.arange(1, len(q) + 1), q / q.mean(), color=col, lw=1.7, label=lab)
@@ -388,13 +418,21 @@ for p_ in P_GRID:
             est = mc.order_from_evals(evs, NW, discount=r_)[1]["estimators"]
             rsweep.setdefault((p_, r_), []).append((est[0], est[1]))
 
-pd.DataFrame([{
-    "r": r_,
-    **{f"{p_} vols": "{}/{}".format(
-        int(np.median([v[0] for v in rsweep[(p_, r_)]])),
-        int(np.median([v[1] for v in rsweep[(p_, r_)]])))
-       for p_ in P_GRID},
-} for r_ in R_GRID]).set_index("r")
+pd.DataFrame(
+    [
+        {
+            "r": r_,
+            **{
+                f"{p_} vols": "{}/{}".format(
+                    int(np.median([v[0] for v in rsweep[(p_, r_)]])),
+                    int(np.median([v[1] for v in rsweep[(p_, r_)]])),
+                )
+                for p_ in P_GRID
+            },
+        }
+        for r_ in R_GRID
+    ]
+).set_index("r")
 ```
 
 Each cell is `lap`/`bic`. Three things fall out.
@@ -405,7 +443,7 @@ The window narrows as the acquisition gets longer. At 200 volumes the criterion 
 
 In contrast, `bic` is pinned at 1 everywhere except the top row, where the discount is off by twentyfold. Whatever this is, it is close to specific to the Laplace criterion, which is the one MELODIC uses by default.
 
-I haven't come up with any good ideas about where 2.5 comes from. One idea is that it's an attempt to compensate for data that has been spatially smoothed. [That situation (e.g., isotropic smoothing) does result in a multiplicative factor, but it's about half of 2.5](#sec-resels). [The factor 2.5 could fall out of a particualr assumption about the inherent smoothness of data, but that assumption ends up being quite wrong almost always, at which point 2.5 ends up being unhelpful again](#sec-appendix-inplane). So, MELODIC mitigates effects spatial smoothness in the data, but it does so by using a hardcoded 2.5 that is unexplained and reduces the effectiveness of the mitigation.
+I haven't come up with any good ideas about where 2.5 comes from. One idea is that it's an attempt to compensate for data that has been spatially smoothed. [That situation (e.g., isotropic smoothing) does result in a multiplicative factor, but it's about half of 2.5](#sec-resels). [The factor 2.5 could fall out of a particular assumption about the inherent smoothness of data, but that assumption ends up being quite wrong almost always, at which point 2.5 ends up being unhelpful again](#sec-appendix-inplane). So, MELODIC mitigates effects spatial smoothness in the data, but it does so by using a hardcoded 2.5 that is unexplained and reduces the effectiveness of the mitigation.
 
 ## Caveats
 
@@ -449,13 +487,18 @@ This can be checked against the data. If the argument is right, then fitting a M
 #| label: tbl-calibration
 #| tbl-cap: "What the discount should be, measured. `r measured` is fitted by matching `Feta`'s spread to the observed eigenspectrum; it is the quantity `2.5 · resels` is trying to approximate. Medians over five volumes."
 
-pd.DataFrame([{
-    "FWHM (voxels)": fw,
-    "resels": f"{med(ISO[fw]['resels']):.3f}",
-    "r measured": f"{med(ISO[fw]['r_fit']):.2f}",
-    "1.206 · resels (derived)": f"{mc.effective_discount(med(ISO[fw]['resels'])):.2f}",
-    "2.5 · resels (as implemented)": f"{2.5 * med(ISO[fw]['resels']):.2f}",
-} for fw in FWHM]).set_index("FWHM (voxels)")
+pd.DataFrame(
+    [
+        {
+            "FWHM (voxels)": fw,
+            "resels": f"{med(ISO[fw]['resels']):.3f}",
+            "r measured": f"{med(ISO[fw]['r_fit']):.2f}",
+            "1.206 · resels (derived)": f"{mc.effective_discount(med(ISO[fw]['resels'])):.2f}",
+            "2.5 · resels (as implemented)": f"{2.5 * med(ISO[fw]['resels']):.2f}",
+        }
+        for fw in FWHM
+    ]
+).set_index("FWHM (voxels)")
 ```
 
 The derivation holds up from about 1.5 voxels FWHM upward, `{python} f"{med(ISO[2.0]['r_fit']):.1f}"` measured against `{python} f"{mc.effective_discount(med(ISO[2.0]['resels'])):.1f}"` predicted at two voxels. The implemented constant does not. It is about twice too large across the whole smoothed range: `{python} f"{2.5 * med(ISO[2.0]['resels']):.1f}"` against a true `{python} f"{med(ISO[2.0]['r_fit']):.1f}"` at two voxels, and `{python} f"{2.5 * med(ISO[3.0]['resels']):.0f}"` against `{python} f"{med(ISO[3.0]['r_fit']):.0f}"` at three. By the previous section, that is the direction that manufactures components.
@@ -479,14 +522,16 @@ If that story is right (2.5 is an attempt to compensate for bias how `est_resels
 fig, axes = plt.subplots(1, 2, figsize=(8.6, 3.5), sharey=True)
 panels = [(ISO, "smooth on all three axes"), (IP, "no correlation between planes")]
 for a, (res, title) in zip(axes, panels):
-    for how, col, lab in (("melodic", SPEC, r"MELODIC, $2.5\cdot$resels"),
-                          ("derived", CODE, r"derived, $1.206\cdot$resels"),
-                          ("matched", GREEN, "fitted to the spectrum")):
+    for how, col, lab in (
+        ("melodic", SPEC, r"MELODIC, $2.5\cdot$resels"),
+        ("derived", CODE, r"derived, $1.206\cdot$resels"),
+        ("matched", GREEN, "fitted to the spectrum"),
+    ):
         cis = [mc.boot_ci(arm(res, fw, how)) for fw in FWHM]
-        a.plot(FWHM, [c[0] for c in cis], "o-", color=col, lw=1.9, ms=4.5,
-               label=lab)
-        a.fill_between(FWHM, [c[1] for c in cis], [c[2] for c in cis],
-                       color=col, alpha=0.18, lw=0)
+        a.plot(FWHM, [c[0] for c in cis], "o-", color=col, lw=1.9, ms=4.5, label=lab)
+        a.fill_between(
+            FWHM, [c[1] for c in cis], [c[2] for c in cis], color=col, alpha=0.18, lw=0
+        )
     a.axhline(1, ls=":", color=GRAY, lw=1.1)
     a.set_yscale("log")
     a.set_xlabel("smoothing applied (FWHM, voxels)")
@@ -615,14 +660,19 @@ The simulation below builds that field: smoothing $x$ and $y$ and leaving $z$ un
 #| label: tbl-inplane
 #| tbl-cap: "A field with real in-plane smoothness and no correlation between planes, built by smoothing x and y only. `FWHM z` is what `est_resels` reports for the axis that has nothing to report. `r measured / resels` is the constant MELODIC would need here. Medians over five volumes."
 
-pd.DataFrame([{
-    "FWHM in plane (voxels)": fw,
-    "FWHM z (measured)": f"{med(IP[fw]['fz']):.2f}",
-    "resels": f"{med(IP[fw]['resels']):.3f}",
-    "r measured": f"{med(IP[fw]['r_fit']):.2f}",
-    "r measured / resels": f"{med(IP[fw]['r_fit']) / med(IP[fw]['resels']):.2f}",
-    "2.5 · resels": f"{2.5 * med(IP[fw]['resels']):.2f}",
-} for fw in FWHM[2:]]).set_index("FWHM in plane (voxels)")
+pd.DataFrame(
+    [
+        {
+            "FWHM in plane (voxels)": fw,
+            "FWHM z (measured)": f"{med(IP[fw]['fz']):.2f}",
+            "resels": f"{med(IP[fw]['resels']):.3f}",
+            "r measured": f"{med(IP[fw]['r_fit']):.2f}",
+            "r measured / resels": f"{med(IP[fw]['r_fit']) / med(IP[fw]['resels']):.2f}",
+            "2.5 · resels": f"{2.5 * med(IP[fw]['resels']):.2f}",
+        }
+        for fw in FWHM[2:]
+    ]
+).set_index("FWHM in plane (voxels)")
 ```
 
 The `FWHM z` column is the estimator talking to itself; nothing was smoothed along $z$, so the honest answer is zero, and what comes back is the floor. The constant such a field needs is correspondingly large, running from `{python} f"{med(IP[1.5]['r_fit']) / med(IP[1.5]['resels']):.2f}"` to `{python} f"{med(IP[4.0]['r_fit']) / med(IP[4.0]['resels']):.2f}"`, against `{python} f"{med(ISO[3.0]['r_fit']) / med(ISO[3.0]['resels']):.2f}"` when all three axes are genuinely smooth. And it is not really constant --- it drifts, because the invented $z$ width itself creeps upward, from `{python} f"{med(IP[1.5]['fz']):.2f}"` to `{python} f"{med(IP[4.0]['fz']):.2f}"`. Neither number is a fact about the field; both are facts about the estimator.

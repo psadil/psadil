@@ -1,7 +1,7 @@
 ---
 title: eyetracking with eyelink in psychtoolbox, now with oop
 author: Patrick Sadil
-date: '2019-05-25'
+date: "2019-05-25"
 slug: eyetracking-in-psychtoolbox-oop
 categories:
   - experiments
@@ -10,20 +10,23 @@ tags:
   - matlab
   - psychtoolbox
 pandoc_args:
-      - "--indented-code-classes"
-      - "matlab"
-execute: 
+  - "--indented-code-classes"
+  - "matlab"
+execute:
   eval: false
   echo: true
-  warning: false    
+  warning: false
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false
+
 library(formatR)
 knitr::opts_chunk$set(tidy = TRUE)
 
 eng_dummy <- function(options) {
-    knitr::engine_output(options, options$code, "")
+  knitr::engine_output(options, options$code, "")
 }
 knitr::knit_engines$set(matlab = eng_dummy)
 ```
@@ -32,7 +35,7 @@ I've started trying out [MATLAB's OOP](https://www.mathworks.com/discovery/objec
 
 This post is brief, and is about as well thought out as a github gist/gitlab snippet. 
 
-The two classes I'll work with here is a Window class and a Tracker class. The window class has 3 methods. The first [constructor](https://www.mathworks.com/help/matlab/matlab_oop/class-constructor-methods.html) method exists just to create the object. The constructed object will have a few default properties of the class. The second method is open, which (can you guess?) calls the PTB functions to open an onscreen window. The open method is fancier than it needs to be for this post (note the PsychImaging configuration, and the optional debugLevel flag). The final window method is the [desctructor](https://www.mathworks.com/help/matlab/matlab_oop/handle-class-destructors.html). The destructor method is one of the advantages of leaning on MATLAB's OOP syntax. That method will get called whenever the Window object's lifecycle has ended (which might happen from explicit deletion of the object, closing MATLAB, the object is no longer referenced in the call stack, etc).
+The two classes I'll work with here is a Window class and a Tracker class. The window class has 3 methods. The first [constructor](https://www.mathworks.com/help/matlab/matlab_oop/class-constructor-methods.html) method exists just to create the object. The constructed object will have a few default properties of the class. The second method is open, which (can you guess?) calls the PTB functions to open an onscreen window. The open method is fancier than it needs to be for this post (note the PsychImaging configuration, and the optional debugLevel flag). The final window method is the [destructor](https://www.mathworks.com/help/matlab/matlab_oop/handle-class-destructors.html). The destructor method is one of the advantages of leaning on MATLAB's OOP syntax. That method will get called whenever the Window object's lifecycle has ended (which might happen from explicit deletion of the object, closing MATLAB, the object is no longer referenced in the call stack, etc).
 
 The second class is the Tracker class, which interfaces with Eyelink. The Window class is only present here because Eyelink needs an open window to run calibration. There are five Tracker methods, but they are either analogous to the Window objects methods (constructor, destructor) or were largely presented in the previous post. 
 
@@ -104,7 +107,6 @@ end
 
 
 ```
-
 
 ## Tracker Object
 
@@ -265,7 +267,6 @@ end
 
 ```
 
-
 ## Run the calibration (and use the tracker)
 
 Putting this together, the following script starts calibration, and outlines how this tracker could be used in an experiment.
@@ -325,7 +326,6 @@ delete(window);
 
 ```
 
-
 What's nice about this syntax (as before) is that only very minimal changes are required you don't want to call the Eyelink functions (e.g., if you're testing on a computer that doesn't have the Eyelink system connected, or you're debugging other parts of the experiment). By changing just the input, the Eyelink functions won't be called.
 
 ```{matlab}
@@ -336,8 +336,6 @@ using_tracker = false;
 % ...
 ```
 
-
 # Summary
 
-There's not much to summarize because I haven't explained much! Again, this post is largely just an attempt to revise what I now think is a poor implementation, presented in an earlier post. 
-
+There's not much to summarize because I haven't explained much! Again, this post is largely just an attempt to revise what I now think is a poor implementation, presented in an earlier post.

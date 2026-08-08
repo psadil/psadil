@@ -35,9 +35,9 @@ import melodic_chain as mc
 
 SHAPE = (48, 48, 30)
 P = 400
-K = 10            # planted components
-FW = 2.0          # noise smoothing, where the last post's derivation held
-MAP_FW = 4.0      # planted maps are smoother than the noise, as real ones are
+K = 10  # planted components
+FW = 2.0  # noise smoothing, where the last post's derivation held
+MAP_FW = 4.0  # planted maps are smoother than the noise, as real ones are
 
 MASK = np.zeros(SHAPE, dtype=bool)
 MASK[4:-4, 4:-4, 3:-3] = True
@@ -47,8 +47,14 @@ NVOX = len(IDX)
 FRACS = [0.0, 0.02, 0.05, 0.10, 0.20, 0.40]
 
 CODE, SPEC, GREEN, GRAY = "#2166ac", "#b2182b", "#1b7837", "0.45"
-plt.rcParams.update({"figure.dpi": 130, "font.size": 9,
-                     "axes.spines.top": False, "axes.spines.right": False})
+plt.rcParams.update(
+    {
+        "figure.dpi": 130,
+        "font.size": 9,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    }
+)
 
 
 def sigma(fwhm):
@@ -75,8 +81,7 @@ def fit_r(ev, p=P, n=NVOX, drop_top=0):
         a, b = e[drop_top:], (f / f.mean())[drop_top:]
         return float(((a - b) ** 2).sum())
 
-    hit = minimize_scalar(loss, method="bounded",
-                          bounds=(np.log(p + 3), np.log(5 * n)))
+    hit = minimize_scalar(loss, method="bounded", bounds=(np.log(p + 3), np.log(5 * n)))
     return n / int(np.exp(hit.x))
 ```
 
@@ -87,7 +92,8 @@ def fit_r(ev, p=P, n=NVOX, drop_top=0):
 # Noise, smoothed the way the last post smoothed it.
 s = sigma(FW)
 NOISE = gaussian_filter(
-    np.random.default_rng(7000).normal(size=SHAPE + (P,)), (s, s, s, 0.0))
+    np.random.default_rng(7000).normal(size=SHAPE + (P,)), (s, s, s, 0.0)
+)
 SD_N = NOISE[MASK].std()
 
 # K components: smooth spatial maps, independent Gaussian time courses. Both
@@ -104,15 +110,15 @@ def planted(frac):
     """Noise plus signal carrying `frac` of the total variance."""
     if frac == 0:
         return NOISE
-    return NOISE + np.sqrt(frac * SD_N ** 2 / (K * (1 - frac))) * SIG
+    return NOISE + np.sqrt(frac * SD_N**2 / (K * (1 - frac))) * SIG
 
 
 def score(frac):
     vol = planted(frac)
     ev = evals_of(vol.reshape(-1, P)[IDX].T)
     resels = mc.est_resels(vol, MASK)
-    fitted = fit_r(ev)                       # as the last post wrote it
-    held_out = fit_r(ev, drop_top=K)         # bulk only
+    fitted = fit_r(ev)  # as the last post wrote it
+    held_out = fit_r(ev, drop_top=K)  # bulk only
     derived = mc.effective_discount(resels)
     return {
         "signal variance": f"{100 * frac:.0f}%",

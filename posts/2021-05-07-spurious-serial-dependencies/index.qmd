@@ -1,20 +1,24 @@
 ---
 title: Spurious Serial Dependencies
 author: Patrick Sadil
-date: '2021-05-07'
+date: "2021-05-07"
 slug: []
 categories:
   - research
 tags:
   - psychology
-lastmod: '2021-05-07T17:27:27-04:00'
+lastmod: "2021-05-07T17:27:27-04:00"
 featured: no
 bibliography: [scholar.bib]
-execute: 
+execute:
   echo: true
 ---
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
 
 set.seed(1234)
@@ -23,14 +27,15 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(ragg)
-
 ```
 
 I'm working on a project involving [serial dependence](https://psadil.github.io/psadil/post/serial-dependence/). The project involves disentangling a dependence on the previous orientation from a dependence on the previous response. Unfortunately, there is a common way for a dependence on the previous response to be spurious, due to the oblique effect^[This effect occurs when participants are asked to report orientations. Participants are differently accurate across the range of orientations; they are maximally accurate when reporting $0^\circ$,  $45^\circ$, $90^\circ$, and $135^\circ$, but minimally accurate at intermediate orientations ($22.5^\circ$, $67.5^\circ$, etc). The errors can either be clockwise or counterclockwise, depending on the experiment. For an overview, see @wei2015bayesian.]. The first reference I've seen for this is a master's thesis by @fritsche2016smooth. I didn't follow that explanation, and so I'm using this post to explain how the oblique effect causes a spurious dependence on the previous response.
 
 First, let's show that the confound is real. Data will be generated with an oblique effect, and there will be no dependence between trials -- neither on the previous orientation nor the previous response. There will be no response variability, meaning that errors will only be caused by the oblique effect. Since the data are simulated without dependencies, any dependence that emerges will necessarily be spurious. 
 
-```{r, data}
+```{r}
+#| label: data
+
 # helper functions for converting between angles and degrees
 rad <- function(degree) degree * pi / 180
 deg <- function(radian) radian * 180 / pi
@@ -39,21 +44,24 @@ deg <- function(radian) radian * 180 / pi
 oblique <- rad(-22.5)
 
 d0 <- tibble(
-  orientation = runif(5000, 0, pi)) |>
+  orientation = runif(5000, 0, pi)
+) |>
   mutate(
     trial = 1:n(),
-    oblique = oblique*sin(orientation*4),
-    response = rnorm(n(), orientation, 0) + oblique) 
-
+    oblique = oblique * sin(orientation * 4),
+    response = rnorm(n(), orientation, 0) + oblique
+  )
 ```
 
 To help generate the data, define a helper functions that calculates the signed, shortest angle between two angles (measured in radians).
 
-```{r, helpers}
+```{r}
+#| label: helpers
+
 #' @param deg1 numeric degree
 #' @param deg2 numeric degree
 #'
-#' @return 
+#' @return
 #' signed difference between inputs, wrapped to +-pi
 #' output is shortest distance to the first input
 #'
@@ -65,52 +73,55 @@ To help generate the data, define a helper functions that calculates the signed,
 #' # notice the discontinuity when the shortest angle switches direction
 #' ang_diff(pi/2 - .01, 0)
 #' ang_diff(pi/2 + .01, 0)
-ang_diff <- function(deg1, deg2){
+ang_diff <- function(deg1, deg2) {
   stopifnot(length(deg1) == length(deg2))
-  diff <- ( deg1 - deg2 + pi/2 ) %% pi - pi/2
-  out <- dplyr::if_else(diff < -pi/2, diff + pi, diff)
+  diff <- (deg1 - deg2 + pi / 2) %% pi - pi / 2
+  out <- dplyr::if_else(diff < -pi / 2, diff + pi, diff)
   return(out)
 }
-
 ```
 
 Then use the function `ang_diff` to calculate errors, and to calculate the relative orientation difference between the current trial and either the previous orientation or the previous response.
 
-```{r, data2}
+```{r}
+#| label: data2
 
-d <- d0 |>   
+d <- d0 |>
   mutate(
     prev_response = lag(response),
     prev_orientation = lag(orientation),
     error = ang_diff(orientation, response),
     orientation_diff = ang_diff(orientation, prev_orientation),
-    response_diff = ang_diff(orientation, prev_response)) |>
+    response_diff = ang_diff(orientation, prev_response)
+  ) |>
   filter(trial > 1) |>
   mutate(across(where(is.double), deg))
-
-
 ```
 
 Plot errors as a function of the current orientation to confirm that there is an oblique effect.
 
 ::: {#fig-oblique}
 
-```{r, oblique}
+```{r}
+#| label: oblique
+
 d |>
-  ggplot(aes(x=orientation, y=error)) +
+  ggplot(aes(x = orientation, y = error)) +
   geom_point() +
   geom_smooth(
-    formula = y ~ sin(rad(x)*4),
+    formula = y ~ sin(rad(x) * 4),
     method = "lm",
-    se = FALSE) +
+    se = FALSE
+  ) +
   scale_y_continuous(
     breaks = c(-20, -10, 0, 10, 20),
-    labels = c("CCW", -10, 0, 10, "CW")) +
+    labels = c("CCW", -10, 0, 10, "CW")
+  ) +
   scale_x_continuous(
     name = "orientation on current trial",
     labels = c(0, 90, 180),
-    breaks = c(0, 90, 180))
-  
+    breaks = c(0, 90, 180)
+  )
 ```
 
 The simulated data exhibit a clear oblique effect.
@@ -121,25 +132,28 @@ Is there a dependence on either the previous response or previous orientation?
 
 ::: {#fig-spurious}
 
-```{r, spurious}
+```{r}
+#| label: spurious
 
 d |>
   pivot_longer(
-    cols=c(orientation_diff, response_diff), 
+    cols = c(orientation_diff, response_diff),
     names_to = "covariate",
     names_pattern = "(orientation|response)",
-    values_to = "x") |>
-  ggplot(aes(x=x, y=error)) +
+    values_to = "x"
+  ) |>
+  ggplot(aes(x = x, y = error)) +
   geom_point() +
   facet_wrap(~covariate) +
   geom_smooth(
     method = "gam",
-    formula = y ~ s(x, bs = "cc", k=9)) +
+    formula = y ~ s(x, bs = "cc", k = 9)
+  ) +
   scale_x_continuous(
     name = "relative orientation/response on previous trial",
     labels = c(-90, 0, 90),
-    breaks = c(-90, 0, 90))
-
+    breaks = c(-90, 0, 90)
+  )
 ```
 
 Errors do not depend on the previous orientation, but they do depend on the previous response. Since the data were generated without that dependence, it must be spurious.
@@ -160,28 +174,36 @@ First, consider a specific sequence of trials that could produce a spurious effe
 
 ::: {#fig-spuriouscol}
 
-```{r, spuriouscol}
+```{r}
+#| label: spuriouscol
+
 d |>
   pivot_longer(
-    cols=c(orientation_diff, response_diff), 
+    cols = c(orientation_diff, response_diff),
     names_to = "covariate",
     names_pattern = "(orientation|response)",
-    values_to = "x") |>
-  ggplot(aes(x=x, y=error)) +
-  geom_point(aes(color=oblique)) +
-  scale_color_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
+    values_to = "x"
+  ) |>
+  ggplot(aes(x = x, y = error)) +
+  geom_point(aes(color = oblique)) +
+  scale_color_gradient2(
+    low = scales::muted("blue"),
+    high = scales::muted("red")
+  ) +
   facet_wrap(~covariate) +
   geom_smooth(
     method = "gam",
-    formula = y ~ s(x, bs = "cc", k=9)) +
+    formula = y ~ s(x, bs = "cc", k = 9)
+  ) +
   scale_y_continuous(
     breaks = c(-20, -10, 0, 10, 20),
-    labels = c("CCW", -10, 0, 10, "CW")) +
+    labels = c("CCW", -10, 0, 10, "CW")
+  ) +
   scale_x_continuous(
     name = "relative orientation/response on previous trial",
     labels = c(-90, 0, 90),
-    breaks = c(-90, 0, 90))
-
+    breaks = c(-90, 0, 90)
+  )
 ```
 
 Same figure as above, but colored based on the magnitude and direction of the oblique effect.
@@ -196,18 +218,19 @@ We can see this play out empirically by looking at $O_n$ as a function of $R_{n-
 
 ::: {#fig-dep}
 
-```{r, dep}
+```{r}
+#| label: dep
 
-d |> 
+d |>
   filter(between(response_diff, 21, 24)) |>
-  ggplot(aes(x=orientation)) +
-  geom_histogram(bins=30) +
+  ggplot(aes(x = orientation)) +
+  geom_histogram(bins = 30) +
   scale_x_continuous(
     name = "orientation on current trial",
     labels = c(0, 90, 180),
-    breaks = c(0, 90, 180)) +
-  geom_vline(xintercept = c(22.5, 112.5), color="blue") 
-
+    breaks = c(0, 90, 180)
+  ) +
+  geom_vline(xintercept = c(22.5, 112.5), color = "blue")
 ```
 
 When the previous orientation is 22.5 clockwise, the current orientation tends to be either 22.5 or 112.5, which is when the oblique effect causes maximal error.
@@ -222,24 +245,29 @@ We can see this play out more generally by looking at the current orientation as
 
 ::: {#fig-currbyprev}
 
-```{r, currbyprev}
+```{r}
+#| label: currbyprev
+
 d |>
   pivot_longer(
-    cols = c(orientation_diff, response_diff), 
+    cols = c(orientation_diff, response_diff),
     names_to = "covariate",
-    names_pattern = "(response|orientation)") |>
-  ggplot(aes(x=orientation, y=value)) +
+    names_pattern = "(response|orientation)"
+  ) |>
+  ggplot(aes(x = orientation, y = value)) +
   facet_wrap(~covariate) +
   geom_point() +
-  coord_fixed()  +
+  coord_fixed() +
   scale_y_continuous(
     name = "relative orientation/response on previous trial",
     labels = c(-90, 0, 90),
-    breaks = c(-90, 0, 90)) +
+    breaks = c(-90, 0, 90)
+  ) +
   scale_x_continuous(
     name = "orientation on current trial",
     labels = c(0, 90, 180),
-    breaks = c(0, 90, 180))
+    breaks = c(0, 90, 180)
+  )
 ```
 
 The current orientation is unrelated to the previous orientation, but there is a dependency on the previous response.
@@ -250,27 +278,35 @@ As expected, there is no relationship between $O_n$ and $O_{n-1}$, but there is 
 
 ::: {#fig-featured}
 
-```{r, featured}
+```{r}
+#| label: featured
+
 d |>
   na.omit() |>
   select(-response, -error) |>
   pivot_longer(
-    cols = c(orientation_diff, response_diff), 
+    cols = c(orientation_diff, response_diff),
     names_to = "covariate",
-    names_pattern = "(response|orientation)") |>
-  ggplot(aes(x=orientation, y=value)) +
+    names_pattern = "(response|orientation)"
+  ) |>
+  ggplot(aes(x = orientation, y = value)) +
   facet_wrap(~covariate) +
-  geom_point(aes(color=oblique)) +
-  scale_color_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
-  coord_fixed()  +
+  geom_point(aes(color = oblique)) +
+  scale_color_gradient2(
+    low = scales::muted("blue"),
+    high = scales::muted("red")
+  ) +
+  coord_fixed() +
   scale_y_continuous(
     name = "relative orientation/response on previous trial",
     labels = c(-90, 0, 90),
-    breaks = c(-90, 0, 90)) +
+    breaks = c(-90, 0, 90)
+  ) +
   scale_x_continuous(
     name = "orientation on current trial",
     labels = c(0, 90, 180),
-    breaks = c(0, 90, 180))
+    breaks = c(0, 90, 180)
+  )
 ```
 
 This is the same plot as above, but now the data have been colored according to how the oblique effect will cause errors. The point is that the errors caused by the oblique effect on trial $n$ are balanced when looking at the orientation on the previous trial (consider a horizontal slice), but no such balancing happens when looking at the response on the previous trial.
@@ -280,4 +316,3 @@ This is the same plot as above, but now the data have been colored according to 
 Fortunately, this spurious bias isn't too hard to adjust for^[In a regression model of the errors, it would suffice to include a sinusoidal term.]. But the point is that it would be a mistake to look at just a dependence on the previous orientation if there is an oblique effect; analyses must adjust for the oblique effect.
 
 I'm not sure if there is a similar issue with other domains (e.g., when participants discriminate tones, pain, faces, etc). Perhaps edge effects could cause a similar issue (e.g., if people are more likely to respond to the ends or middle of the scale)?
-

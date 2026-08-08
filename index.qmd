@@ -2,30 +2,28 @@
 title: "Patrick Sadil"
 image: https://gravatar.com/userimage/192989381/5e87c5ce288236c0de0d4673c35523f9.jpeg?size=512
 toc: false
-about:   
-    template: trestles
-    image-width: 15em
-    image-shape: round
-    links: 
-      - text: "{{< iconify fa:github size=Huge >}}"
-        href: https://github.com/psadil
+about:
+  template: trestles
+  image-width: 15em
+  image-shape: round
+  links:
+    - text: "{{< iconify fa:github size=Huge >}}"
+      href: https://github.com/psadil
 
-      - text: "{{< iconify academicons:google-scholar size=Huge >}}"
-        href: https://scholar.google.com/citations?user=HhPeElcAAAAJ=en
+    - text: "{{< iconify academicons:google-scholar size=Huge >}}"
+      href: https://scholar.google.com/citations?user=HhPeElcAAAAJ=en
 
-      - text: "{{< iconify academicons:orcid size=Huge >}}"
-        href: https://orcid.org/0000-0003-4141-1343
+    - text: "{{< iconify academicons:orcid size=Huge >}}"
+      href: https://orcid.org/0000-0003-4141-1343
 
-      - text: "{{< iconify academicons:cv size=Huge >}}"
-        href: https://psadil.github.io/cv/cv.pdf
+    - text: "{{< iconify academicons:cv size=Huge >}}"
+      href: https://psadil.github.io/cv/cv.pdf
 
-      - text: "{{< iconify fa:envelope size=Huge >}}"
-        href: mailto:psadil1@jh.edu
-
+    - text: "{{< iconify fa:envelope size=Huge >}}"
+      href: mailto:psadil1@jh.edu
 ---
 
-
-:::{#hero-heading}
+::: {#hero-heading}
 
 ## Experience
 

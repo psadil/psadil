@@ -1,7 +1,7 @@
 ---
 title: eyetracking with eyelink in psychtoolbox
 author: Patrick Sadil
-date: '2018-06-05'
+date: "2018-06-05"
 categories:
   - experiments
 tags:
@@ -10,17 +10,20 @@ tags:
   - psychtoolbox
 slug: eyetracking-init
 pandoc_args:
-      - "--indented-code-classes"
-      - "matlab"
-execute: 
+  - "--indented-code-classes"
+  - "matlab"
+execute:
   echo: true
   eval: false
   warning: false
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false
+
 eng_dummy <- function(options) {
-    knitr::engine_output(options, options$code, "")
+  knitr::engine_output(options, options$code, "")
 }
 knitr::knit_engines$set(matlab = eng_dummy)
 ```
@@ -68,7 +71,7 @@ function [el, exit_flag] = setupEyeTracker( tracker, window, constants )
   window.winRect; PsychRect defining size of main window (e.g., [window.pointer, window.winRect] = PsychImaging('OpenWindow', ...
                                                                                                                 window.screenNumber,window.background);)
   constants: struct containing at least
-  constants.eyelink_data_fname: string defining eyetracking data to be saved. Cannot be longer than 8 characters (before file extention). File extension must be '.edf'. (e.g., constants.eyelink_data_fname = ['scan', num2str(input.runnum, '%02d'), '.edf'];)
+  constants.eyelink_data_fname: string defining eyetracking data to be saved. Cannot be longer than 8 characters (before file extension). File extension must be '.edf'. (e.g., constants.eyelink_data_fname = ['scan', num2str(input.runnum, '%02d'), '.edf'];)
   
   OUTPUT:
     if tracker == 'T60'
@@ -93,7 +96,7 @@ case 'T60'
 % and control codes (e.g. tracker state bit and Eyelink key values).
 el = EyelinkInitDefaults(window.pointer);
 
-% overrride default gray background of eyelink, otherwise runs end
+% override default gray background of eyelink, otherwise runs end
 % up gray! also, probably best to calibrate with same colors of
 % background / stimuli as participant will encounter
 el.backgroundcolour = window.background;
@@ -167,16 +170,20 @@ end
 Here are a few parts of that function that you will probably want to adapt for your experiment.
 
 1. The various color arguments
-+ Eyelink changes the background color of whatever screen is open. So, these colors (e.g., `el.backgroundcolour`) should match whatever background your stimuli will be displayed on.
+
+- Eyelink changes the background color of whatever screen is open. So, these colors (e.g., `el.backgroundcolour`) should match whatever background your stimuli will be displayed on.
 
 2. `Eyelink('command','calibration_area_proportion = 0.5 0.5');` and `Eyelink('command','validation_area_proportion = 0.48 0.48');`
-+ The setup at the scanner has a hard time tracking eyes that are fixating near the edges of the screen. The issue is bad enough that it can be almost impossible to calibrate the tracker when the calibration dots appear on the edges. I only really use the eyetracker to have a record confirming that participants were more-or-less fixating during a run, so good calibration at the edges isn't important to me. For this reason, I reduce the size of the calibration.
+
+- The setup at the scanner has a hard time tracking eyes that are fixating near the edges of the screen. The issue is bad enough that it can be almost impossible to calibrate the tracker when the calibration dots appear on the edges. I only really use the eyetracker to have a record confirming that participants were more-or-less fixating during a run, so good calibration at the edges isn't important to me. For this reason, I reduce the size of the calibration.
 
 3. Related to 2: `Eyelink('command', 'calibration_type = HV5');`
-+ This sets the calibration routine to only use 5 dots, rather than 9. Again, my needs are pretty simple and calibration can be challenging, so 5 seems good enough.
+
+- This sets the calibration routine to only use 5 dots, rather than 9. Again, my needs are pretty simple and calibration can be challenging, so 5 seems good enough.
 
 4. Wrapping the function in a switch argument (e.g., `tracker ==`)
-+ See the next section for some of the logic in writing code with a switch statement or two that all depends on how an initial variable is set^[though, I've already broken some of the logic I outline in that section by having more than one function with a switch statement.].
+
+- See the next section for some of the logic in writing code with a switch statement or two that all depends on how an initial variable is set^[though, I've already broken some of the logic I outline in that section by having more than one function with a switch statement.].
 
 # The Eyelink functions
 
@@ -227,7 +234,6 @@ fprintf('Problem receiving data file ''%s''\n',  constants.eyelink_data_fname );
 end
 
 ```
-
 
 # Sample script
 
@@ -359,8 +365,9 @@ Also, for inspiration about the cool experiments that can be run with Eyelink's 
 
 Finally, thanks to [Ramiro](https://www.umass.edu/pbs/people/ramiro-reyes) for sharing a PTB script that got me started with Eyelink.
 
+```{js}
+//| echo: false
 
-```{js, echo=FALSE}
 document.querySelectorAll('pre').forEach(function(el) {
   // the class name is the language name
   if (!el.className) el.className = 'matlab';

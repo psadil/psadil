@@ -1,7 +1,7 @@
 ---
 title: Anonymizing MTurk WorkerIDs
 author: Patrick Sadil
-date: '2018-08-07'
+date: "2018-08-07"
 slug: anonymizing-mtruk-worker-ids
 categories:
   - experiments
@@ -10,13 +10,16 @@ tags:
   - R
   - psiturk
 highlight_languages: ["R"]
-execute: 
+execute:
   echo: true
   eval: false
   warning: false
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false
+
 knitr::opts_chunk$set(tidy = TRUE, message = FALSE)
 library(formatR)
 ```
@@ -32,7 +35,6 @@ The script relies on five R libraries
 3. [openssl](https://github.com/jeroen/openssl#readme) constructs a more secure identifier for each participant that can still be used to cross reference them across studies
 4. [stringr](https://stringr.tidyverse.org) does the work of replacing instances of the WorkerID with the more secure code
 5. [docopt](https://github.com/docopt/docopt.R), wraps up the Rscript such that it can be called from the command line (in an environment in which Rscript is the name of a function. i.e., may be Rscript.exe in Windows powershell)
-
 
 ```{r}
 #!/usr/bin/env Rscript
@@ -69,31 +71,39 @@ db <- dplyr::src_sqlite(opt$infile) %>%
   dplyr::collect() %>%
   dplyr::mutate(
     uniqueid = stringr::str_replace(
-      uniqueid, 
-      workerid, 
-      openssl::sha256(workerid, key = opt$KEY)),
+      uniqueid,
+      workerid,
+      openssl::sha256(workerid, key = opt$KEY)
+    ),
     datastring = dplyr::case_when(
       is.na(datastring) ~ datastring,
       TRUE ~ stringr::str_replace_all(
-        datastring, 
-        workerid, 
-        openssl::sha256(workerid, key = opt$KEY))),
+        datastring,
+        workerid,
+        openssl::sha256(workerid, key = opt$KEY)
+      )
+    ),
     workerid = openssl::sha256(workerid, key = opt$KEY)
   )
 message(paste0("read raw database: ", opt$infile))
 
 con <- DBI::dbConnect(RSQLite::SQLite(), opt$OUTFILE)
 dplyr::copy_to(
-  con, db, opt$table,   
-  temporary = FALSE, 
+  con,
+  db,
+  opt$table,
+  temporary = FALSE,
   indexes = list(
-    "uniqueid" 
+    "uniqueid"
   ),
-  overwrite = TRUE)
+  overwrite = TRUE
+)
 
 DBI::dbDisconnect(con)
 message(paste0("wrote anonymized database: ", opt$OUTFILE))
-message(paste0("Store your KEY securely if you want the same WorkerIDs to create the same HMACs!"))
+message(paste0(
+  "Store your KEY securely if you want the same WorkerIDs to create the same HMACs!"
+))
 ```
 
 As stated in the initial string of this script, a typical call might be

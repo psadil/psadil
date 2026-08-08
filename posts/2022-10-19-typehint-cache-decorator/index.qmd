@@ -2,13 +2,13 @@
 title: "Hinting Cache Decorator Types"
 jupyter: python3
 author: Patrick Sadil
-date: '2022-10-23'
+date: "2022-10-23"
 slug: typehint-callable
 categories: [gist]
 tags: [python]
-lastmod: '2022-10-23T22:59:09-04:00'
+lastmod: "2022-10-23T22:59:09-04:00"
 image: featured.png
-execute: 
+execute:
   echo: true
 ---
 
@@ -21,9 +21,13 @@ In code, that looks like the following
 ```{python}
 from pathlib import Path
 import typing
+
 P = typing.ParamSpec("P")
 
-def cache_str(f: typing.Callable[P, str]) -> typing.Callable[typing.Concatenate[Path, P], str]:
+
+def cache_str(
+    f: typing.Callable[P, str],
+) -> typing.Callable[typing.Concatenate[Path, P], str]:
     def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -> str:
         if _filename.exists():
             print(f"Found cached result {_filename}. Skipping!")
@@ -34,6 +38,7 @@ def cache_str(f: typing.Callable[P, str]) -> typing.Callable[typing.Concatenate[
             _filename.touch()
             _filename.write_text(i)
         return i
+
     return wrapper
 ```
 
@@ -59,8 +64,6 @@ with tempfile.TemporaryDirectory() as tmpdir:
     print("trying to read message from cache...")
     print(f"{tmp_path.read_text()=}")
     get_str(tmp_path, msg=msg)
-
 ```
 
-
-This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function. 
+This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.

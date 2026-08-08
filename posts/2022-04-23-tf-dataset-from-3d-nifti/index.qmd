@@ -2,13 +2,13 @@
 title: "How to store a NIfTI as a TFRecord"
 jupyter: python3
 author: Patrick Sadil
-date: '2022-04-23'
+date: "2022-04-23"
 slug: tf-dataset-from-3d-nifti
 categories: [gist]
 tags: [python, mri]
-lastmod: '2022-04-23T22:59:09-04:00'
+lastmod: "2022-04-23T22:59:09-04:00"
 image: featured.png
-execute: 
+execute:
   echo: true
 ---
 
@@ -18,7 +18,7 @@ A recent project required sending brain images to TensorFlow. Unfortunately, the
 
 There are five main steps
 
-1.  load the images as numpy array,
+1. load the images as numpy array,
 2. perform an preprocessing (e.g., resizing, masking),
 3. serialize the preprocessed images and store with their labels (all in memory) as a [`tf.train.Example`](https://www.tensorflow.org/api_docs/python/tf/train/Example),
 4. store (on disk) the examples as [TFRecord](https://www.tensorflow.org/tutorials/load_data/tfrecord), and finally
@@ -44,20 +44,20 @@ A full implementation might involve several preprocessing steps (e.g., registrat
 def to_numpy(img: nb.Nifti1Image) -> np.ndarray:
     return np.asanyarray(img.dataobj)
 
+
 def load_and_preprocess(img: str) -> np.ndarray:
     # convert to numpy array and preprocess
     nii = to_numpy(nb.load(img))
     # rescale to 0-1
-    preprocessed = (nii - nii.min())/(nii.max() - nii.min()).astype(np.float32)
+    preprocessed = (nii - nii.min()) / (nii.max() - nii.min()).astype(np.float32)
     return preprocessed
-
 ```
 
 Since this method of storing data was new for me, I wanted to ensure that I didn't mess up the data. For that, I mainly relied on a basic plot of the images. 
 
 ```{python}
 def plot_array(img: np.ndarray) -> None:
-    nii = nb.Nifti1Image(img, affine=np.eye(4)*2)
+    nii = nb.Nifti1Image(img, affine=np.eye(4) * 2)
     plotting.plot_anat(nii)
 ```
 
@@ -65,7 +65,7 @@ This first step is standard neuroimaging, but just to check that the functions a
 
 ```{python}
 # example images packaged with fsl, found at $FSLDIR/data/standard
-img = ['MNI152lin_T1_2mm.nii.gz']
+img = ["MNI152lin_T1_2mm.nii.gz"]
 preprocesed = load_and_preprocess(img[0])
 plot_array(preprocesed)
 ```
@@ -87,30 +87,30 @@ def _bytes_feature(value: bytes):
     """
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
+
 def _float_feature(value: Number):
     """
     Returns a float_list from a float / double.
-    
+
         Example:
           _float_feature(2)
           _float_feature(2.)
     """
     return tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
-
 ```
 
 Those functions seem to help ensure that the serialized data ends up with appropriate types. But the full steps involve serializing both the image and the label together. 
 
 ```{python}
 def serialize_example(img: str, label: Number):
-  
+
     # convert to numpy array and preprocess
     preprocessed = load_and_preprocess(img)
 
     # Notice how the numpy array is converted into a byte_string. That's serialization in memory!
     feature = {
-        'label': _float_feature(label),
-        'image_raw': _bytes_feature(tf.io.serialize_tensor(preprocessed).numpy())
+        "label": _float_feature(label),
+        "image_raw": _bytes_feature(tf.io.serialize_tensor(preprocessed).numpy()),
     }
 
     return tf.train.Example(features=tf.train.Features(feature=feature))
@@ -121,22 +121,23 @@ To get the image back out, we need two more functions: one to unpack/parse the e
 ```{python}
 def decode_example(record_bytes) -> dict:
     example = tf.io.parse_example(
-        record_bytes,     
-        features = {
-          "label": tf.io.FixedLenFeature([], dtype=tf.float32),
-          'image_raw': tf.io.FixedLenFeature([], dtype=tf.string)
-          }
+        record_bytes,
+        features={
+            "label": tf.io.FixedLenFeature([], dtype=tf.float32),
+            "image_raw": tf.io.FixedLenFeature([], dtype=tf.string),
+        },
     )
     return example
 
+
 def parse_1_example(example):
-    """ 
-    Note that the network I was using worked with 3D images, and so the batches of data were of shape `(batch_size, x_dim, y_dim, z_dim, 1)`, rather than what is typical for 2d images: `(batch_size, x_dim, y_dim, n_channels)`. 
     """
-    X = tf.io.parse_tensor(example['image_raw'], out_type=tf.float32)
+    Note that the network I was using worked with 3D images, and so the batches of data were of shape `(batch_size, x_dim, y_dim, z_dim, 1)`, rather than what is typical for 2d images: `(batch_size, x_dim, y_dim, n_channels)`.
+    """
+    X = tf.io.parse_tensor(example["image_raw"], out_type=tf.float32)
 
     # the images output by tf.io.parse_tensor will have shape (x_dim, y_dim, z_dim), which is to say that they're missing the channels dimension. expand_dims is used to indicate channel (i.e., be explicit about grayscale)
-    return tf.expand_dims(X, 3), example['label'] 
+    return tf.expand_dims(X, 3), example["label"]
 ```
 
 At this point, we have functions for preprocessing the images, serializing them[^spooky], and packing each of them along with their labels into a [`tf.train.Example`](https://www.tensorflow.org/api_docs/python/tf/train/Example). This is all for converting the data into a format that can then be more easily written to and read from the disk.
@@ -150,7 +151,9 @@ So far, everything has been in memory. Next comes a function that performs the a
 [^serialize]: It seems to me that this storage on disk involves a *second* serialization step (where the first was done by `tf.io.serialize_tensor` in `serialize_example`). Even so, I assume the roundtrip isn't so much of a big deal, considering that the data can be served to the model in parallel. 
 
 ```{python}
-def write_records(niis: List[str], labels: npt.ArrayLike, n_per_record: int, outfile: str) -> None:
+def write_records(
+    niis: List[str], labels: npt.ArrayLike, n_per_record: int, outfile: str
+) -> None:
     """
     store list of niftis (and associated label) into tfrecords for use as dataset
 
@@ -161,23 +164,24 @@ def write_records(niis: List[str], labels: npt.ArrayLike, n_per_record: int, out
         outfile: base prefix to use when writing the records
 
     Returns:
-        Nothing, but the records will be written to disk. 
+        Nothing, but the records will be written to disk.
 
     """
     n_niis = len(niis)
     n_records = math.ceil(len(niis) / n_per_record)
 
     for i, shard in enumerate(range(0, n_niis, n_per_record)):
-        print(f"writing record {i} of {n_records-1}")
+        print(f"writing record {i} of {n_records - 1}")
         with tf.io.TFRecordWriter(
-                f"{outfile}_{i:0>3}-of-{n_records-1:0>3}.tfrecords", 
-                options= tf.io.TFRecordOptions(compression_type="GZIP")
+            f"{outfile}_{i:0>3}-of-{n_records - 1:0>3}.tfrecords",
+            options=tf.io.TFRecordOptions(compression_type="GZIP"),
         ) as writer:
-            for nii, label in zip(niis[shard:shard+n_per_record], labels[shard:shard+n_per_record]):
+            for nii, label in zip(
+                niis[shard : shard + n_per_record], labels[shard : shard + n_per_record]
+            ):
                 example = serialize_example(img=nii, label=label)
                 writer.write(example.SerializeToString())
 ```
-
 
 ## Create Dataset
 
@@ -186,14 +190,13 @@ For this gist, let's store several copies of the MNI 2mm brain.
 ```{python}
 # (e.g., put nifti of label MNI152_T1_1mm_brain.nii.gz in the working directory)
 n_imgs = 3
-mni_nii = ['MNI152lin_T1_2mm.nii.gz'] * n_imgs
+mni_nii = ["MNI152lin_T1_2mm.nii.gz"] * n_imgs
 
 # store examples in each tfrecord. number of examples per record is configurable.
-# aim for as many examples as produces files of size > 100M 
+# aim for as many examples as produces files of size > 100M
 prefix = "tmp"
 write_records(mni_nii, np.arange(n_imgs), n_imgs, prefix)
 ```
-
 
 Calling the above will write a TFRecord file to disk. To read that record, define a pipeline that will create a `tf.Data.dataset`. 
 
@@ -201,21 +204,22 @@ Calling the above will write a TFRecord file to disk. To read that record, defin
 def get_batched_dataset(files, batch_size: int = 32) -> tf.data.Dataset:
     # Note: an actual pipeline would probably include at least the shuffle and prefetch methods
     dataset = (
-        tf.data.Dataset.list_files(files) # note shuffling is on by default, changes order when there are multiple records
+        tf.data.Dataset.list_files(
+            files
+        )  # note shuffling is on by default, changes order when there are multiple records
         .flat_map(lambda x: tf.data.TFRecordDataset(x, compression_type="GZIP"))
         .map(decode_example)
         .map(parse_1_example)
         .batch(batch_size)
     )
     return dataset
-
 ```
 
 Now, use that function to read the records back. 
 
 ```{python}
 # a full dataset will have a list with many records
-list_of_records=[f'{prefix}*.tfrecords']
+list_of_records = [f"{prefix}*.tfrecords"]
 ds = get_batched_dataset(list_of_records, batch_size=2)
 ```
 

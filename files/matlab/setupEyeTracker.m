@@ -14,7 +14,7 @@ switch tracker
         % and control codes (e.g. tracker state bit and Eyelink key values).
         el = EyelinkInitDefaults(window.pointer);
         
-        % overrride default gray background of eyelink, otherwise runs end
+        % override default gray background of eyelink, otherwise runs end
         % up gray! also, probably best to calibrate with same colors of
         % background / stimuli as participant will encounter
         el.backgroundcolour = window.background;
