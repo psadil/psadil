@@ -1,7 +1,9 @@
 project:
   type: website
   resources:
-    - files
+    # keep the slash: a bare `files` matches any directory of that name at any
+    # depth, which sweeps in `files/` dirs inside each post's .pixi environment
+    - /files/**
 
 website:
   title: "psadil"
