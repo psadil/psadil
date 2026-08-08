@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Blog – psadil</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -30,6 +33,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./favicon.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-listing/list.min.js"></script>
 <script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
@@ -38,14 +42,14 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-cac0433bb97fa58dc0fc6599c25c149a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-5021107a2cd845c5e5fdf616b3d94994.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-7944e5b760ac2b06eb7f984510d06b77.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -116,7 +120,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -129,7 +133,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -357,7 +361,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(20)</span></div><div class="category" data-category="Y29tcHM=">comps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGlzc2VydGF0aW9u">dissertation <span class="quarto-category-count">(8)</span></div><div class="category" data-category="ZXhwZXJpbWVudHM=">experiments <span class="quarto-category-count">(4)</span></div><div class="category" data-category="Z2lzdA==">gist <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cmVzZWFyY2g=">research <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(21)</span></div><div class="category" data-category="Y29tcHM=">comps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGlzc2VydGF0aW9u">dissertation <span class="quarto-category-count">(8)</span></div><div class="category" data-category="ZXhwZXJpbWVudHM=">experiments <span class="quarto-category-count">(4)</span></div><div class="category" data-category="Z2lzdA==">gist <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cmVzZWFyY2g=">research <span class="quarto-category-count">(2)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -387,7 +391,37 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="Z2lzdA==" data-listing-date-sort="1666497600000" data-listing-file-modified-sort="1752248031932" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="386">
+<div class="quarto-post image-right" data-index="0" data-categories="cmVzZWFyY2g=" data-listing-date-sort="1785816000000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="43" data-listing-word-count-sort="8466">
+<div class="thumbnail"><a href="./posts/2026-08-04-smoothing-components/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/2026-08-04-smoothing-components/featured.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2026-08-04-smoothing-components/index.html" class="no-external">FSL’s MELODIC and Smoothing</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('cmVzZWFyY2g='); return false;">research</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts/2026-08-04-smoothing-components/index.html" class="no-external">
+Spatial smoothness in the noise causes MELODIC to overestimate the number of components. This overestimation happens because smoothness removes independent samples, and…
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/2026-08-04-smoothing-components/index.html" class="no-external">
+<div class="listing-date">
+Aug 4, 2026
+</div>
+<div class="listing-author">
+Patrick Sadil
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="Z2lzdA==" data-listing-date-sort="1666497600000" data-listing-file-modified-sort="1786147366302" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="389">
 <div class="thumbnail"><a href="./posts/2022-10-19-typehint-cache-decorator/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/2022-10-19-typehint-cache-decorator/featured.png" class="thumbnail-image">
@@ -417,7 +451,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="Z2lzdA==" data-listing-date-sort="1650686400000" data-listing-file-modified-sort="1752265967854" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1561">
+<div class="quarto-post image-right" data-index="2" data-categories="Z2lzdA==" data-listing-date-sort="1650686400000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1605">
 <div class="thumbnail"><a href="./posts/2022-04-23-tf-dataset-from-3d-nifti/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/2022-04-23-tf-dataset-from-3d-nifti/featured.png" class="thumbnail-image">
@@ -447,10 +481,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="cmVzZWFyY2g=" data-listing-date-sort="1620360000000" data-listing-file-modified-sort="1752248031928" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2099">
+<div class="quarto-post image-right" data-index="3" data-categories="cmVzZWFyY2g=" data-listing-date-sort="1620360000000" data-listing-file-modified-sort="1786147366302" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2196">
 <div class="thumbnail"><a href="./posts/2021-05-07-spurious-serial-dependencies/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2021-05-07-spurious-serial-dependencies/index_files/figure-html/featured-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2021-05-07-spurious-serial-dependencies/index_files/figure-html/featured-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -477,7 +511,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="" data-listing-date-sort="1610859600000" data-listing-file-modified-sort="1752248031926" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1075">
+<div class="quarto-post image-right" data-index="4" data-categories="" data-listing-date-sort="1610859600000" data-listing-file-modified-sort="1786146768043" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1071">
 <div class="thumbnail"><a href="./posts/2021-01-02-gan-mass/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/2021-01-02-gan-mass/featured.png" class="thumbnail-image">
@@ -505,7 +539,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1584158400000" data-listing-file-modified-sort="1752248031924" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1462">
+<div class="quarto-post image-right" data-index="5" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1584158400000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1490">
 <div class="thumbnail"><a href="./posts/2020-03-14-counterbalanced-continuous-designs-with-eulerian-walks/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/2020-03-14-counterbalanced-continuous-designs-with-eulerian-walks/featured.png" class="thumbnail-image">
@@ -535,10 +569,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="" data-listing-date-sort="1574312400000" data-listing-file-modified-sort="1752248031923" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1465">
+<div class="quarto-post image-right" data-index="6" data-categories="" data-listing-date-sort="1574312400000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1706">
 <div class="thumbnail"><a href="./posts/2019-11-21-thoughts-on-eye-movement/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-11-21-thoughts-on-eye-movement/index_files/figure-html/density-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-11-21-thoughts-on-eye-movement/index_files/figure-html/density-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -549,7 +583,7 @@ Patrick Sadil
 
 </div>
 <div class="delink listing-description"><a href="./posts/2019-11-21-thoughts-on-eye-movement/index.html" class="no-external">
-Visual perception research has produced many illusions. Stare at a waterfall for a minute, then look away and the whole world appears in motion, traveling upwards <span class="citation" data-cites="addams1834">(Addams 1834…</span><span class="citation" data-cites="gelb1929 cataliotti1995"></span><span class="citation" data-cites="mccollough1965"></span><sup></sup><em></em>
+Visual perception research has produced many illusions. Stare at a waterfall for a minute, then look away and the whole world appears in motion, traveling upwards&nbsp;<span class="citation" data-cites="addams1834">(Addams 1834…</span><span class="citation" data-cites="gelb1929 cataliotti1995"></span><span class="citation" data-cites="mccollough1965"></span><sup></sup><em></em>
 </a></div>
 </div>
 <div class="metadata">
@@ -563,7 +597,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1573794000000" data-listing-file-modified-sort="1752248031915" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="438">
+<div class="quarto-post image-right" data-index="7" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1573794000000" data-listing-file-modified-sort="1786146768043" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="438">
 <div class="thumbnail"><a href="./posts/2019-11-15-half-of-a-parameter/index.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -593,10 +627,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1573189200000" data-listing-file-modified-sort="1752248031915" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2857">
+<div class="quarto-post image-right" data-index="8" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1573189200000" data-listing-file-modified-sort="1786147366302" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2562">
 <div class="thumbnail"><a href="./posts/2019-11-08-staircases-for-thresholds-part2/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-11-08-staircases-for-thresholds-part2/index_files/figure-html/staircase-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-11-08-staircases-for-thresholds-part2/index_files/figure-html/staircase-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -623,10 +657,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1572408000000" data-listing-file-modified-sort="1752248031914" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="23" data-listing-word-count-sort="4571">
+<div class="quarto-post image-right" data-index="9" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1572408000000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2527">
 <div class="thumbnail"><a href="./posts/2019-10-30-staircases-for-thresholds/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-10-30-staircases-for-thresholds/index_files/figure-html/psychometric-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-10-30-staircases-for-thresholds/index_files/figure-html/psychometric-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -653,7 +687,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="" data-listing-date-sort="1571889600000" data-listing-file-modified-sort="1752248031913" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="555">
+<div class="quarto-post image-right" data-index="10" data-categories="" data-listing-date-sort="1571889600000" data-listing-file-modified-sort="1786146768043" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="555">
 <div class="thumbnail"><a href="./posts/2019-10-24-forward-encoding-model/index.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -681,10 +715,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="10" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1571371200000" data-listing-file-modified-sort="1752248031912" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1429">
+<div class="quarto-post image-right" data-index="11" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1571371200000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1183">
 <div class="thumbnail"><a href="./posts/2019-10-18-neural-modulation-for-serial-dependence/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-10-18-neural-modulation-for-serial-dependence/index_files/figure-html/readout-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-10-18-neural-modulation-for-serial-dependence/index_files/figure-html/readout-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -711,7 +745,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="11" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1570766400000" data-listing-file-modified-sort="1752248031911" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="507">
+<div class="quarto-post image-right" data-index="12" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1570766400000" data-listing-file-modified-sort="1786146768043" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="505">
 <div class="thumbnail"><a href="./posts/2019-10-11-serial-dependence-reflects-a-preference-for-low-variability/index.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -741,10 +775,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="12" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1570075200000" data-listing-file-modified-sort="1752248031911" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1594">
+<div class="quarto-post image-right" data-index="13" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1570075200000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1190">
 <div class="thumbnail"><a href="./posts/2019-10-03-derivative-of-gaussian-for-serial-dependence/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-10-03-derivative-of-gaussian-for-serial-dependence/index_files/figure-html/dog0-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-10-03-derivative-of-gaussian-for-serial-dependence/index_files/figure-html/dog0-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -771,10 +805,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="13" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1569556800000" data-listing-file-modified-sort="1752248031896" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="695">
+<div class="quarto-post image-right" data-index="14" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1569556800000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="698">
 <div class="thumbnail"><a href="./posts/2019-09-27-population-receptive-field-mapping/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-09-27-population-receptive-field-mapping/index_files/figure-html/prf-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-09-27-population-receptive-field-mapping/index_files/figure-html/prf-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -801,10 +835,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="14" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1568865600000" data-listing-file-modified-sort="1752248031896" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1005">
+<div class="quarto-post image-right" data-index="15" data-categories="ZGlzc2VydGF0aW9u" data-listing-date-sort="1568865600000" data-listing-file-modified-sort="1786147358074" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1079">
 <div class="thumbnail"><a href="./posts/2019-09-19-serial-dependence/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-09-19-serial-dependence/index_files/figure-html/tae-1.gif"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-09-19-serial-dependence/index_files/figure-html/tae-1.gif"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -831,10 +865,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="15" data-categories="" data-listing-date-sort="1568260800000" data-listing-file-modified-sort="1752248031895" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="749">
+<div class="quarto-post image-right" data-index="16" data-categories="" data-listing-date-sort="1568260800000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="816">
 <div class="thumbnail"><a href="./posts/2019-09-12-circular-diffusion-model-of-response-times/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2019-09-12-circular-diffusion-model-of-response-times/index_files/figure-html/color-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2019-09-12-circular-diffusion-model-of-response-times/index_files/figure-html/color-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -859,7 +893,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="16" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1558756800000" data-listing-file-modified-sort="1752248031894" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3834">
+<div class="quarto-post image-right" data-index="17" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1558756800000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3833">
 <div class="thumbnail"><a href="./posts/2019-05-25-eyetracking-with-eyelink-in-psychtoolbox-now-with-oop/index.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -889,10 +923,10 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="17" data-categories="Y29tcHM=" data-listing-date-sort="1541826000000" data-listing-file-modified-sort="1752248031893" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1257">
+<div class="quarto-post image-right" data-index="18" data-categories="Y29tcHM=" data-listing-date-sort="1541826000000" data-listing-file-modified-sort="1786146768041" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1265">
 <div class="thumbnail"><a href="./posts/2018-11-10-importance-sampling/index.html" class="no-external">
 
-<p class="card-img-top"><img src="posts/2018-11-10-importance-sampling/index_files/figure-html/mismatch-1.png"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img loading='lazy' src="posts/2018-11-10-importance-sampling/index_files/figure-html/mismatch-1.png"  class="thumbnail-image card-img"/></p>
 
 </a></div>
 <div class="body">
@@ -919,7 +953,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="18" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1533614400000" data-listing-file-modified-sort="1752248031892" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="822">
+<div class="quarto-post image-right" data-index="19" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1533614400000" data-listing-file-modified-sort="1786147358075" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="831">
 <div class="thumbnail"><a href="./posts/2018-08-07-anonymizing-mturk-worker-ids/index.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -949,7 +983,7 @@ Patrick Sadil
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="19" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1528171200000" data-listing-file-modified-sort="1752248031892" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2699">
+<div class="quarto-post image-right" data-index="20" data-categories="ZXhwZXJpbWVudHM=" data-listing-date-sort="1528171200000" data-listing-file-modified-sort="1786147366302" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2698">
 <div class="thumbnail"><a href="./posts/2018-06-05-eyetracking-with-eyelink-in-psychtoolbox/index.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1046,13 +1080,14 @@ Patrick Sadil
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

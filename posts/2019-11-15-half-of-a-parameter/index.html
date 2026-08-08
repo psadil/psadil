@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>Half of a parameter – psadil</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -26,7 +29,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -52,20 +54,21 @@ div.csl-indent {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cac0433bb97fa58dc0fc6599c25c149a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-5021107a2cd845c5e5fdf616b3d94994.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7944e5b760ac2b06eb7f984510d06b77.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -367,7 +370,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 
 <p>Science produces models that provide parsimonious descriptions of the world. In cognitive psychology, models regularly compete to explain a few phenomena. But models can survive experiment after experiment, both because of the difficulty of capturing participant’s nuanced behavior, and because models often make highly overlapping predictions. In these cases, a model succeeds through its relative parsimony.</p>
 <p>In cognitive psychology, measures of information criteria, specifically Akaike’s and the Bayesian information criteria <span class="citation" data-cites="schwarz1978 akaike1998">(<a href="#ref-schwarz1978" role="doc-biblioref">Schwarz 1978</a>; <a href="#ref-akaike1998" role="doc-biblioref">Akaike 1973</a>)</span>, determine a winning model. These criteria measure complexity by tallying the number of parameters in a model. Long maths and specific assumptions justify the claim that a model with more parameters is more complex than a model with fewer parameters, and so does our intuition that a model is complex if it has many moving parts. Unfortunately, the assumptions fail in common situations, such as when the models are fit in a Bayesian rather than frequentist setting. An alphabet soup of other information criteria exists (in addition to Akaike’s the Bayesian criteria, there is the DIC, WAIC, KIC, NIC, TIC, etc), and these other criteria assign complexity more complexly. These criteria are sensitive not only to the number of parameters in a model but also to the varied roles that a parameter can have. They assign the complexity of a model based on the model’s number of ‘effective parameters.’</p>
-<p>For intuition on why tallying the number of parameters is an insufficient measure complexity, consider two models of response time. Both models assume that response times are distributed according to a normal distribution. In this simple example, the variability of the distributions are known, and so the models have only a single free parameter, which is the average response time. In one model, that average can be any number, a value from negative to positive infinity. This is the kind of model implicitly assumed when we conduct a t-test on the averages of response times. Of course the model is a simplification of response times, but this model also has the glaring flaw that it allows the average response time to be negative; a participant cannot respond to stimulation before the stimulus appears. The second model addresses this flaw by adding the constraint that the average response time cannot be negative. Although the second model is more constrained, the models have the same number of parameters. The second model can only account for half of the patterns of data as the first; the second model is twice as parsimonious as the first <span class="citation" data-cites="gelman2014">(<a href="#ref-gelman2014" role="doc-biblioref">Gelman, Hwang, and Vehtari 2014</a>)</span>. To adjudicate between these model requires a measure that is sensitive to complexity but does not simply tally the number of parameters in each model.</p>
+<p>For intuition on why tallying the number of parameters is an insufficient measure complexity, consider two models of response time. Both models assume that response times are distributed according to a normal distribution. In this simple example, the variability of the distributions are known, and so the models have only a single free parameter, which is the average response time. In one model, that average can be any number, a value from negative to positive infinity. This is the kind of model implicitly assumed when we conduct a t-test on the averages of response times. Of course the model is a simplification of response times, but this model also has the glaring flaw that it allows the average response time to be negative; a participant cannot respond to stimulation before the stimulus appears. The second model addresses this flaw by adding the constraint that the average response time cannot be negative. Although the second model is more constrained, the models have the same number of parameters. The second model can only account for half of the patterns of data as the first; the second model is twice as parsimonious as the first <span class="citation" data-cites="gelman2014">(<a href="#ref-gelman2014" role="doc-biblioref">Gelman et al. 2014</a>)</span>. To adjudicate between these model requires a measure that is sensitive to complexity but does not simply tally the number of parameters in each model.</p>
 <section id="references" class="level1">
 
 
@@ -375,9 +378,9 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-akaike1998" class="csl-entry" role="listitem">
-Akaike, Hirotogu. 1973. <span>“Information Theory and an Extension of the Maximum Likelihood Principle.”</span> In <em>Proceedings of the Second International Symposium on Information Theory</em>, 267–81.
+Akaike, Hirotogu. 1973. <span>“Information Theory and an Extension of the Maximum Likelihood Principle.”</span> In <em>Proceedings of the Second International Symposium on Information Theory</em>.
 </div>
 <div id="ref-gelman2014" class="csl-entry" role="listitem">
 Gelman, Andrew, Jessica Hwang, and Aki Vehtari. 2014. <span>“Understanding Predictive Information Criteria for <span>Bayesian</span> Models.”</span> <em>Statistics and Computing</em> 24 (6): 997–1016. <a href="https://doi.org/10.1007/s11222-013-9416-2">https://doi.org/10.1007/s11222-013-9416-2</a>.
@@ -450,13 +453,14 @@ Schwarz, Gideon. 1978. <span>“Estimating the Dimension of a Model.”</span> <
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

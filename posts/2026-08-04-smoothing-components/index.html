@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Patrick Sadil">
+<meta name="dcterms.date" content="2026-08-04">
+
+<title>FSL’s MELODIC and Smoothing – psadil</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cac0433bb97fa58dc0fc6599c25c149a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7944e5b760ac2b06eb7f984510d06b77.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SP0TP763NP"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">psadil</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://scholar.google.com/citations?user=HhPeElcAAAAJ"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">FSL’s MELODIC and Smoothing</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">research</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Patrick Sadil </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 4, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#tldr" id="toc-tldr" class="nav-link active" data-scroll-target="#tldr">TLDR;</a></li>
+  <li><a href="#smoothing-results-in-a-higher-estimated-dimensionality" id="toc-smoothing-results-in-a-higher-estimated-dimensionality" class="nav-link" data-scroll-target="#smoothing-results-in-a-higher-estimated-dimensionality">Smoothing Results In a Higher Estimated Dimensionality</a></li>
+  <li><a href="#melodics-correction-for-spatial-smoothness" id="toc-melodics-correction-for-spatial-smoothness" class="nav-link" data-scroll-target="#melodics-correction-for-spatial-smoothness">MELODIC’s Correction for Spatial Smoothness</a></li>
+  <li><a href="#the-tilt" id="toc-the-tilt" class="nav-link" data-scroll-target="#the-tilt">The tilt</a></li>
+  <li><a href="#which-criteria-care-and-in-which-direction" id="toc-which-criteria-care-and-in-which-direction" class="nav-link" data-scroll-target="#which-criteria-care-and-in-which-direction">Which criteria care, and in which direction</a></li>
+  <li><a href="#caveats" id="toc-caveats" class="nav-link" data-scroll-target="#caveats">Caveats</a></li>
+  <li><a href="#sec-resels" id="toc-sec-resels" class="nav-link" data-scroll-target="#sec-resels">Appendix: Attempts at Getting 2.5 From Resels</a>
+  <ul class="collapse">
+  <li><a href="#an-idea-about-2.5" id="toc-an-idea-about-2.5" class="nav-link" data-scroll-target="#an-idea-about-2.5">An Idea about 2.5</a></li>
+  </ul></li>
+  <li><a href="#sec-appendix" id="toc-sec-appendix" class="nav-link" data-scroll-target="#sec-appendix">Appendix: where the 1.206 comes from</a></li>
+  <li><a href="#sec-appendix-inplane" id="toc-sec-appendix-inplane" class="nav-link" data-scroll-target="#sec-appendix-inplane">Appendix: why <code>est_resels</code> is biased</a></li>
+  <li><a href="#sec-appendix2" id="toc-sec-appendix2" class="nav-link" data-scroll-target="#sec-appendix2">Appendix: A Refinement of 2.5 When an Axis Has 0 Correlation</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+
+<section id="tldr" class="level2">
+<h2 class="anchored" data-anchor-id="tldr">TLDR;</h2>
+<p>Spatial smoothness in the noise causes MELODIC to overestimate the number of components. This overestimation happens because smoothness removes independent samples, and every model-order criterion that takes the voxel count at face value (like the default one) will read that as structure. MELODIC is unusual in that it has a built-in method of mitigating effects of spatial smoothness, and the correction works when a hard-coded constant it uses matches the data. But it’s not clear to me what kind of data it was designed to match.</p>
+</section>
+<section id="smoothing-results-in-a-higher-estimated-dimensionality" class="level2">
+<h2 class="anchored" data-anchor-id="smoothing-results-in-a-higher-estimated-dimensionality">Smoothing Results In a Higher Estimated Dimensionality</h2>
+<p><a href="https://fsl.fmrib.ox.ac.uk/fsl/docs/resting_state/melodic.html">FSL’s MELODIC</a> is described by <a href="https://www.fmrib.ox.ac.uk/datasets/techrep/tr02cb1/tr02cb1.pdf">a nice technical report</a>, and the code is available for inspection <a href="https://git.fmrib.ox.ac.uk/fsl/melodic">on GitLab</a>. However, while comparing the two I’ve been surprised by several details. This post is on details regarding the handling of data smoothness, in particular during the automatic dimensionality estimation.</p>
+<p>To investigate MELODIC’s behavior, this post relies on several experiments with simulated data. All simulations involved generating Gaussian noise on a 48×48×30 grid with 400 volumes. The noise was independent in space and independent in time, so there were no “signal” components. It was spatially smoothed with Gaussian kernels at various widths, and at each width I ran MELODIC’s model-order selection (the default <code>lap</code> criterion) with <code>resels</code> computed the way MELODIC computes it.</p>
+<div id="cell-fig-smoothing" class="cell" data-fig-height="3.4" data-execution_count="3">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The sweep runs to four voxels FWHM, but that width breaks by a different</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># mechanism than the rest of the curve, so it is held back to the caveats.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>shown <span class="op">=</span> FWHM[:<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.6</span>, <span class="fl">3.4</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>cis <span class="op">=</span> [mc.boot_ci(arm(ISO, fw, <span class="st">"melodic"</span>)) <span class="cf">for</span> fw <span class="kw">in</span> shown]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ax.plot(shown, [c[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> cis], <span class="st">"o-"</span>, color<span class="op">=</span>SPEC, lw<span class="op">=</span><span class="dv">2</span>, ms<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>ax.fill_between(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    shown, [c[<span class="dv">1</span>] <span class="cf">for</span> c <span class="kw">in</span> cis], [c[<span class="dv">2</span>] <span class="cf">for</span> c <span class="kw">in</span> cis], color<span class="op">=</span>SPEC, alpha<span class="op">=</span><span class="fl">0.2</span>, lw<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">1</span>, ls<span class="op">=</span><span class="st">":"</span>, color<span class="op">=</span>GRAY, lw<span class="op">=</span><span class="fl">1.1</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.annotate(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"truth: 1 component"</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.0</span>, <span class="dv">1</span>),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    fontsize<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span>GRAY,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    va<span class="op">=</span><span class="st">"bottom"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    xytext<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">4</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    textcoords<span class="op">=</span><span class="st">"offset points"</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"smoothing applied (FWHM, voxels)"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"components MELODIC reports"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Pure noise in, components out"</span>, fontsize<span class="op">=</span><span class="fl">9.5</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-smoothing" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-smoothing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-smoothing-output-1.png" width="718" height="433" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-smoothing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Estimated model order on pure noise, against how much the noise was smoothed first. Medians over five volumes, bootstrap 95% intervals. Nothing is planted, so the truth is one component everywhere and every component above the dotted line was manufactured.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>At one voxel of smoothing the estimate is 1. At two voxels it is 59, and at three it is 156. So, with more smoothing, MELODIC finds more components.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>The one point that does not fit the pattern is the leftmost one; with no smoothing at all the estimate is 12. That turns out to be the same mechanism running in the opposite direction, but we’ll return to this later, once we’ve pinned down the mechanism.</p>
+<p>First, let me ward off a misinterpretation. A natural reading of <a href="#fig-smoothing" class="quarto-xref">Figure&nbsp;1</a> is that because smoothing creates spatially coherent structure, we should expect or want MELODIC to find that structure. Indeed, smoothing does create spatial structure within each volume (<a href="#fig-blobs" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<div id="cell-fig-blobs" class="cell" data-fig-height="3" data-execution_count="4">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="op">=</span> volume(seed<span class="op">=</span><span class="dv">0</span>, fwhm<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="fl">7.4</span>, <span class="fl">3.0</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, axis <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    sl <span class="op">=</span> m3[:, :, SHAPE[<span class="dv">2</span>] <span class="op">//</span> <span class="dv">2</span>, a]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    axis.imshow(np.where(np.<span class="bu">abs</span>(sl) <span class="op">&gt;</span> <span class="fl">0.1</span>, sl, np.nan).T, origin<span class="op">=</span><span class="st">"lower"</span>, cmap<span class="op">=</span><span class="st">"RdBu_r"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    axis.set_axis_off()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-blobs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-blobs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-blobs-output-1.png" width="952" height="323" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-blobs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Three consecutive volumes of the same pure-noise dataset, smoothed to 3 voxels FWHM, shown at the same axial slice. Voxels within 0.1 of zero – about one standard deviation of the smoothed data – are left blank, so what survives is roughly the blobbiest third of each map. Nothing is planted in any of them, and consecutive maps correlate at about 0.04. The structure is real to look at and is not shared across time.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Smoothed maps have clusters, edges and a plausible amount of structure, but the clusters differ from volume to volume. The dimensionality estimated by MELODIC is not a claim about how blobby the maps are. It is a claim about temporal rank, about how many distinct timecourses the data needs. Spatial smoothing cannot add temporally structured blobs, because it never mixes timepoints.</p>
+<p>What smoothing does do is destroy independent samples. Much of spatial ICA (like the standard MELODIC application) is built around the temporal covariance matrix.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> The temporal covariance matrix looks at the spatial similarity between pairs of timepoints. As with any covariance matrix, we’ll get a better estimate if we have more samples. In this case, voxels are the samples, and “more samples” could translate to something like a finer voxel resolution. Conversely, we’d have fewer samples if we had either a coarser grid, or if each element of the grid were muddled with the neighbors, as happens when smoothing spatially. So, it is appropriate to say that spatial smoothing decreases our “effective” sample size, and with a lower (effective) sample size, we can expect to have a noisier estimate of the covariance matrix. <a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<p>If the problem is that the voxel count overstates the sample size, then any model-order criterion that takes the voxel count at face value should break the same way. Let’s check against <code>scikit-learn</code><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, which has no built in correction for spatial smoothness.</p>
+<div class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"FWHM (voxels)"</span>: fw,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"sklearn, no correction"</span>: ISO[fw][<span class="st">"mle"</span>][<span class="dv">0</span>],</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"MELODIC, corrected"</span>: order(ISO, fw),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> fw <span class="kw">in</span> FWHM</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>).set_index(<span class="st">"FWHM (voxels)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-generic" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="5">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-generic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Model order under two methods. <code>sklearn</code>’s <code>PCA(n_components='mle')</code> is Minka’s Laplace approximation scored at the full voxel count, with no smoothness correction of any kind. MELODIC applies one. The truth is 1 in every cell.
+</figcaption>
+<div aria-describedby="tbl-generic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">sklearn, no correction</th>
+<th data-quarto-table-cell-role="th">MELODIC, corrected</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">FWHM (voxels)</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0.0</th>
+<td>1</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1.0</th>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1.5</th>
+<td>340</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2.0</th>
+<td>382</td>
+<td>59</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2.5</th>
+<td>389</td>
+<td>120</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3.0</th>
+<td>398</td>
+<td>156</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4.0</th>
+<td>398</td>
+<td>157</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The <code>scikit-learn</code> implementation returns essentially the full rank from 1.5 voxels FWHM upward. MELODIC does not break until 2 voxels. So, MELODIC has a correction that helps. Let’s dive into it.</p>
+</section>
+<section id="melodics-correction-for-spatial-smoothness" class="level2">
+<h2 class="anchored" data-anchor-id="melodics-correction-for-spatial-smoothness">MELODIC’s Correction for Spatial Smoothness</h2>
+<p>MELODIC picks the model order by maximizing a Laplace approximation to the model evidence for probabilistic PCA. Before it does that, however, it adjusts the eigenspectrum “in order to account for the limited amount of data” (<a href="https://www.fmrib.ox.ac.uk/datasets/techrep/tr02cb1/tr02cb1.pdf">pg. 9</a>). The adjustment divides the observed spectrum by the one white noise would have produced, modeled with the <a href="https://en.wikipedia.org/wiki/Marchenko%E2%80%93Pastur_distribution">Marchenko–Pastur limit</a>, which a sample covariance matrix converges to when the data really are white and <span class="math inline">\(p\)</span> and <span class="math inline">\(n\)</span> both grow with their ratio held fixed. That limit depends on one number, the ratio of timepoints to samples: <span class="math inline">\(\nu = p/n\)</span>.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> <a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<p>The chain is four functions. <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L436"><code>adj_eigspec</code></a> builds the reference and divides the observed spectrum by it. <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L496"><code>Feta</code></a> supplies that reference (not the Marchenko–Pastur density but its inverse, integrated and read off as one expected eigenvalue per rank, the <span class="math inline">\(G^{-1}\)</span> of the report). <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L680"><code>ppca_est</code></a> scores each candidate rank, and <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L587"><code>ppca_select</code></a> walks up the resulting curve until it stops rising, which is point taken to be the dimensionality.</p>
+<p>Importantly, <code>adj_eigspec</code> does not use the voxel count for <span class="math inline">\(n\)</span>, but instead <span class="math inline">\(n_\text{eff}\)</span>:</p>
+<p><span class="math display">\[
+  n_{\text{eff}} = \left\lfloor \frac{N}{2.5 \cdot \mathrm{resels}} \right\rfloor
+\]</span></p>
+<p><code>resels</code> is a measure of the data’s spatial smoothness, computed in-process by <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/meldata.cc#L1019"><code>est_resels</code></a>. It standardizes each voxel’s timecourse, measures the lag-one spatial autocorrelation <span class="math inline">\(\rho\)</span> along each axis, converts it to the width of the Gaussian kernel that would produce it, and multiplies the three axes together. It is the resel volume of random field theory, in voxel units.<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a></p>
+<p>So MELODIC is doing exactly the right thing in principle: it measures how smooth the data is and discounts the sample size accordingly. For the discount, write</p>
+<p><span class="math display">\[
+  r \;=\; \frac{N}{n_{\text{eff}}} \;=\; 2.5\cdot\mathrm{resels}
+\]</span></p>
+<p>But what’s with the <span class="math inline">\(2.5\)</span>? I haven’t been able to find any mention of it (or resels, even) in <a href="https://www.fmrib.ox.ac.uk/datasets/techrep/tr02cb1/tr02cb1.pdf">the technical report</a>, <a href="https://fsl.fmrib.ox.ac.uk/fsl/docs/resting_state/melodic.html">the docs</a>, or the FSL mailing list<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>. Let’s see how this leads to influencing the estimated number of components.</p>
+</section>
+<section id="the-tilt" class="level2">
+<h2 class="anchored" data-anchor-id="the-tilt">The tilt</h2>
+<p>The correction only works if the smoothness adjustment (use of <span class="math inline">\(n_\text{eff}\)</span>) agrees with the sample size the eigenspectrum was actually estimated at. Three lines in <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc"><code>melhlprfns.cc</code></a> do the work:</p>
+<table class="caption-top table">
+<caption><code>AdjEV</code> enters L461 carrying the spread of the data and leaves carrying the ratio of two different spreads.</caption>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 48%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>line</th>
+<th>what it does</th>
+<th>which spread it carries</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L444">L444</a></td>
+<td><code>NumVox = floor(num_vox/(2.5*resels))</code></td>
+<td>defines <span class="math inline">\(n_\text{eff}\)</span></td>
+</tr>
+<tr class="even">
+<td><a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L446">L446</a></td>
+<td><code>CircleLaw = Feta(AdjEV.Ncols(), NumVox)</code></td>
+<td>MP reference built at <span class="math inline">\(p/n_\text{eff}\)</span></td>
+</tr>
+<tr class="odd">
+<td><a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L461">L461</a></td>
+<td><code>AdjEV &lt;&lt; SP(AdjEV, pow(CircleLaw,-1))</code></td>
+<td>observed, at its own <span class="math inline">\(p/n\)</span>, divided by it</td>
+</tr>
+</tbody>
+</table>
+<p>The observed eigenvalues were computed over <span class="math inline">\(N\)</span> columns, but those columns are spatially correlated. So their spread is not the spread of <span class="math inline">\(N\)</span> independent ones, but rather the spread of however many independent columns the spatial field is really worth. Call that <span class="math inline">\(n\)</span>. In contrast, the reference they are divided by is built at <span class="math inline">\(p/n_\text{eff}\)</span>. So two aspect ratios meet on L461, <span class="math inline">\(p/n\)</span> from the data and <span class="math inline">\(p/n_\text{eff}\)</span> from <code>resels</code>. When <span class="math inline">\(n_\text{eff} = n\)</span>, <code>AdjEV</code> is flat and the criterion sees noise. When <span class="math inline">\(n\)</span> and <span class="math inline">\(n_\text{eff}\)</span> are not equal, the quotient is tilted, and, because a tilted spectrum is exactly what real structure looks like, the criterion estimates a higher dimensionality.<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a></p>
+<div id="cell-fig-tilt" class="cell" data-fig-height="3.3" data-execution_count="6">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ev_w <span class="op">=</span> evals_of(np.random.default_rng(<span class="dv">6000</span>).normal(size<span class="op">=</span>(P, <span class="dv">8000</span>)))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>kept <span class="op">=</span> ev_w[<span class="dv">2</span>:][::<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.6</span>, <span class="fl">3.3</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> r_, col, lab <span class="kw">in</span> (</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">1.0</span>, CODE, <span class="st">"r = 1  (correct here)"</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">2.5</span>, SPEC, <span class="st">"r = 2.5  (MELODIC's default)"</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    cl <span class="op">=</span> mc.adj_eigspec(ev_w, <span class="dv">8000</span>, <span class="fl">1.0</span>, discount<span class="op">=</span>r_)[<span class="st">"reference"</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> kept <span class="op">/</span> cl</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    ax.plot(np.arange(<span class="dv">1</span>, <span class="bu">len</span>(q) <span class="op">+</span> <span class="dv">1</span>), q <span class="op">/</span> q.mean(), color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">1.7</span>, label<span class="op">=</span>lab)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">1</span>, ls<span class="op">=</span><span class="st">":"</span>, color<span class="op">=</span>GRAY, lw<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"rank"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"observed / reference (unit mean)"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="fl">8.5</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"The same noise, two discounts"</span>, fontsize<span class="op">=</span><span class="fl">9.5</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-tilt" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-tilt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-tilt-output-1.png" width="850" height="420" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tilt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: What <code>ppca_est</code> is handed. Simulations were done on white noise with independent voxels, so the correct discount is exactly <code>r = 1</code>. Each curve is the observed eigenspectrum divided by the noise reference, normalized to unit mean. At the correct discount (no discount) it is flat. At MELODIC’s default it slopes, and the criterion will interpret the slope as signal.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="which-criteria-care-and-in-which-direction" class="level2">
+<h2 class="anchored" data-anchor-id="which-criteria-care-and-in-which-direction">Which criteria care, and in which direction</h2>
+<p>The tilt story makes a prediction: the failure should depend on <span class="math inline">\(r\)</span> (the mismatch between the two sample sizes) and not on smoothing as such. So take noise with genuinely independent voxels, where the correct discount is exactly <span class="math inline">\(r = 1\)</span>, and vary <span class="math inline">\(r\)</span> by hand. Then, compare the Laplace criterion to another that is built into MELODIC (BIC).</p>
+<div class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>R_GRID <span class="op">=</span> [<span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">1.0</span>, <span class="fl">1.5</span>, <span class="fl">2.0</span>, <span class="fl">2.5</span>, <span class="fl">3.0</span>, <span class="fl">4.0</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>P_GRID <span class="op">=</span> [<span class="dv">200</span>, <span class="dv">400</span>, <span class="dv">800</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>NW, NSEED <span class="op">=</span> <span class="dv">8000</span>, <span class="dv">8</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>rsweep <span class="op">=</span> {}</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p_ <span class="kw">in</span> P_GRID:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> <span class="bu">range</span>(NSEED):</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        evs <span class="op">=</span> evals_of(np.random.default_rng(<span class="dv">6000</span> <span class="op">+</span> s).normal(size<span class="op">=</span>(p_, NW)))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> r_ <span class="kw">in</span> R_GRID:</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            est <span class="op">=</span> mc.order_from_evals(evs, NW, discount<span class="op">=</span>r_)[<span class="dv">1</span>][<span class="st">"estimators"</span>]</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            rsweep.setdefault((p_, r_), []).append((est[<span class="dv">0</span>], est[<span class="dv">1</span>]))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"r"</span>: r_,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">**</span>{</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f"</span><span class="sc">{</span>p_<span class="sc">}</span><span class="ss"> vols"</span>: <span class="st">"</span><span class="sc">{}</span><span class="st">/</span><span class="sc">{}</span><span class="st">"</span>.<span class="bu">format</span>(</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">int</span>(np.median([v[<span class="dv">0</span>] <span class="cf">for</span> v <span class="kw">in</span> rsweep[(p_, r_)]])),</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">int</span>(np.median([v[<span class="dv">1</span>] <span class="cf">for</span> v <span class="kw">in</span> rsweep[(p_, r_)]])),</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> p_ <span class="kw">in</span> P_GRID</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> r_ <span class="kw">in</span> R_GRID</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>).set_index(<span class="st">"r"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-rsweep" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-rsweep-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Model order on unsmoothed white noise with independent voxels, so the correct discount is <code>r = 1</code> and nothing else is varying. Medians over eight repetitions; every cell should be 1. <code>lap</code> is MELODIC’s default criterion; <code>bic</code> is another of its <code>--dimest</code> options.
+</figcaption>
+<div aria-describedby="tbl-rsweep-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">200 vols</th>
+<th data-quarto-table-cell-role="th">400 vols</th>
+<th data-quarto-table-cell-role="th">800 vols</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">r</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0.05</th>
+<td>125/45</td>
+<td>290/94</td>
+<td>640/194</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">0.10</th>
+<td>55/1</td>
+<td>184/1</td>
+<td>510/1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0.20</th>
+<td>1/1</td>
+<td>42/1</td>
+<td>287/1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">0.40</th>
+<td>1/1</td>
+<td>1/1</td>
+<td>6/1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0.60</th>
+<td>1/1</td>
+<td>1/1</td>
+<td>1/1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1.00</th>
+<td>1/1</td>
+<td>1/1</td>
+<td>1/1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1.50</th>
+<td>1/1</td>
+<td>1/1</td>
+<td>1/1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2.00</th>
+<td>1/1</td>
+<td>1/1</td>
+<td>105/1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2.50</th>
+<td>1/1</td>
+<td>22/1</td>
+<td>213/1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3.00</th>
+<td>1/1</td>
+<td>58/1</td>
+<td>288/1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4.00</th>
+<td>13/1</td>
+<td>110/1</td>
+<td>378/1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Each cell is <code>lap</code>/<code>bic</code>. Three things fall out.</p>
+<p><code>lap</code> is correct in a window around <span class="math inline">\(r = 1\)</span> and inflates on both sides of it. Over-discounting manufactures components, which is the case that matters for smoothed data, but under-discounting does too.</p>
+<p>The window narrows as the acquisition gets longer. At 200 volumes the criterion survives the discount being wrong by a factor of five below and three above. At 400 volumes that is 2.5 and 2, and at 800 volumes it is 1.7 and 1.5. More data makes the estimator less robust to a mis-specified sample size, not more. The window is also lopsided at every length, with a little more room on the under-discounting side.</p>
+<p>In contrast, <code>bic</code> is pinned at 1 everywhere except the top row, where the discount is off by twentyfold. Whatever this is, it is close to specific to the Laplace criterion, which is the one MELODIC uses by default.</p>
+<p>I haven’t come up with any good ideas about where 2.5 comes from. One idea is that it’s an attempt to compensate for data that has been spatially smoothed. <a href="#sec-resels">That situation (e.g., isotropic smoothing) does result in a multiplicative factor, but it’s about half of 2.5</a>. <a href="#sec-appendix-inplane">The factor 2.5 could fall out of a particular assumption about the inherent smoothness of data, but that assumption ends up being quite wrong almost always, at which point 2.5 ends up being unhelpful again</a>. So, MELODIC mitigates effects spatial smoothness in the data, but it does so by using a hardcoded 2.5 that is unexplained and reduces the effectiveness of the mitigation.</p>
+</section>
+<section id="caveats" class="level2">
+<h2 class="anchored" data-anchor-id="caveats">Caveats</h2>
+<p>MELODIC is usually step one of FIX, and I have not tested what any of this does downstream. One hope is that it does not matter: if MELODIC over-decomposes, the extra components are noise, FIX classifies them as noise, and they get regressed out along with everything else. Unfortunately, I can think of a few reasons there might be problems:</p>
+<ol type="1">
+<li><strong>Splitting.</strong> Over-decomposition splits real signal across several components<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>. The pieces carry less variance and weaker canonical signatures than the whole would, which makes each of them likelier to be labeled noise and then real signal is what gets regressed out.</li>
+<li><strong>Degrees of freedom.</strong> FIX removes the noise components by regression. Taking out <span class="math inline">\(K\)</span> regressors from <span class="math inline">\(p\)</span> timepoints confines the residual to a <span class="math inline">\((p-K)\)</span>-dimensional subspace. At 400 volumes and 150 components that is nearly 40% of the temporal degrees of freedom, spent on components that describe nothing. Anything downstream that assumes <span class="math inline">\(p\)</span> degrees of freedom is then anticonservative.</li>
+<li><strong>Classifier calibration.</strong> FIX’s classifier is trained on hand-labeled components at whatever decomposition granularity the training data had. A model order that moves systematically with smoothness moves the feature distributions with it.</li>
+</ol>
+<!-- **A better constant is not a complete fix.** At the heaviest smoothing in @fig-matched, both corrected arms degrade, and they degrade together; the derived constant and the oracle both leave the truth by 3 voxels FWHM, which says the remaining failure is not in the constant at all. A single scalar effective sample size stops describing the field once the correlation length gets long relative to the volume, and then the Marchenko--Pastur reference is the wrong shape regardless of what $n$ you evaluate it at. The onset of that is visible in @tbl-calibration: `r measured` sits just above the derived column at 1.5 voxels, crosses below it at two, and falls further behind at every width after that.  -->
+<!-- **Very heavy smoothing breaks it a different way.** Too much smoothness breaks dimensionality estimation by bringing $n_\text{eff}$ below $p$. $n_\text{eff}$ shrinks as the discount grows, and once it falls below $p$ the reference is rank deficient; a covariance over $n_\text{eff}$ samples of $p$-dimensional noise has only $n_\text{eff}$ non-zero eigenvalues, so `Feta` correctly returns zero for the other $p - n_\text{eff}$ ranks. `adj_eigspec` divides by them anyway, [after clamping them](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L448-450). The condition is just $2.5\cdot\mathrm{resels} > N/p$, or `resels` past about 39 here, and at four voxels FWHM MELODIC is well past it: 241 samples for 398 retained eigenvalues, so $\gamma \approx$ 1\.7, outside the range the report gives for its equation 9. 157 of the ranks are then divided by the floor and come back around $10^6$, eight orders above the largest honest value, and sort straight to the top of what `ppca_est` scores.  -->
+<!-- **Estimating the smoothness is its own problem.** The derived constant $1.206\cdot\mathrm{resels}$ is only as good as `resels`, and on data without smoothness, `resels` is badly biased. It returns 0\.061 where the data needs a discount of 1\.08. That is why the derived arm is the worst of the three at zero smoothing, reporting 155 components. The constant and the measurement have to be right together, and fixing only the constant would trade one failure mode for another. -->
+<!-- The reason is worth knowing, because it bounds where any of this can be trusted. `est_resels` inverts the continuum autocorrelation $\rho(h) = \exp(-h^2/4\sigma^2)$, which gives $f = \sqrt{2\ln 2 / (-\ln\rho)}$, a function of $\rho$ only through $1/\ln\rho$, and so violently compressive near zero: returning a FWHM of $0.1$ would take $\rho \approx 10^{-61}$. Meanwhile $\hat\rho$ cannot get below its own sampling-noise floor of $\sqrt{2/\pi n}$ over the $n$ products summed. Together those put a hard floor under the estimate at about 0\.40 per axis, against 0\.39 measured here. Cubed, that is the `resels` above, and it is why MELODIC concludes it has 6\.5 times more independent samples than it has voxels. -->
+<!-- It does not persist. The floor only matters while the true correlation is comparable to it, and that stops being true almost immediately: by one voxel FWHM the correlation `est_resels` reads is 0\.124, some 608 times the floor. A milder bias lasts a little longer --- the continuum $\rho(h)$ is the wrong form on a lattice, so the width comes back 19% short per axis at one voxel and 0\.6% short at two, and it is why the one-voxel row of @tbl-calibration sits oddly. Real data carries a voxel or more of intrinsic smoothness from reconstruction and motion correction alone, so the regime where `resels` is untrustworthy may not be one fMRI actually occupies. -->
+</section>
+<section id="sec-resels" class="level2">
+<h2 class="anchored" data-anchor-id="sec-resels">Appendix: Attempts at Getting 2.5 From Resels</h2>
+<p>So the 2.5 constant matters. I haven’t found any</p>
+<p>Smoothing spreads each voxel over its neighbors, so a block of voxels inside one blob is no longer a block of independent observations. The natural question is how big that block is. Answer that, and the effective sample size is just the number of voxels divided by it.</p>
+<p>There is already a unit for the size of a blob, and MELODIC is already computing it. The box whose sides are the FWHM along each axis is a resel. So one guess is that one resel buys one independent sample, and the discount should be about <span class="math inline">\(1\cdot\mathrm{resels}\)</span>. That guess is close but slightly too small, because the FWHM is the width at half height and the correlation does not stop there. Voxels a little beyond the half-maximum point are still partly redundant with the center, meaning that the volume over which they are effectively the same observation is a bit larger than the resel box. Exactly how much larger is derivable,<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a> and for a Gaussian smoothed in three dimensions it is about 20%:</p>
+<p><span class="math display">\[
+  r \;\approx\; 1.206 \cdot \mathrm{resels} .
+\]</span></p>
+<p>Nothing in that is tunable. It is a fact about the shape of a Gaussian in three dimensions, and it is what any correction of this kind ought to converge to.</p>
+<p>This can be checked against the data. If the argument is right, then fitting a Marchenko–Pastur bulk to an observed eigenspectrum should recover <span class="math inline">\(1.206\cdot\mathrm{resels}\)</span>.</p>
+<div class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"FWHM (voxels)"</span>: fw,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"resels"</span>: <span class="ss">f"</span><span class="sc">{</span>med(ISO[fw][<span class="st">'resels'</span>])<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"r measured"</span>: <span class="ss">f"</span><span class="sc">{</span>med(ISO[fw][<span class="st">'r_fit'</span>])<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"1.206 · resels (derived)"</span>: <span class="ss">f"</span><span class="sc">{</span>mc<span class="sc">.</span>effective_discount(med(ISO[fw][<span class="st">'resels'</span>]))<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"2.5 · resels (as implemented)"</span>: <span class="ss">f"</span><span class="sc">{</span><span class="fl">2.5</span> <span class="op">*</span> med(ISO[fw][<span class="st">'resels'</span>])<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> fw <span class="kw">in</span> FWHM</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>).set_index(<span class="st">"FWHM (voxels)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-calibration" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="8">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-calibration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: What the discount should be, measured. <code>r measured</code> is fitted by matching <code>Feta</code>’s spread to the observed eigenspectrum; it is the quantity <code>2.5 · resels</code> is trying to approximate. Medians over five volumes.
+</figcaption>
+<div aria-describedby="tbl-calibration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">resels</th>
+<th data-quarto-table-cell-role="th">r measured</th>
+<th data-quarto-table-cell-role="th">1.206 · resels (derived)</th>
+<th data-quarto-table-cell-role="th">2.5 · resels (as implemented)</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">FWHM (voxels)</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0.0</th>
+<td>0.061</td>
+<td>1.08</td>
+<td>0.07</td>
+<td>0.15</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1.0</th>
+<td>0.541</td>
+<td>1.18</td>
+<td>0.65</td>
+<td>1.35</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1.5</th>
+<td>2.846</td>
+<td>3.54</td>
+<td>3.43</td>
+<td>7.12</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2.0</th>
+<td>7.859</td>
+<td>9.31</td>
+<td>9.48</td>
+<td>19.65</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2.5</th>
+<td>15.549</td>
+<td>17.99</td>
+<td>18.75</td>
+<td>38.87</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3.0</th>
+<td>26.864</td>
+<td>30.74</td>
+<td>32.40</td>
+<td>67.16</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4.0</th>
+<td>63.491</td>
+<td>71.38</td>
+<td>76.58</td>
+<td>158.73</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The derivation holds up from about 1.5 voxels FWHM upward, 9.3 measured against 9.5 predicted at two voxels. The implemented constant does not. It is about twice too large across the whole smoothed range: 19.6 against a true 9.3 at two voxels, and 67 against 31 at three. By the previous section, that is the direction that manufactures components.</p>
+<p>Below one voxel it fails the other way, albeit strangely: on unsmoothed noise <code>est_resels</code> returns 0.061, so <span class="math inline">\(r =\)</span> 0.15, which is a “discount” below one that makes <span class="math inline">\(n_\text{eff}\)</span> larger than the number of voxels. That is the under-discounting arm of <a href="#tbl-rsweep" class="quarto-xref">Table&nbsp;2</a>, and it is why the leftmost point of <a href="#fig-smoothing" class="quarto-xref">Figure&nbsp;1</a> is wonky (12 rather than 1).</p>
+<section id="an-idea-about-2.5" class="level3">
+<h3 class="anchored" data-anchor-id="an-idea-about-2.5">An Idea about 2.5</h3>
+<p>One possibility is that the 2.5 is an attempt to compensate for a bias in how MELODIC estimates resels, with the function <code>est_resels</code>. The function cannot report zero. It reads a lag-one correlation along each axis and converts it to a width, and when an axis carries no correlation at all, it returns a floor of about 0.40 voxels (<a href="#sec-appendix-inplane">why, and why that number</a>). The bias is confined to axes that carry little or no real correlation.</p>
+<p>Consider what an axis with no correlation ought to contribute. Redundancy is a sum of <span class="math inline">\(\rho(h)^2\)</span> over displacements (<span class="math inline">\(\rho:\)</span> autocorrelation; <span class="math inline">\(h\)</span>: displacement), and along such an axis every term vanishes except <span class="math inline">\(h = 0\)</span>. This is self-correlation, so the axis contributes exactly 1, dropping out of the product for resels. However, <code>est_resels</code> puts 0.40 there instead, so <code>resels</code> comes out <span class="math inline">\(1/0.4\)</span> times too small, and multiplying by <span class="math inline">\(2.5\)</span> would cancel that out (<a href="#sec-appendix2">but see for why 2.5 is not quite right here</a>).</p>
+<p>If that story is right (2.5 is an attempt to compensate for bias how <code>est_resels</code> handles one axis with no autocorrelation), then the inflation should vanish whenever the discount matches what the data needs, and it should never appear in the geometry where <span class="math inline">\(2.5\)</span> happens to be close.</p>
+<div id="cell-fig-matched" class="cell" data-fig-height="3.5" data-execution_count="9">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.6</span>, <span class="fl">3.5</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>panels <span class="op">=</span> [(ISO, <span class="st">"smooth on all three axes"</span>), (IP, <span class="st">"no correlation between planes"</span>)]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, (res, title) <span class="kw">in</span> <span class="bu">zip</span>(axes, panels):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> how, col, lab <span class="kw">in</span> (</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"melodic"</span>, SPEC, <span class="vs">r"MELODIC, </span><span class="dv">$</span><span class="vs">2</span><span class="dv">.</span><span class="vs">5</span><span class="er">\</span><span class="vs">cdot</span><span class="dv">$</span><span class="vs">resels"</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"derived"</span>, CODE, <span class="vs">r"derived, </span><span class="dv">$</span><span class="vs">1</span><span class="dv">.</span><span class="vs">206</span><span class="er">\</span><span class="vs">cdot</span><span class="dv">$</span><span class="vs">resels"</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"matched"</span>, GREEN, <span class="st">"fitted to the spectrum"</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        cis <span class="op">=</span> [mc.boot_ci(arm(res, fw, how)) <span class="cf">for</span> fw <span class="kw">in</span> FWHM]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        a.plot(FWHM, [c[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> cis], <span class="st">"o-"</span>, color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">1.9</span>, ms<span class="op">=</span><span class="fl">4.5</span>, label<span class="op">=</span>lab)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        a.fill_between(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            FWHM, [c[<span class="dv">1</span>] <span class="cf">for</span> c <span class="kw">in</span> cis], [c[<span class="dv">2</span>] <span class="cf">for</span> c <span class="kw">in</span> cis], color<span class="op">=</span>col, alpha<span class="op">=</span><span class="fl">0.18</span>, lw<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    a.axhline(<span class="dv">1</span>, ls<span class="op">=</span><span class="st">":"</span>, color<span class="op">=</span>GRAY, lw<span class="op">=</span><span class="fl">1.1</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    a.set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    a.set_xlabel(<span class="st">"smoothing applied (FWHM, voxels)"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    a.set_title(title, fontsize<span class="op">=</span><span class="fl">9.5</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"components reported"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="fl">8.5</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-matched" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-matched-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-matched-output-1.png" width="1109" height="446" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-matched-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Model order on pure noise under two field geometries, at three choices of discount. Left: all three axes genuinely smooth, where MELODIC’s <code>2.5 · resels</code> overshoots by about twofold and the count climbs. Right: no correlation between planes, where the estimator’s floor makes <code>2.5</code> about right and inflation is minimal. The line <code>fitted to the spectrum</code> is an oracle, included to show what the best possible discount could do (seems slightly better than the derived constant). Medians over five volumes.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-matched" class="quarto-xref">Figure&nbsp;4</a> is consistent with the story. When all three axes are smooth, both corrected discounts hold the estimate at 1 component from one voxel FWHM through 2.5, where MELODIC’s constant gives 120. The exception is the left edge, where the derived constant is the worst of the three: at zero smoothing it reports 155 components, because <span class="math inline">\(1.206\cdot\mathrm{resels}\)</span> is only as good as <code>resels</code>, and on data with no smoothness at all <code>resels</code> is nothing but the floor. And it’s nice to see the derived constant working over a wider range, though it too eventually leaves the truth, and for a reason this post does not settle: the oracle arm, which cannot have the wrong constant, degrades alongside it. When there is nothing to find along <span class="math inline">\(z\)</span>, MELODIC’s constant works quite well.</p>
+<p>However, the right panel is a strong assumption. The condition is that <span class="math inline">\(z\)</span> carries a lag-one correlation below about <span class="math inline">\(0.001\)</span>. Anything above that and <code>est_resels</code> starts reporting a real width instead of its floor, the shortfall it was compensating for closes, and the constant the data needs falls back toward 1.21. At a through-plane correlation of <span class="math inline">\(0.1\)</span> the requirement is already down to about <span class="math inline">\(1.5\)</span>; at <span class="math inline">\(0.2\)</span>, about <span class="math inline">\(1.3\)</span>.</p>
+<p>Real data is not close to that threshold. <a href="https://www.mrc-cbu.cam.ac.uk/wp-content/uploads/www/sites/3/2013/01/kriegeskorte-bodurka-bandettini_artefactual-fMRI-time-course-correlation_IJIST2008.pdf">Kriegeskorte, Bodurka and Bandettini (2008)</a>, reports adjacent-voxel correlations of 0.4 to 0.6 within a slice and “around 0.2” between slices, for both a resting human and a water phantom. That was 3.125 mm in plane, 4 mm slices, and a 2 mm gap—hostile to through-plane correlation, and still two orders of magnitude above the threshold. Contiguous isotropic voxels would give more. So the left panel may be closer to real data, and there <span class="math inline">\(2.5\cdot\mathrm{resels}\)</span> over-discounts by something close to twofold.</p>
+</section>
+</section>
+<section id="sec-appendix" class="level2">
+<h2 class="anchored" data-anchor-id="sec-appendix">Appendix: where the 1.206 comes from</h2>
+<p>The claim in the main text was that a blob is worth one independent sample, and that its volume is about 20% more than a resel. This is that, in full.</p>
+<p>There are two ingredients. The first is how many independent columns a correlated set of columns is worth. For <span class="math inline">\(N\)</span> columns with spatial correlation matrix <span class="math inline">\(C\)</span>, that count is<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a></p>
+<p><span class="math display">\[
+  N^* \;=\; \frac{(\mathrm{tr}\,C)^2}{\mathrm{tr}(C^2)}
+\]</span></p>
+<p>which is the number of independent columns whose covariance would be as noisy as the one you actually have. The diagonal of <span class="math inline">\(C\)</span> is all ones, so <span class="math inline">\(\mathrm{tr}\,C = N\)</span>. And if the field is stationary, the entry linking voxels <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> depends only on the displacement between them, so every row of <span class="math inline">\(C\)</span> contains the same set of values and</p>
+<p><span class="math display">\[
+  \mathrm{tr}(C^2) \;=\; \sum_{i=1}^{N}\sum_{j=1}^{N} \rho(x_i - x_j)^2
+  \;=\; N \sum_{h} \rho(h)^2 ,
+\]</span></p>
+<p>which leaves</p>
+<p><span class="math display">\[
+  N^* \;=\; \frac{N}{\sum_{h} \rho(h)^2} .
+\]</span></p>
+<p>So <span class="math inline">\(\sum_h \rho(h)^2\)</span> is the “size of a blob” the main text was after: the number of voxels each independent observation costs.</p>
+<p>That sum runs over displacements <span class="math inline">\(h\)</span> from one voxel to another, and a displacement in a <span class="math inline">\(d\)</span>-dimensional grid is a <span class="math inline">\(d\)</span>-vector, <span class="math inline">\(h = (h_1, \dots, h_d)\)</span>. Everything below is bookkeeping on that sum. Voxels sit one unit apart, so each term covers a grid cell of volume one, and provided <span class="math inline">\(\rho\)</span> changes slowly from one voxel to the next:<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a></p>
+<p><span class="math display">\[
+  \sum_{h} \rho(h)^2 \;\approx\; \int_{\mathbb{R}^d} \rho(h)^2 \,\mathrm{d}h .
+\]</span></p>
+<p>The second ingredient is <span class="math inline">\(\rho\)</span> itself. Convolving white noise with a kernel gives a field whose autocovariance is the kernel’s own autocorrelation, and a Gaussian of width <span class="math inline">\(\sigma\)</span> correlated with itself is a Gaussian of width <span class="math inline">\(\sigma\sqrt{2}\)</span> — which is where the <span class="math inline">\(4\sigma^2\)</span> below comes from rather than <span class="math inline">\(2\sigma^2\)</span>. Scaled so that <span class="math inline">\(\rho(0) = 1\)</span>, and with the same <span class="math inline">\(\sigma\)</span> applied along every axis,</p>
+<p><span class="math display">\[
+  \rho(h) \;=\; \exp\!\left(-\frac{\lVert h \rVert^2}{4\sigma^2}\right)
+  \;=\; \prod_{a=1}^{d} \exp\!\left(-\frac{h_a^2}{4\sigma^2}\right) .
+\]</span></p>
+<p>Squaring it replaces <span class="math inline">\(4\sigma^2\)</span> with <span class="math inline">\(2\sigma^2\)</span> and leaves the product structure alone, so the <span class="math inline">\(d\)</span>-dimensional integral separates into <span class="math inline">\(d\)</span> copies of the one-dimensional Gaussian integral <span class="math inline">\(\int_{-\infty}^{\infty} e^{-x^2/2s^2}\,\mathrm{d}x = \sqrt{2\pi s^2}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  \int_{\mathbb{R}^d} \rho(h)^2 \,\mathrm{d}h
+  &amp;\;=\; \prod_{a=1}^{d} \int_{-\infty}^{\infty}
+        \exp\!\left(-\frac{h_a^2}{2\sigma^2}\right) \mathrm{d}h_a \\[2pt]
+  &amp;\;=\; \left(\sqrt{2\pi\sigma^2}\right)^{\!d}
+  \;=\; (2\pi\sigma^2)^{d/2} .
+\end{aligned}
+\]</span></p>
+<p>So the <span class="math inline">\(d/2\)</span> is one factor of <span class="math inline">\(\sqrt{2\pi\sigma^2}\)</span> per smoothed axis, and nothing more.</p>
+<p>What remains is to put that in the units <code>est_resels</code> reports. A Gaussian’s <a href="https://en.wikipedia.org/wiki/Full_width_at_half_maximum">full width at half maximum</a> is <span class="math inline">\(f = \sqrt{8 \ln 2}\,\sigma\)</span>, so <span class="math inline">\(\sigma^2 = f^2/(8\ln 2)\)</span> and</p>
+<p><span class="math display">\[
+  (2\pi\sigma^2)^{d/2}
+  \;=\; \left(\frac{2\pi f^2}{8 \ln 2}\right)^{\!d/2}
+  \;=\; \left(\frac{\pi}{4 \ln 2}\right)^{\!d/2} f^{\,d} .
+\]</span></p>
+<p>Finally <span class="math inline">\(f^{\,d}\)</span> is the product of the per-axis FWHM over the <span class="math inline">\(d\)</span> smoothed axes, and a product of per-axis FWHM is exactly what <code>resels</code> is. The two coincide when the data really are smoothed along all three axes, so that <span class="math inline">\(d = 3\)</span> and MELODIC’s three-way product is measuring the same three axes the field is smooth along. Then <span class="math inline">\(\left(\pi/(4\ln 2)\right)^{3/2} = 1.206\)</span> and</p>
+<p><span class="math display">\[
+  \int_{\mathbb{R}^3} \rho(h)^2 \,\mathrm{d}h \;=\; 1.206 \cdot \mathrm{resels} ,
+\]</span></p>
+<p>which is the 20% the main text quoted. In two dimensions the same expression gives <span class="math inline">\(\left(\pi/(4\ln 2)\right) f^2 = 1.133 f^2\)</span>, which is what the next appendix needs.</p>
+</section>
+<section id="sec-appendix-inplane" class="level2">
+<h2 class="anchored" data-anchor-id="sec-appendix-inplane">Appendix: why <code>est_resels</code> is biased</h2>
+<p><code>est_resels</code> reports a width for every axis, including axes that have nothing on them. This is where that floor comes from, why it sits near 0.40, and why it is not quite a constant. What the floor then does to the discount is the <a href="#sec-appendix2">next appendix</a>.</p>
+<p><strong>Why there is a floor at all.</strong> Along an axis with no correlation, the true <span class="math inline">\(\rho\)</span> is zero, so <span class="math inline">\(\hat\rho\)</span> is pure sampling noise. It is an average of <span class="math inline">\(n\)</span> products of standardized values, one per adjacent pair per timepoint, so its standard deviation is <span class="math inline">\(1/\sqrt{n}\)</span>. <code>est_resels</code> then takes the absolute value, and the mean of a folded normal is <span class="math inline">\(\mathbb{E}\lvert\hat\rho\rvert = \sqrt{2/\pi n}\)</span>. Pushing that through the width conversion <span class="math inline">\(f = \sqrt{2\ln 2/(-\ln\rho)}\)</span> gives</p>
+<p><span class="math display">\[
+  f_\text{floor} \;=\; \sqrt{\frac{4\ln 2}{\ln(\pi n / 2)}} ,
+\]</span></p>
+<p>which for the 38,400 voxels and 400 volumes here is 0.404, against 0.417 measured. Note where <span class="math inline">\(n\)</span> sits: inside a logarithm, under a square root. The floor shrinks as <span class="math inline">\(1/\sqrt{\log n}\)</span>, so no amount of data removes it — a hundredfold more data moves it by less than a twentieth of a voxel.</p>
+<p>That also means <span class="math inline">\(0.4\)</span> is a stable target but not an exact one. Across dataset sizes a person might plausibly have had in front of them, the floor runs from about 0.37 to 0.43, so <span class="math inline">\(1/\text{floor}\)</span> runs from about 2.3 to 2.7:</p>
+<table class="caption-top table">
+<caption><span class="math inline">\(2.5\)</span> is comfortably inside that range, which is the sense in which “round the floor to <span class="math inline">\(0.4\)</span> and invert” is a defensible thing to have done. It is not a constant of nature, though, and a much longer or much larger acquisition wants a different one.</caption>
+<thead>
+<tr class="header">
+<th>voxels <span class="math inline">\(\times\)</span> volumes</th>
+<th>floor</th>
+<th><span class="math inline">\(1/\text{floor}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>30,000 <span class="math inline">\(\times\)</span> 100</td>
+<td>0.425</td>
+<td>2.35</td>
+</tr>
+<tr class="even">
+<td>30,000 <span class="math inline">\(\times\)</span> 200</td>
+<td>0.416</td>
+<td>2.41</td>
+</tr>
+<tr class="odd">
+<td>38,400 <span class="math inline">\(\times\)</span> 400</td>
+<td>0.404</td>
+<td>2.48</td>
+</tr>
+<tr class="even">
+<td>100,000 <span class="math inline">\(\times\)</span> 500</td>
+<td>0.391</td>
+<td>2.56</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why the bias is confined to nearly-empty axes.</strong> The width conversion is violently compressive near zero, which cuts both ways. It is what keeps a wildly wrong <span class="math inline">\(\hat\rho\)</span> from producing a wildly wrong width — returning <span class="math inline">\(f = 0.1\)</span> would take <span class="math inline">\(\rho \approx 10^{-61}\)</span> — and it is what stops the width from ever reaching zero. Above about a voxel and a quarter the compression no longer matters and <code>est_resels</code> is essentially unbiased; below it, the reported width is mostly an artifact of the floor. <code>resels</code> is a fair summary of redundancy for any axis with real correlation on it, and not a summary of anything for an axis without.</p>
+</section>
+<section id="sec-appendix2" class="level2">
+<h2 class="anchored" data-anchor-id="sec-appendix2">Appendix: A Refinement of 2.5 When an Axis Has 0 Correlation</h2>
+<p>If 2.5 were chosen to account for bias in <code>est_resels</code> under 0 correlation, note that it’s not quite the right one. Dividing out the floor recovers the resel area <span class="math inline">\(f_x f_y\)</span>, but the redundancy of a two-dimensional Gaussian field is <span class="math inline">\(1.133\,f_x f_y\)</span>, because a blob of FWHM <span class="math inline">\(f\)</span> is worth <span class="math inline">\(1.0645 f\)</span> independent-sample-widths rather than <span class="math inline">\(f\)</span>. That <span class="math inline">\(1.0645\)</span> is the same per-axis factor whose cube gave the <span class="math inline">\(1.206\)</span> above. So the two candidate constants nest:</p>
+<p><span class="math display">\[
+  2.5 \;\approx\; \underbrace{\tfrac{1}{0.4}}_{\text{undo the floor}} ,
+  \qquad
+  2.83 \;\approx\; \underbrace{\tfrac{1}{0.4}}_{\text{undo the floor}} \times
+                   \underbrace{1.0645^2}_{\text{FWHM}\,\to\,\text{redundancy length}} .
+\]</span></p>
+<p>MELODIC’s value is the first. Whoever wrote it fixed the floor and left the second factor on the table, which costs about 12% — far too little for the criterion to notice. Written in terms of what the estimator reports rather than the nominal <span class="math inline">\(0.4\)</span>, the fully corrected constant is <span class="math inline">\(1.133/f_z\)</span>, which at the floor measured here is about 2.7. The <span class="math inline">\(f^2\)</span> cancels out of it, so nothing about the kernel survives: what ought to be a property of the field is just the reciprocal of a number the estimator made up.</p>
+<p>The simulation below builds that field: smoothing <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> and leaving <span class="math inline">\(z\)</span> untouched.</p>
+<div class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"FWHM in plane (voxels)"</span>: fw,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"FWHM z (measured)"</span>: <span class="ss">f"</span><span class="sc">{</span>med(IP[fw][<span class="st">'fz'</span>])<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"resels"</span>: <span class="ss">f"</span><span class="sc">{</span>med(IP[fw][<span class="st">'resels'</span>])<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"r measured"</span>: <span class="ss">f"</span><span class="sc">{</span>med(IP[fw][<span class="st">'r_fit'</span>])<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"r measured / resels"</span>: <span class="ss">f"</span><span class="sc">{</span>med(IP[fw][<span class="st">'r_fit'</span>]) <span class="op">/</span> med(IP[fw][<span class="st">'resels'</span>])<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"2.5 · resels"</span>: <span class="ss">f"</span><span class="sc">{</span><span class="fl">2.5</span> <span class="op">*</span> med(IP[fw][<span class="st">'resels'</span>])<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> fw <span class="kw">in</span> FWHM[<span class="dv">2</span>:]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>).set_index(<span class="st">"FWHM in plane (voxels)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-inplane" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="10">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-inplane-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: A field with real in-plane smoothness and no correlation between planes, built by smoothing x and y only. <code>FWHM z</code> is what <code>est_resels</code> reports for the axis that has nothing to report. <code>r measured / resels</code> is the constant MELODIC would need here. Medians over five volumes.
+</figcaption>
+<div aria-describedby="tbl-inplane-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">FWHM z (measured)</th>
+<th data-quarto-table-cell-role="th">resels</th>
+<th data-quarto-table-cell-role="th">r measured</th>
+<th data-quarto-table-cell-role="th">r measured / resels</th>
+<th data-quarto-table-cell-role="th">2.5 · resels</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">FWHM in plane (voxels)</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1.5</th>
+<td>0.38</td>
+<td>0.768</td>
+<td>2.38</td>
+<td>3.10</td>
+<td>1.92</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2.0</th>
+<td>0.39</td>
+<td>1.533</td>
+<td>4.52</td>
+<td>2.95</td>
+<td>3.83</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2.5</th>
+<td>0.42</td>
+<td>2.600</td>
+<td>7.00</td>
+<td>2.69</td>
+<td>6.50</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3.0</th>
+<td>0.43</td>
+<td>3.885</td>
+<td>9.96</td>
+<td>2.56</td>
+<td>9.71</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4.0</th>
+<td>0.44</td>
+<td>7.054</td>
+<td>17.30</td>
+<td>2.45</td>
+<td>17.64</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The <code>FWHM z</code> column is the estimator talking to itself; nothing was smoothed along <span class="math inline">\(z\)</span>, so the honest answer is zero, and what comes back is the floor. The constant such a field needs is correspondingly large, running from 3.10 to 2.45, against 1.14 when all three axes are genuinely smooth. And it is not really constant — it drifts, because the invented <span class="math inline">\(z\)</span> width itself creeps upward, from 0.38 to 0.44. Neither number is a fact about the field; both are facts about the estimator.</p>
+<p>Note that the measured column sits above <span class="math inline">\(2.5\)</span> almost everywhere, which is the missing <span class="math inline">\(1.0645^2\)</span> showing up as expected. <span class="math inline">\(2.5\cdot\mathrm{resels}\)</span> is systematically a little under what even this field wants.</p>
+<p><strong>Why the floor creeps.</strong> The drift in that column is the floor itself moving. The <span class="math inline">\(n\)</span> in the floor formula of the previous appendix is not the number of products but the number of <em>independent</em> ones, and in-plane smoothing correlates neighboring products with each other — for two in-plane positions a displacement <span class="math inline">\(\Delta\)</span> apart, the products covary as <span class="math inline">\(\rho_\text{inplane}(\Delta)^2\)</span> — so the count of independent terms falls by roughly the in-plane redundancy <span class="math inline">\(1.133f^2\)</span>, the same quantity as above doing different work. Fewer independent terms means a larger typical <span class="math inline">\(|\hat\rho|\)</span>, and so a larger <span class="math inline">\(f_z\)</span>.</p>
+<p>The effect is muted because <span class="math inline">\(f = \sqrt{2 \ln 2 / (-\ln \rho)}\)</span> is so compressive: an eighteenfold drop in independent terms moves <span class="math inline">\(f_z\)</span> only from about 0.40 to 0.44. But <span class="math inline">\(1.133/f_z\)</span> inherits it, predicting 2.96 at 1.5 voxels and 2.56 at four, against 3.10 and 2.45 measured. So most of the drift is the untouched axis being measured badly, in a way that gets worse the more the other two axes are smoothed. –&gt;</p>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Experiments here are done with a port of the MELODIC code. I ran the same volumes through the actual <code>fsl-melodic</code> binary (version 2601.2, <code>-d 0 --nobet --no_mm</code>), and it reports 11, 1, 1, 58, 120 and 166 components at 0, 1, 1.5, 2, 2.5 and 3 voxels FWHM. The small differences come from <code>est_resels</code>, not from the criterion. FSL’s <code>newimage</code> reorients volumes on read, so the binary and a naive port drop different boundary planes when computing the lag-one autocorrelation, which moves <code>resels</code> by a fraction of a percent. Enough to shift the model order by a few when the estimate is already in the hundreds.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>I find it <em>very</em> easy to accidentally swap dimensions when talking about ICA. So, apologies that this goes a bit slow.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>This sort of thing is the beans and rice of spatial statistics. I am not an expert in that stuff, so I’ll leave you, dear reader, to search elsewhere for derivations.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>The <code>lap</code> method of MELODIC and the <code>mle</code> method of <code>scikit-learn</code> both use the same procedure, from <a href="https://vismod.media.mit.edu/tech-reports/TR-514-ABSTRACT.html">2000</a>. Interestingly, that <a href="https://tminka.github.io/papers/pca/">method was updated and corrected in 2008</a>. At the time of writing there is <a href="https://github.com/scikit-learn/scikit-learn/pull/34619">an open pull request in the scikit-learn repo</a> to adopt Minka’s own MATLAB implementation. It’s filed for performance rather than for the corrections, but it would bring them along. Based on a few small simulations, I think the corrections have a pretty minimal impact on dimensionality estimation.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>It’s <span class="math inline">\(\nu\)</span> in the code, but <span class="math inline">\(\gamma\)</span> in the technical report, which uses <span class="math inline">\(\nu\)</span> on the eigenvalue itself.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>The report’s equation 9 also carries a condition the code does not check: it holds only for <span class="math inline">\(\gamma \le 1\)</span>, “when the number of samples is equal or larger than the dimensionality of the problem at hand.” This turns out to matter a bit, which I return to later.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>If you haven’t seen resels before, it is see <a href="https://www.fil.ion.ucl.ac.uk/spm/doc/books/hbf2/pdfs/Ch14.pdf">Brett, Penny and Kiebel’s <em>An Introduction to Random Field Theory</em></a>, which states “a resel is a cube of voxels of size (FWHM in x) by (FWHM in y) by (FWHM in z).”<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>In the adjustment, there’s <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L440">an interesting dropping of eigenvalues</a> that I also haven’t found any explanation for: <code>Columns(3, Ncols())</code> on an ascending spectrum, so the two smallest go, and everything downstream runs at <span class="math inline">\(p - 2\)</span>.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p>I find the direction of the tilt counterintuitive. Over-discounting (<span class="math inline">\(n_\text{eff}\)</span> too small) builds a reference that is wider (that is, more sloped) than the data, so the quotient is smallest at rank 1 and largest at the bottom of the spectrum. The next line, <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L463"><code>SortDescending</code></a>, then turns it over. This is presumably because the function <code>ppca_est</code> needs a descending spectrum: its <span class="math inline">\(\lvert A_z \rvert\)</span> term is a product over <span class="math inline">\(i &lt; j\)</span> of factors in <span class="math inline">\((\lambda_i - \lambda_j)\)</span>, and any factor that comes out non-positive is set to one, so it drops out of the product rather than changing its value.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p>The model order and component estimation steps are not iterative but sequential, so a bad estimate of the number of components can affect the component estimation.<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11"><p>Worked through in <a href="#sec-appendix">the appendix</a>. The short version is that the redundancy volume is <span class="math inline">\(\int\rho^2\)</span> over displacements, which for a Gaussian works out to <span class="math inline">\((\pi/4\ln 2)^{d/2}\)</span> times the product of the per-axis FWHM, or <span class="math inline">\(1.206\cdot\mathrm{resels}\)</span> in three dimensions and <span class="math inline">\(1.133 f^2\)</span> in two.<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12"><p>This is all just copied from other sources. It is equation 5 of <a href="https://atmos.uw.edu/wallace/PDFs/1999%20-%20The%20effective%20number%20of%20spatial%20degrees%20of%20freedom%20of%20a%20time-varying%20field.pdf">Bretherton et al.&nbsp;(1999)</a>.<a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn13"><p>This turns out to be a real condition and not a formality. A kernel narrower than the grid it is sampled on has most of its mass in one voxel, the sum and the integral part company. It is one of the reasons not to trust any of this below about a voxel and a half of smoothing.<a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/psadil\.github\.io\/psadil\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

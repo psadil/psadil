@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>eyetracking with eyelink in psychtoolbox – psadil</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -67,20 +70,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cac0433bb97fa58dc0fc6599c25c149a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-5021107a2cd845c5e5fdf616b3d94994.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7944e5b760ac2b06eb7f984510d06b77.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -404,7 +408,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <p>This section walks through a function that initializes the eyelink system. The first step to interfacing with the Eyelink is to call the PTB command <a href="https://web.archive.org/web/20171214112707/http://docs.psychtoolbox.org/EyelinkInitDefaults"><code>EyelinkInitDefaults</code></a>. This defines a struct with a number of default parameters, <code>el</code> about how the eyetracker will operate. I generally don’t want all of those defaults, so the function below modifies them as needed. After the parameters in <code>el</code> have been modified, this function calls <a href="https://web.archive.org/web/20171214035622/http://docs.psychtoolbox.org/EyelinkUpdateDefaults"><code>EyelinkUpdateDefaults(el)</code></a> to indicate to inform the eyelink system that the parameters should change.</p>
 <p>The main other point of this function is to start the eyetracker calibration. That should be done at the start of each run.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> [<span class="va">el</span><span class="op">,</span> <span class="va">exit_flag</span>] <span class="op">=</span> <span class="va">setupEyeTracker</span>( <span class="va">tracker</span><span class="op">,</span> <span class="va">window</span><span class="op">,</span> <span class="va">constants</span> )</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">% SET UP TRACKER CONFIGURATION. Main goal is to modify defaults set in EyelinkInitDefaults.</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -419,7 +423,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="va">window</span>.<span class="va">winRect</span><span class="op">;</span> <span class="va">PsychRect</span> <span class="va">defining</span> <span class="va">size</span> <span class="va">of</span> <span class="va">main</span> <span class="va">window</span> (<span class="va">e</span>.<span class="va">g</span>.<span class="op">,</span> [<span class="va">window</span>.<span class="va">pointer</span><span class="op">,</span> <span class="va">window</span>.<span class="va">winRect</span>] <span class="op">=</span> <span class="va">PsychImaging</span>(<span class="ss">'OpenWindow'</span><span class="op">,</span> <span class="op">...</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                                                                                                                <span class="va">window</span>.<span class="va">screenNumber</span><span class="op">,</span><span class="va">window</span>.<span class="va">background</span>)<span class="op">;</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="va">constants</span><span class="op">:</span> <span class="va">struct</span> <span class="va">containing</span> <span class="va">at</span> <span class="va">least</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="va">constants</span>.<span class="va">eyelink_data_fname</span><span class="op">:</span> <span class="va">string</span> <span class="va">defining</span> <span class="va">eyetracking</span> <span class="va">data</span> <span class="va">to</span> <span class="va">be</span> <span class="va">saved</span>. <span class="va">Cannot</span> <span class="va">be</span> <span class="va">longer</span> <span class="va">than</span> <span class="fl">8</span> <span class="va">characters</span> (<span class="va">before</span> <span class="va">file</span> <span class="va">extention</span>). <span class="va">File</span> <span class="va">extension</span> <span class="va">must</span> <span class="va">be</span> <span class="ss">'.edf'</span>. (<span class="va">e</span>.<span class="va">g</span>.<span class="op">,</span> <span class="va">constants</span>.<span class="va">eyelink_data_fname</span> <span class="op">=</span> [<span class="ss">'scan'</span><span class="op">,</span> <span class="va">num2str</span>(<span class="va">input</span>.<span class="va">runnum</span><span class="op">,</span> <span class="ss">'%02d'</span>)<span class="op">,</span> <span class="ss">'.edf'</span>]<span class="op">;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="va">constants</span>.<span class="va">eyelink_data_fname</span><span class="op">:</span> <span class="va">string</span> <span class="va">defining</span> <span class="va">eyetracking</span> <span class="va">data</span> <span class="va">to</span> <span class="va">be</span> <span class="va">saved</span>. <span class="va">Cannot</span> <span class="va">be</span> <span class="va">longer</span> <span class="va">than</span> <span class="fl">8</span> <span class="va">characters</span> (<span class="va">before</span> <span class="va">file</span> <span class="va">extension</span>). <span class="va">File</span> <span class="va">extension</span> <span class="va">must</span> <span class="va">be</span> <span class="ss">'.edf'</span>. (<span class="va">e</span>.<span class="va">g</span>.<span class="op">,</span> <span class="va">constants</span>.<span class="va">eyelink_data_fname</span> <span class="op">=</span> [<span class="ss">'scan'</span><span class="op">,</span> <span class="va">num2str</span>(<span class="va">input</span>.<span class="va">runnum</span><span class="op">,</span> <span class="ss">'%02d'</span>)<span class="op">,</span> <span class="ss">'.edf'</span>]<span class="op">;</span>)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="va">OUTPUT</span><span class="op">:</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="va">tracker</span> <span class="op">==</span> <span class="ss">'T60'</span></span>
@@ -444,7 +448,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co">% and control codes (e.g. tracker state bit and Eyelink key values).</span></span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="va">el</span> <span class="op">=</span> <span class="va">EyelinkInitDefaults</span>(<span class="va">window</span>.<span class="va">pointer</span>)<span class="op">;</span></span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">% overrride default gray background of eyelink, otherwise runs end</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">% override default gray background of eyelink, otherwise runs end</span></span>
 <span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co">% up gray! also, probably best to calibrate with same colors of</span></span>
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co">% background / stimuli as participant will encounter</span></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="va">el</span>.<span class="va">backgroundcolour</span> <span class="op">=</span> <span class="va">window</span>.<span class="va">background</span><span class="op">;</span></span>
@@ -510,7 +514,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>        <span class="va">el</span> <span class="op">=</span> []<span class="op">;</span></span>
 <span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
 <span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Here are a few parts of that function that you will probably want to adapt for your experiment.</p>
 <ol type="1">
@@ -544,7 +548,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <p>There are a few such functions that you’ll need to include to record any usable data. First, the function we defined above, <code>setupEyeTracker</code>, called the function <a href="https://web.archive.org/web/20171214112703/http://docs.psychtoolbox.org/EyelinkDoTrackerSetup"><code>EyelinkDoTrackerSetup(el)</code></a>. This is a function internal to PTB. It runs the calibration routine. So, you’ll want a call to <code>[el, exitflag] = setupEyeTracker( input.tracker, window, constants );</code> somewhere early in your code. I rerun the calibration at the start of each experimental run.</p>
 <p>Next, the following commands make sure that you’ve turned on the eyetracker</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">% Must be offline to draw to EyeLink screen</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">% Must be offline to draw to EyeLink screen</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">Eyelink</span>(<span class="ss">'Command'</span><span class="op">,</span> <span class="ss">'set_idle_mode'</span>)<span class="op">;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">% clear tracker display</span></span>
@@ -553,16 +557,16 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="va">Eyelink</span>(<span class="ss">'StartRecording'</span>)<span class="op">;</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">% always wait a moment for recording to have definitely started</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="va">WaitSecs</span>(<span class="fl">0.1</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="va">WaitSecs</span>(<span class="fl">0.1</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Eyelink will save it’s files in a specialized format<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. For that file, it’s useful to mark when the experiment has actually started. So, include a command like</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">Eyelink</span>(<span class="ss">'message'</span><span class="op">,</span> <span class="ss">'SYNCTIME'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">Eyelink</span>(<span class="ss">'message'</span><span class="op">,</span> <span class="ss">'SYNCTIME'</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>to mark the start. Since this will probably be run in the scanner, a sensible time to place that would be shortly after receiving the scanner trigger, but before the next flip.</p>
 <p>When you’re done with the experiment run <a href="https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink"><code>Eyelink('Command', 'set_idle_mode');</code></a> before saving data. Here’s an example of a short routine to save the data. I’ve defined a variable <code>constants.eyelink_data_fname</code> to be a string that ends in ‘.edf’. Note that the filename can be no longer than 8 characters and cannot contain any special characters (only digits and letters).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">%  the Eyelink('ReceiveFile') function does not wait for the file</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">%  the Eyelink('ReceiveFile') function does not wait for the file</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">% transfer to complete so you must have the entire try loop</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">% surrounding the function to ensure complete transfer of the EDF.</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">try</span></span>
@@ -576,7 +580,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">catch</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="va">fprintf</span>(<span class="ss">'Problem receiving data file ''%s''\n'</span><span class="op">,</span>  <span class="va">constants</span>.<span class="va">eyelink_data_fname</span> )<span class="op">;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="sample-script" class="level1">
@@ -584,7 +588,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <p>Unfortunately, attempting to call these function from a computer that does not have Eyelink’s software installed will produce an error. This makes developing and testing an experimental script challenging, because if we litter our code with calls to <a href="https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink"><code>Eyelink(...)</code></a>, then when we’re not at the scanner computer we need to comment out all of those lines. I have no faith that I’ll remember to uncomment all of these lines when I’m at the scanner each time, so when I’m writing code that calls these functions I place them in a wrapper. Credit goes to <a href="https://people.umass.edu/whopper/">Will Hopper</a> for showing me this strategy when designing functions that receive input.</p>
 <p>The main idea is two wrap all calls to <code>Eyelink(...)</code> with a function that starts like this</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="va">eyelinkFcn</span> <span class="op">=</span> <span class="va">makeEyelinkFcn</span>(<span class="va">handlerName</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="va">valid_types</span> <span class="op">=</span> {<span class="ss">'none'</span><span class="op">,</span><span class="ss">'T60'</span>}<span class="op">;</span></span>
@@ -600,24 +604,24 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">% more code to follow</span></span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The outer function, <code>makeEyelinkFcn</code> receives as input the variable <code>handlerName</code>, which can be either <code>none</code> or <code>T60</code>. Depending on that variable, the output to eyelinkFcn is then a call to an anonymous function which implements the actual calls to Eyelink. When <code>handlerName == 'T60'</code>, <code>makeEyelinkFcn</code> returns a function that is going to try to call various <code>Eyelink(...)</code> routines (shown below). But, when <code>handlerName == 'none'</code> <code>makeEyelinkFcn</code> will return a function that does nothing.</p>
 <p>This enables the writing of code that will call the eyelink functions when desired (e.g., when at the scanner), but calls to those functions can also be avoided when desired (by calling <code>makeEyeLinkFcn('none')</code> instead of <code>makeEyeLinkFcn('T60')</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">% ...</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="va">eyetrackerFcn</span> <span class="op">=</span> <span class="va">makeEyelinkFcn</span>(<span class="va">input</span>.<span class="va">tracker</span>)<span class="op">;</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="va">eyetrackerFcn</span>(<span class="ss">'message'</span><span class="op">,</span> <span class="ss">'SYNCTIME'</span>)<span class="op">;</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">% ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">% ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>So long as input.tracker is taking different values, there’s no need to comment or uncomment when I’m working on a computer that has or doesn’t have an eyelink hooked up<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
 <p>The remainder of this script defines the local function <code>T60</code>, which allows all of the necessary wrapping to the different <code>Eyelink(...)</code> commands.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="va">eyelinkFcn</span> <span class="op">=</span> <span class="va">makeEyelinkFcn</span>(<span class="va">handlerName</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="va">valid_types</span> <span class="op">=</span> {<span class="ss">'none'</span><span class="op">,</span><span class="ss">'T60'</span>}<span class="op">;</span></span>
@@ -685,7 +689,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="co">% do nothing with arguments</span></span>
 <span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
 <span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="extra-resourcess" class="level1">
@@ -771,13 +775,14 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

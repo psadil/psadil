@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>serial dependence reflects a preference for low variability – psadil</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -26,7 +29,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -52,20 +54,21 @@ div.csl-indent {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cac0433bb97fa58dc0fc6599c25c149a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-5021107a2cd845c5e5fdf616b3d94994.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7944e5b760ac2b06eb7f984510d06b77.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -367,7 +370,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 
 <p>One framework for understanding perception casts it as inference: just as a statistician uncovers noisy data to uncover patterns, an organism perceives when it converts sensations into guesses about its environment. The framework not concrete enough to be called a theory of perception, since it is not clear what data could falsify it<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. But the framework can remind perceptual researchers about the many strategies available for modeling the world. Do perceiving organisms employ similar strategies?</p>
 <p>One property that distinguishes many statistical strategies is a tradeoff between bias and variability Consider this tradeoff with an example. A statistician must estimate the average height of college-level soccer players. The true average could be uncovered by measuring the height of every player at every college–the statistician would not need inference. But the statistician is constrained by limited resources. They can only measure the players from a single college, though they may measure the heights of any student at the college. The statistician must now decide between an unbiased but variable or biased but precise strategy. Measuring only the soccer players gives an unbiased estimate, but with so few players the team’s average may be far from the true average. The statistician cannot be confident that the single team resembles all teams. Alternatively, the statistician may supplement their estimate with the heights of players from another, related sport. Since ultimate frisbee players may have similar heights to soccer players, incorporating their heights into the estimate may counteract any anomalously sized soccer players. However, incorporating even a single player from another sport biases the estimate, in the sense that the average height of all soccer players will not equal the average height of all soccer players and the one ultimate player<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. One strategy – measure only soccer players – would give the true answer if there were enough resources, but the other strategy – measure everyone that is similar to a soccer player – may approximate the truth well with limited resources.</p>
-<p>The bias-variability tradeoff gives a functional interpretation to the perceptual effect called serial dependence <span class="citation" data-cites="fischer2014 cicchini2018">(<a href="#ref-fischer2014" role="doc-biblioref">Fischer and Whitney 2014</a>; <a href="#ref-cicchini2018" role="doc-biblioref">Cicchini, Mikellidou, and Burr 2018</a>)</span>. Serial dependence occurs when participants judge perceptual stimuli across many trials, and their judgments on one trial depend on their immediately preceding judgment. Like the constrained statistician, participants may not process each stimulus completely: participants only see stimuli for brief durations, their judgments are made after the stimuli are masked, and their attention fluctuates throughout the hundreds of trials. The bias is often attractive, meaning that participants’ judgments reflect a blending of the stimuli on the current and previous trials. Serial dependence may reflect a strategy – not necessarily intentional – that reduces variability across judgments by combining information. Although the strategy biases the judgments, it may help each individual estimate approach truth.</p>
+<p>The bias-variability tradeoff gives a functional interpretation to the perceptual effect called serial dependence <span class="citation" data-cites="fischer2014 cicchini2018">(<a href="#ref-fischer2014" role="doc-biblioref">Fischer and Whitney 2014</a>; <a href="#ref-cicchini2018" role="doc-biblioref">Cicchini et al. 2018</a>)</span>. Serial dependence occurs when participants judge perceptual stimuli across many trials, and their judgments on one trial depend on their immediately preceding judgment. Like the constrained statistician, participants may not process each stimulus completely: participants only see stimuli for brief durations, their judgments are made after the stimuli are masked, and their attention fluctuates throughout the hundreds of trials. The bias is often attractive, meaning that participants’ judgments reflect a blending of the stimuli on the current and previous trials. Serial dependence may reflect a strategy – not necessarily intentional – that reduces variability across judgments by combining information. Although the strategy biases the judgments, it may help each individual estimate approach truth.</p>
 <section id="references" class="level1">
 
 
@@ -376,7 +379,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 </section>
 
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-cicchini2018" class="csl-entry" role="listitem">
 Cicchini, G. M., K. Mikellidou, and D. C Burr. 2018. <span>“The Functional Role of Serial Dependence.”</span> <em>Proceedings of the Royal Society B</em> 285 (1890): 20181722.
 </div>
@@ -454,13 +457,14 @@ Fischer, Jason, and David Whitney. 2014. <span>“Serial Dependence in Visual Pe
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>thoughts on eye movement – psadil</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -26,7 +29,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -52,20 +54,21 @@ div.csl-indent {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cac0433bb97fa58dc0fc6599c25c149a.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-5021107a2cd845c5e5fdf616b3d94994.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-429021c1f298d480e7d2faea53d5fb24.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-7944e5b760ac2b06eb7f984510d06b77.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-023ee423adf7f1336d0b17e05dc13170.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -362,7 +365,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 
 
 
-<p>Visual perception research has produced many illusions. Stare at a waterfall for a minute, then look away and the whole world appears in motion, traveling upwards <span class="citation" data-cites="addams1834">(<a href="#ref-addams1834" role="doc-biblioref">Addams 1834</a>)</span>. Given proper lighting, black paper can appear white, but placing a white piece of paper nearby colors the first dark gray <span class="citation" data-cites="gelb1929 cataliotti1995">(<a href="#ref-gelb1929" role="doc-biblioref">Gelb 1929</a>; as cited by <a href="#ref-cataliotti1995" role="doc-biblioref">Cataliotti and Gilchrist 1995</a>)</span>. Inspecting two sets of black lines – horizontal lines that obscure a solid red field like a picket fence, along with vertical lines that obscure a solid green field – causes the black lines alone to induce a perception of color, an illusory shading that can last for days <span class="citation" data-cites="mccollough1965">(<a href="#ref-mccollough1965" role="doc-biblioref">McCollough 1965</a>)</span>. Such illusions reveal the intricacies of visual perception, kludges and all<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. The pizzazz of the illusions affords visual perception a kind of scientific rigor; the effects are obviously real and reproducible, so to satisfyingly explain how visual perception works <em>so well</em> also requires explaining how atypical visual environments can so often dupe vision.</p>
+<p>Visual perception research has produced many illusions. Stare at a waterfall for a minute, then look away and the whole world appears in motion, traveling upwards&nbsp;<span class="citation" data-cites="addams1834">(<a href="#ref-addams1834" role="doc-biblioref">Addams 1834</a>)</span>. Given proper lighting, black paper can appear white, but placing a white piece of paper nearby colors the first dark gray&nbsp;<span class="citation" data-cites="gelb1929 cataliotti1995">(<a href="#ref-gelb1929" role="doc-biblioref">Gelb 1929</a>; as cited by <a href="#ref-cataliotti1995" role="doc-biblioref">Cataliotti and Gilchrist 1995</a>)</span>. Inspecting two sets of black lines – horizontal lines that obscure a solid red field like a picket fence, along with vertical lines that obscure a solid green field – causes the black lines alone to induce a perception of color, an illusory shading that can last for days&nbsp;<span class="citation" data-cites="mccollough1965">(<a href="#ref-mccollough1965" role="doc-biblioref">McCollough 1965</a>)</span>. Such illusions reveal the intricacies of visual perception, kludges and all<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. The pizzazz of the illusions affords visual perception a kind of scientific rigor; the effects are obviously real and reproducible, so to satisfyingly explain how visual perception works <em>so well</em> also requires explaining how atypical visual environments can so often dupe vision.</p>
 <p>However, research on visual perception inevitably strays from fascinating and easily demonstrable illusions. Of course, even without the glamour of classic visual illusions an effect can still be a reliable and valid object of research. But as the effect becomes more subtle, observing the effect requires increasingly complex analyses. Unfortunately, the most complex analyses, when misapplied, can also transmute noise into something that appears noteworthy<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. So when a subtle effect relies entirely on a complex analysis, the effect becomes suspect. To highlight the obviousness of an effect, it can help to visualize and revisualize the data.</p>
 <p>A few weeks ago, <a href="https://psadil.github.io/psadil/post/serial-dependence/">I posted</a> about an effect that warrants revisualizing, the apparent stability of visual perception. I discussed this stability as one of the reasons that perception exhibits serial dependence <span class="citation" data-cites="fischer2014">(<a href="#ref-fischer2014" role="doc-biblioref">Fischer and Whitney 2014</a>)</span>, which is the tendency of visual perception to be slightly erroneous, resembling not an accurate reproduction of the input it receives but a mixture of current input and input from the past. This dependence may occur during perception to refine the inherently erratic input provided by the retina. I attempt to demonstrate the need for refinement with Figures 1-3. <a href="#fig-density" class="quarto-xref">Figure&nbsp;1</a> shows a stimulus from an ongoing experiment. In the experiment, the participant was required to simply hold their gaze still. The figure is a heatmap, showing that this participant successfully fixated on a small region of the stimulus. However, the heatmap obscures how fixating on a “small” region implies ample movement. <a href="#fig-centric1" class="quarto-xref">Figure&nbsp;2</a> recapitulates, in real time, how the gaze wandered during fixation. But then <a href="#fig-centric1" class="quarto-xref">Figure&nbsp;2</a> obscures what that wandering means for the visual system; whenever the eye moves, the retina receives (and so must then output) a different image. With <a href="#fig-final" class="quarto-xref">Figure&nbsp;3</a>, I attempt to visualize what these eye movements mean for the retinal image. In <a href="#fig-final" class="quarto-xref">Figure&nbsp;3</a>, the movements of the gaze are transferred to the stimulus, revealing how the retina receives a twitching stimulus. The effect to explain here is why fixating at the dot in <a href="#fig-density" class="quarto-xref">Figure&nbsp;1</a> – given that the eyes move as shown in <a href="#fig-centric1" class="quarto-xref">Figure&nbsp;2</a> – does not elicit the jumpy movie depicted in <a href="#fig-final" class="quarto-xref">Figure&nbsp;3</a>, but instead elicits the stable image of <a href="#fig-density" class="quarto-xref">Figure&nbsp;1</a>.</p>
 <div id="fig-density" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -379,7 +382,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-density-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Example stimulus, with heatmap of eye positions during one trial overlayed. Participants viewed such grating stimuli, each for five seconds. They were instructed to fixate on the central magenta dot. The blob to the left of the dot indicates where this participant looked during the trial; the brightest regions held their gaze for the most time.
+Figure&nbsp;1: Example stimulus, with heatmap of eye positions during one trial overlaid. Participants viewed such grating stimuli, each for five seconds. They were instructed to fixate on the central magenta dot. The blob to the left of the dot indicates where this participant looked during the trial; the brightest regions held their gaze for the most time.
 </figcaption>
 </figure>
 </div>
@@ -427,7 +430,7 @@ Figure&nbsp;3: Approximate example of the retinal image from <a href="#fig-centr
 </section>
 
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-addams1834" class="csl-entry" role="listitem">
 Addams, Roberts. 1834. <span>“An Account of a Peculiar Optical Phenomenon Seen After Having Looked at a Moving Body.”</span> <em>The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science</em> 5 (29): 373–74.
 </div>
@@ -438,7 +441,7 @@ Cataliotti, Joseph, and Alan Gilchrist. 1995. <span>“Local and Global Processe
 Fischer, Jason, and David Whitney. 2014. <span>“Serial Dependence in Visual Perception.”</span> <em>Nature Neuroscience</em> 17 (5): 738.
 </div>
 <div id="ref-gelb1929" class="csl-entry" role="listitem">
-Gelb, Adhémar. 1929. <span>“Die "Farbenkonstanz" Der Sehdinge.”</span> In <em>Handbuch Der Normalen Und Pathologischen Physiologie</em>, 594–678. Springer-Verlag.
+Gelb, Adhémar. 1929. <span>“Die "Farbenkonstanz" Der Sehdinge.”</span> In <em>Handbuch Der Normalen Und Pathologischen Physiologie</em>. Springer-Verlag.
 </div>
 <div id="ref-mccollough1965" class="csl-entry" role="listitem">
 McCollough, Celeste. 1965. <span>“Color Adaptation of Edge-Detectors in the Human Visual System.”</span> <em>Science</em> 149 (3688): 1115–16.
@@ -514,13 +517,14 @@ McCollough, Celeste. 1965. <span>“Color Adaptation of Edge-Detectors in the Hu
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
