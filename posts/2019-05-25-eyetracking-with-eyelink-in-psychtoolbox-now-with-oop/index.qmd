@@ -2,16 +2,11 @@
 title: eyetracking with eyelink in psychtoolbox, now with oop
 author: Patrick Sadil
 date: "2019-05-25"
-slug: eyetracking-in-psychtoolbox-oop
 categories:
   - experiments
-tags:
   - eyelink
   - matlab
   - psychtoolbox
-pandoc_args:
-  - "--indented-code-classes"
-  - "matlab"
 execute:
   eval: false
   echo: true

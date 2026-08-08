@@ -2,10 +2,8 @@
 title: Modulations to tuning functions can bias evidence accumulation
 author: Patrick Sadil
 date: "2019-10-18"
-slug: neural-modulation-for-serial-dependence
 categories:
   - dissertation
-tags: []
 link-citations: true
 bibliography: [one.bib]
 ---

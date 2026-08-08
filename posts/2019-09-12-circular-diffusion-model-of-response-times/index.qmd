@@ -2,9 +2,7 @@
 title: Circular Diffusion Model of Response Times
 author: Patrick Sadil
 date: "2019-09-12"
-slug: circular-diffusion-model-of-response-times
-categories: []
-tags:
+categories:
   - dissertation
 link-citations: true
 bibliography: [one.bib]

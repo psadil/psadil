@@ -2,14 +2,11 @@
 title: Anonymizing MTurk WorkerIDs
 author: Patrick Sadil
 date: "2018-08-07"
-slug: anonymizing-mtruk-worker-ids
 categories:
   - experiments
-tags:
   - mturk
-  - R
+  - r
   - psiturk
-highlight_languages: ["R"]
 execute:
   echo: true
   eval: false

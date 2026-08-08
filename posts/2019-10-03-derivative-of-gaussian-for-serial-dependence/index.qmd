@@ -2,10 +2,8 @@
 title: derivative of gaussian for serial dependence
 author: Patrick Sadil
 date: "2019-10-03"
-slug: derivative-of-gaussian-for-serial-dependence
 categories:
   - dissertation
-tags: []
 ---
 
 ```{r}

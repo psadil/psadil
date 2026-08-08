@@ -2,10 +2,8 @@
 title: Staircases for Thresholds
 author: Patrick Sadil
 date: "2019-10-30"
-slug: staircases-for-thresholds
 categories:
   - dissertation
-tags: []
 link-citations: true
 bibliography: [2019-10-30-staircases-for-thresholds.bib]
 ---

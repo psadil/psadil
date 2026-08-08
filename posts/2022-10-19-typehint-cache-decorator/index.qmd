@@ -3,10 +3,9 @@ title: "Hinting Cache Decorator Types"
 jupyter: python3
 author: Patrick Sadil
 date: "2022-10-23"
-slug: typehint-callable
-categories: [gist]
-tags: [python]
-lastmod: "2022-10-23T22:59:09-04:00"
+categories:
+  - gist
+  - python
 image: featured.png
 execute:
   echo: true

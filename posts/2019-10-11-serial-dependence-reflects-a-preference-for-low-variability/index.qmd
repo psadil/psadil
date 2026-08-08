@@ -2,10 +2,8 @@
 title: serial dependence reflects a preference for low variability
 author: Patrick Sadil
 date: "2019-10-11"
-slug: serial-dependence-reflects-a-preference-for-low-variability
 categories:
   - dissertation
-tags: []
 link-citations: true
 bibliography: [one.bib]
 ---

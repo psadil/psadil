@@ -2,12 +2,9 @@
 title: Basic Importance Sampling for Variance Reduction
 author: Patrick Sadil
 date: "2018-11-10"
-slug: importance-sampling
 categories:
   - comps
-tags:
-  - MC
-math: true
+  - monte carlo
 execute:
   echo: true
   eval: true
@@ -110,11 +107,12 @@ where $\phi$ is the standard normal density function. This $h$ is such that only
 #| fig-cap: "h(x) (black) has mostly 0 around where p_X (blue) has high density. The mismatch of these distributions will contribute to unnecessarily high variance of the estimator."
 
 set.seed(1234)
-hx <- function(x){
-  return(dnorm(x-4))
+hx <- function(x) {
+  return(dnorm(x - 4))
 }
-x <- seq(-5,10, length.out = 1000)
-plot(x,hx(x),type="l"); points(x, dnorm(x), col = "blue", type = "l")
+x <- seq(-5, 10, length.out = 1000)
+plot(x, hx(x), type = "l")
+points(x, dnorm(x), col = "blue", type = "l")
 ```
 
 However, $X$ will only rarely contain values that are near 4. Hence, the variance of the estimation will be relatively high. We can get an explicit formula for the variance.
@@ -140,7 +138,7 @@ Which we'll save for now to use later
 ```{r}
 #| label: mu
 
-mu <- 1/(2*exp(4)*sqrt(pi))
+mu <- 1 / (2 * exp(4) * sqrt(pi))
 mu
 ```
 
@@ -158,7 +156,7 @@ $$
 ```{r}
 #| label: varnumeric
 
-1/(2*pi*sqrt(3)*exp(16/3)) - mu^2
+1 / (2 * pi * sqrt(3) * exp(16 / 3)) - mu^2
 ```
 
 ### Standard MC estimate is accurate, but with relatively high variance
@@ -184,9 +182,9 @@ mean(y) - mu
 Now, let's instead construct and IS estimator. One intuitive (but by no means optimal) attempt would be to use $Y \sim N(4,1)$, a distribution that matches with $h(x)$ perfectly. Indeed, that will provide an accurate answer 
 
 ```{r}
-y <- rnorm(1e6,mean=4)
+y <- rnorm(1e6, mean = 4)
 h <- hx(y)
-IS <- h*dnorm(y,0,1)/dnorm(y,4,1)
+IS <- h * dnorm(y, 0, 1) / dnorm(y, 4, 1)
 mean(IS)
 ```
 
@@ -206,16 +204,16 @@ This is a somewhat subtle point of the derivation provided above. We _don't_ jus
 #| label: matching
 #| fig-cap: "Same as above, but with line demonstrating intersection at x=2"
 
-x <- seq(-5,10, length.out = 1000)
-plot(x,hx(x),type="l")
+x <- seq(-5, 10, length.out = 1000)
+plot(x, hx(x), type = "l")
 points(x, dnorm(x), col = "blue", type = "l")
-abline(v=2)
+abline(v = 2)
 ```
 
 ```{r}
-y <- rnorm(1e6,mean=2)
+y <- rnorm(1e6, mean = 2)
 h <- hx(y)
-IS <- h*dnorm(y,0)/dnorm(y,2)
+IS <- h * dnorm(y, 0) / dnorm(y, 2)
 mean(IS)
 var(IS)
 ```
@@ -225,9 +223,9 @@ The answer is still accurate, but the variance has been reduced by many factors.
 One final demonstration, remember that $h(x)p_X(x)$ describes a distribution. Hence it would be a mistake to try a $p_Y$ that placed all of the density around that point of intersection. For example, let's try $Y \sim N(2,0.1)$. Although that is centered on the region that contributes the largest values to the expectation, the largest values alone do not define the expectation; too much of the tails of $h(x)$ are not included. Using this results is the worst variance.
 
 ```{r}
-y <- rnorm(1e6,mean=2,.1)
+y <- rnorm(1e6, mean = 2, .1)
 h <- hx(y)
-IS <- h*dnorm(y,0)/dnorm(y,2,.1)
+IS <- h * dnorm(y, 0) / dnorm(y, 2, .1)
 mean(IS)
 var(IS)
 ```

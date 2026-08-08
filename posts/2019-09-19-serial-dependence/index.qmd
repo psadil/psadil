@@ -2,10 +2,8 @@
 title: Serial Dependence
 author: Patrick Sadil
 date: "2019-09-19"
-slug: serial-dependence
 categories:
   - dissertation
-tags: []
 link-citations: true
 bibliography: [one.bib]
 ---

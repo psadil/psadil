@@ -3,10 +3,10 @@ title: "FSL's MELODIC and Estimating Noise"
 jupyter: python3
 author: Patrick Sadil
 date: "2026-08-07"
-slug: estimating-noise
-categories: [research]
-tags: [python, fmri, mri]
-lastmod: "2026-08-07T12:00:00-04:00"
+categories:
+  - research
+  - python
+  - mri
 draft: true
 execute:
   echo: true

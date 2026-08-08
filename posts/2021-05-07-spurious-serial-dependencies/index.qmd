@@ -2,13 +2,9 @@
 title: Spurious Serial Dependencies
 author: Patrick Sadil
 date: "2021-05-07"
-slug: []
 categories:
   - research
-tags:
   - psychology
-lastmod: "2021-05-07T17:27:27-04:00"
-featured: no
 bibliography: [scholar.bib]
 execute:
   echo: true

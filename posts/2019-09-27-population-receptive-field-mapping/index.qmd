@@ -2,10 +2,8 @@
 title: an overview of population receptive field mapping
 author: Patrick Sadil
 date: "2019-09-27"
-slug: population-receptive-field-mapping
 categories:
   - dissertation
-tags: []
 link-citations: true
 bibliography: [one.bib]
 ---

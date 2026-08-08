@@ -3,10 +3,10 @@ title: "How to store a NIfTI as a TFRecord"
 jupyter: python3
 author: Patrick Sadil
 date: "2022-04-23"
-slug: tf-dataset-from-3d-nifti
-categories: [gist]
-tags: [python, mri]
-lastmod: "2022-04-23T22:59:09-04:00"
+categories:
+  - gist
+  - python
+  - mri
 image: featured.png
 execute:
   echo: true

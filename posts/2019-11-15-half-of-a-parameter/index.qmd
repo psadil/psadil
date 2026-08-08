@@ -2,10 +2,8 @@
 title: Half of a parameter
 author: Patrick Sadil
 date: "2019-11-15"
-slug: half-of-a-parameter
 categories:
   - dissertation
-tags: []
 link-citations: true
 bibliography: [2019-11-15-half-of-a-parameter.bib]
 ---

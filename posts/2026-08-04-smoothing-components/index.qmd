@@ -3,10 +3,10 @@ title: "FSL's MELODIC and Smoothing"
 jupyter: python3
 author: Patrick Sadil
 date: "2026-08-04"
-slug: smoothing-components
-categories: [research]
-tags: [python, fmri, mri]
-lastmod: "2026-08-04T18:30:00-04:00"
+categories:
+  - research
+  - python
+  - mri
 image: featured.png
 execute:
   echo: true

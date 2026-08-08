@@ -2,9 +2,7 @@
 title: thoughts on eye movement
 author: Patrick Sadil
 date: "2019-11-21"
-slug: thoughts-on-eye-movement
 categories: []
-tags: []
 link-citations: true
 bibliography: [2019-11-21-thoughts-on-eye-movement.bib]
 ---

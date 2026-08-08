@@ -4,14 +4,9 @@ author: Patrick Sadil
 date: "2018-06-05"
 categories:
   - experiments
-tags:
   - eyelink
   - matlab
   - psychtoolbox
-slug: eyetracking-init
-pandoc_args:
-  - "--indented-code-classes"
-  - "matlab"
 execute:
   echo: true
   eval: false
