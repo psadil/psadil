@@ -410,15 +410,22 @@ window.Quarto = {
   <li><a href="#smoothing-results-in-a-higher-estimated-dimensionality" id="toc-smoothing-results-in-a-higher-estimated-dimensionality" class="nav-link" data-scroll-target="#smoothing-results-in-a-higher-estimated-dimensionality">Smoothing Results In a Higher Estimated Dimensionality</a></li>
   <li><a href="#melodics-correction-for-spatial-smoothness" id="toc-melodics-correction-for-spatial-smoothness" class="nav-link" data-scroll-target="#melodics-correction-for-spatial-smoothness">MELODIC’s Correction for Spatial Smoothness</a></li>
   <li><a href="#the-tilt" id="toc-the-tilt" class="nav-link" data-scroll-target="#the-tilt">The tilt</a></li>
-  <li><a href="#which-criteria-care-and-in-which-direction" id="toc-which-criteria-care-and-in-which-direction" class="nav-link" data-scroll-target="#which-criteria-care-and-in-which-direction">Which criteria care, and in which direction</a></li>
+  <li><a href="#the-discount-can-be-matched-to-the-data" id="toc-the-discount-can-be-matched-to-the-data" class="nav-link" data-scroll-target="#the-discount-can-be-matched-to-the-data">The Discount Can be Matched to the Data</a></li>
   <li><a href="#caveats" id="toc-caveats" class="nav-link" data-scroll-target="#caveats">Caveats</a></li>
   <li><a href="#sec-resels" id="toc-sec-resels" class="nav-link" data-scroll-target="#sec-resels">Appendix: Attempts at Getting 2.5 From Resels</a>
   <ul class="collapse">
   <li><a href="#an-idea-about-2.5" id="toc-an-idea-about-2.5" class="nav-link" data-scroll-target="#an-idea-about-2.5">An Idea about 2.5</a></li>
   </ul></li>
   <li><a href="#sec-appendix" id="toc-sec-appendix" class="nav-link" data-scroll-target="#sec-appendix">Appendix: where the 1.206 comes from</a></li>
-  <li><a href="#sec-appendix-inplane" id="toc-sec-appendix-inplane" class="nav-link" data-scroll-target="#sec-appendix-inplane">Appendix: why <code>est_resels</code> is biased</a></li>
-  <li><a href="#sec-appendix2" id="toc-sec-appendix2" class="nav-link" data-scroll-target="#sec-appendix2">Appendix: A Refinement of 2.5 When an Axis Has 0 Correlation</a></li>
+  <li><a href="#sec-appendix-inplane" id="toc-sec-appendix-inplane" class="nav-link" data-scroll-target="#sec-appendix-inplane">Appendix: why <code>est_resels</code> is biased</a>
+  <ul class="collapse">
+  <li><a href="#why-there-is-a-floor-at-all" id="toc-why-there-is-a-floor-at-all" class="nav-link" data-scroll-target="#why-there-is-a-floor-at-all">Why there is a floor at all</a></li>
+  <li><a href="#why-the-bias-is-confined-to-nearly-empty-axes" id="toc-why-the-bias-is-confined-to-nearly-empty-axes" class="nav-link" data-scroll-target="#why-the-bias-is-confined-to-nearly-empty-axes">Why the Bias is Confined to Nearly-Empty Axes</a></li>
+  </ul></li>
+  <li><a href="#sec-appendix2" id="toc-sec-appendix2" class="nav-link" data-scroll-target="#sec-appendix2">Appendix: A Refinement of 2.5 When an Axis Has 0 Correlation</a>
+  <ul class="collapse">
+  <li><a href="#why-the-floor-creeps" id="toc-why-the-floor-creeps" class="nav-link" data-scroll-target="#why-the-floor-creeps">Why the Floor Creeps</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -599,7 +606,7 @@ Table&nbsp;1: Model order under two methods. <code>sklearn</code>’s <code>PCA(
 <section id="melodics-correction-for-spatial-smoothness" class="level2">
 <h2 class="anchored" data-anchor-id="melodics-correction-for-spatial-smoothness">MELODIC’s Correction for Spatial Smoothness</h2>
 <p>MELODIC picks the model order by maximizing a Laplace approximation to the model evidence for probabilistic PCA. Before it does that, however, it adjusts the eigenspectrum “in order to account for the limited amount of data” (<a href="https://www.fmrib.ox.ac.uk/datasets/techrep/tr02cb1/tr02cb1.pdf">pg. 9</a>). The adjustment divides the observed spectrum by the one white noise would have produced, modeled with the <a href="https://en.wikipedia.org/wiki/Marchenko%E2%80%93Pastur_distribution">Marchenko–Pastur limit</a>, which a sample covariance matrix converges to when the data really are white and <span class="math inline">\(p\)</span> and <span class="math inline">\(n\)</span> both grow with their ratio held fixed. That limit depends on one number, the ratio of timepoints to samples: <span class="math inline">\(\nu = p/n\)</span>.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> <a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
-<p>The chain is four functions. <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L436"><code>adj_eigspec</code></a> builds the reference and divides the observed spectrum by it. <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L496"><code>Feta</code></a> supplies that reference (not the Marchenko–Pastur density but its inverse, integrated and read off as one expected eigenvalue per rank, the <span class="math inline">\(G^{-1}\)</span> of the report). <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L680"><code>ppca_est</code></a> scores each candidate rank, and <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L587"><code>ppca_select</code></a> walks up the resulting curve until it stops rising, which is point taken to be the dimensionality.</p>
+<p>The chain is four functions. <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L436"><code>adj_eigspec</code></a> builds the reference and divides the observed spectrum by it. <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L496"><code>Feta</code></a> supplies that reference (not the Marchenko–Pastur density but its inverse, integrated and read off as one expected eigenvalue per rank, the <span class="math inline">\(G^{-1}\)</span> of the report). <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L680"><code>ppca_est</code></a> scores each candidate rank, and <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L587"><code>ppca_select</code></a> walks up the resulting curve until it stops rising, which is the point taken to be the dimensionality.</p>
 <p>Importantly, <code>adj_eigspec</code> does not use the voxel count for <span class="math inline">\(n\)</span>, but instead <span class="math inline">\(n_\text{eff}\)</span>:</p>
 <p><span class="math display">\[
   n_{\text{eff}} = \left\lfloor \frac{N}{2.5 \cdot \mathrm{resels}} \right\rfloor
@@ -683,8 +690,8 @@ Figure&nbsp;3: What <code>ppca_est</code> is handed. Simulations were done on wh
 </div>
 </div>
 </section>
-<section id="which-criteria-care-and-in-which-direction" class="level2">
-<h2 class="anchored" data-anchor-id="which-criteria-care-and-in-which-direction">Which criteria care, and in which direction</h2>
+<section id="the-discount-can-be-matched-to-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-discount-can-be-matched-to-the-data">The Discount Can be Matched to the Data</h2>
 <p>The tilt story makes a prediction: the failure should depend on <span class="math inline">\(r\)</span> (the mismatch between the two sample sizes) and not on smoothing as such. So take noise with genuinely independent voxels, where the correct discount is exactly <span class="math inline">\(r = 1\)</span>, and vary <span class="math inline">\(r\)</span> by hand. Then, compare the Laplace criterion to another that is built into MELODIC (BIC).</p>
 <div class="cell" data-execution_count="7">
 <details class="code-fold">
@@ -840,9 +847,9 @@ Table&nbsp;2: Model order on unsmoothed white noise with independent voxels, so 
 </section>
 <section id="sec-resels" class="level2">
 <h2 class="anchored" data-anchor-id="sec-resels">Appendix: Attempts at Getting 2.5 From Resels</h2>
-<p>So the 2.5 constant matters. I haven’t found any</p>
+<p>So the 2.5 constant matters. I haven’t found any plausible explanation yet. These appendices walk through a few ideas, but they either land on a different constant or are unverifiably convoluted.</p>
 <p>Smoothing spreads each voxel over its neighbors, so a block of voxels inside one blob is no longer a block of independent observations. The natural question is how big that block is. Answer that, and the effective sample size is just the number of voxels divided by it.</p>
-<p>There is already a unit for the size of a blob, and MELODIC is already computing it. The box whose sides are the FWHM along each axis is a resel. So one guess is that one resel buys one independent sample, and the discount should be about <span class="math inline">\(1\cdot\mathrm{resels}\)</span>. That guess is close but slightly too small, because the FWHM is the width at half height and the correlation does not stop there. Voxels a little beyond the half-maximum point are still partly redundant with the center, meaning that the volume over which they are effectively the same observation is a bit larger than the resel box. Exactly how much larger is derivable,<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a> and for a Gaussian smoothed in three dimensions it is about 20%:</p>
+<p>There is already a unit for the size of a blob, and MELODIC is already computing it. The box whose sides are the FWHM along each axis is a resel. So one guess is that one resel buys one independent sample, and the discount should be about <span class="math inline">\(1\cdot\mathrm{resels}\)</span>. That guess is close but slightly too small, because the FWHM is the width at half height and the correlation does not stop there. Voxels a little beyond the half-maximum point are still partly redundant with the center, meaning that the volume over which they are effectively the same observation is a bit larger than the resel box. Exactly how much larger <a href="#sec-appendix">is derivable</a>, and for a Gaussian smoothed in three dimensions it is about 20%:</p>
 <p><span class="math display">\[
   r \;\approx\; 1.206 \cdot \mathrm{resels} .
 \]</span></p>
@@ -1002,8 +1009,8 @@ Figure&nbsp;4: Model order on pure noise under two field geometries, at three ch
 </section>
 <section id="sec-appendix" class="level2">
 <h2 class="anchored" data-anchor-id="sec-appendix">Appendix: where the 1.206 comes from</h2>
-<p>The claim in the main text was that a blob is worth one independent sample, and that its volume is about 20% more than a resel. This is that, in full.</p>
-<p>There are two ingredients. The first is how many independent columns a correlated set of columns is worth. For <span class="math inline">\(N\)</span> columns with spatial correlation matrix <span class="math inline">\(C\)</span>, that count is<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a></p>
+<p>The claim in the main text was that a blob is worth one independent sample, and that its volume is about 20% more than a resel. The short version is that the redundancy volume is <span class="math inline">\(\int\rho^2\)</span> over displacements, which for a Gaussian works out to <span class="math inline">\((\pi/4\ln 2)^{d/2}\)</span> times the product of the per-axis FWHM, or <span class="math inline">\(1.206\cdot\mathrm{resels}\)</span> in three dimensions and <span class="math inline">\(1.133 f^2\)</span> in two.</p>
+<p>There are two ingredients. The first is how many independent columns a correlated set of columns is worth. For <span class="math inline">\(N\)</span> columns with spatial correlation matrix <span class="math inline">\(C\)</span>, that count is<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a></p>
 <p><span class="math display">\[
   N^* \;=\; \frac{(\mathrm{tr}\,C)^2}{\mathrm{tr}(C^2)}
 \]</span></p>
@@ -1017,7 +1024,7 @@ Figure&nbsp;4: Model order on pure noise under two field geometries, at three ch
   N^* \;=\; \frac{N}{\sum_{h} \rho(h)^2} .
 \]</span></p>
 <p>So <span class="math inline">\(\sum_h \rho(h)^2\)</span> is the “size of a blob” the main text was after: the number of voxels each independent observation costs.</p>
-<p>That sum runs over displacements <span class="math inline">\(h\)</span> from one voxel to another, and a displacement in a <span class="math inline">\(d\)</span>-dimensional grid is a <span class="math inline">\(d\)</span>-vector, <span class="math inline">\(h = (h_1, \dots, h_d)\)</span>. Everything below is bookkeeping on that sum. Voxels sit one unit apart, so each term covers a grid cell of volume one, and provided <span class="math inline">\(\rho\)</span> changes slowly from one voxel to the next:<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a></p>
+<p>That sum runs over displacements <span class="math inline">\(h\)</span> from one voxel to another, and a displacement in a <span class="math inline">\(d\)</span>-dimensional grid is a <span class="math inline">\(d\)</span>-vector, <span class="math inline">\(h = (h_1, \dots, h_d)\)</span>. Everything below is bookkeeping on that sum. Voxels sit one unit apart, so each term covers a grid cell of volume one, and provided <span class="math inline">\(\rho\)</span> changes slowly from one voxel to the next:<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a></p>
 <p><span class="math display">\[
   \sum_{h} \rho(h)^2 \;\approx\; \int_{\mathbb{R}^d} \rho(h)^2 \,\mathrm{d}h .
 \]</span></p>
@@ -1052,7 +1059,9 @@ Figure&nbsp;4: Model order on pure noise under two field geometries, at three ch
 <section id="sec-appendix-inplane" class="level2">
 <h2 class="anchored" data-anchor-id="sec-appendix-inplane">Appendix: why <code>est_resels</code> is biased</h2>
 <p><code>est_resels</code> reports a width for every axis, including axes that have nothing on them. This is where that floor comes from, why it sits near 0.40, and why it is not quite a constant. What the floor then does to the discount is the <a href="#sec-appendix2">next appendix</a>.</p>
-<p><strong>Why there is a floor at all.</strong> Along an axis with no correlation, the true <span class="math inline">\(\rho\)</span> is zero, so <span class="math inline">\(\hat\rho\)</span> is pure sampling noise. It is an average of <span class="math inline">\(n\)</span> products of standardized values, one per adjacent pair per timepoint, so its standard deviation is <span class="math inline">\(1/\sqrt{n}\)</span>. <code>est_resels</code> then takes the absolute value, and the mean of a folded normal is <span class="math inline">\(\mathbb{E}\lvert\hat\rho\rvert = \sqrt{2/\pi n}\)</span>. Pushing that through the width conversion <span class="math inline">\(f = \sqrt{2\ln 2/(-\ln\rho)}\)</span> gives</p>
+<section id="why-there-is-a-floor-at-all" class="level3">
+<h3 class="anchored" data-anchor-id="why-there-is-a-floor-at-all">Why there is a floor at all</h3>
+<p>Along an axis with no correlation, the true <span class="math inline">\(\rho\)</span> is zero, so <span class="math inline">\(\hat\rho\)</span> is pure sampling noise. It is an average of <span class="math inline">\(n\)</span> products of standardized values, one per adjacent pair per timepoint, so its standard deviation is <span class="math inline">\(1/\sqrt{n}\)</span>. <code>est_resels</code> then takes the absolute value, and the mean of a folded normal is <span class="math inline">\(\mathbb{E}\lvert\hat\rho\rvert = \sqrt{2/\pi n}\)</span>. Pushing that through the width conversion <span class="math inline">\(f = \sqrt{2\ln 2/(-\ln\rho)}\)</span> gives</p>
 <p><span class="math display">\[
   f_\text{floor} \;=\; \sqrt{\frac{4\ln 2}{\ln(\pi n / 2)}} ,
 \]</span></p>
@@ -1090,7 +1099,11 @@ Figure&nbsp;4: Model order on pure noise under two field geometries, at three ch
 </tr>
 </tbody>
 </table>
-<p><strong>Why the bias is confined to nearly-empty axes.</strong> The width conversion is violently compressive near zero, which cuts both ways. It is what keeps a wildly wrong <span class="math inline">\(\hat\rho\)</span> from producing a wildly wrong width — returning <span class="math inline">\(f = 0.1\)</span> would take <span class="math inline">\(\rho \approx 10^{-61}\)</span> — and it is what stops the width from ever reaching zero. Above about a voxel and a quarter the compression no longer matters and <code>est_resels</code> is essentially unbiased; below it, the reported width is mostly an artifact of the floor. <code>resels</code> is a fair summary of redundancy for any axis with real correlation on it, and not a summary of anything for an axis without.</p>
+</section>
+<section id="why-the-bias-is-confined-to-nearly-empty-axes" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-bias-is-confined-to-nearly-empty-axes">Why the Bias is Confined to Nearly-Empty Axes</h3>
+<p>The width conversion is violently compressive near zero, which cuts both ways. It is what keeps a wildly wrong <span class="math inline">\(\hat\rho\)</span> from producing a wildly wrong width — returning <span class="math inline">\(f = 0.1\)</span> would take <span class="math inline">\(\rho \approx 10^{-61}\)</span> — and it is what stops the width from ever reaching zero. Above about a voxel and a quarter the compression no longer matters and <code>est_resels</code> is essentially unbiased; below it, the reported width is mostly an artifact of the floor. <code>resels</code> is a fair summary of redundancy for any axis with real correlation on it, and not a summary of anything for an axis without.</p>
+</section>
 </section>
 <section id="sec-appendix2" class="level2">
 <h2 class="anchored" data-anchor-id="sec-appendix2">Appendix: A Refinement of 2.5 When an Axis Has 0 Correlation</h2>
@@ -1101,7 +1114,7 @@ Figure&nbsp;4: Model order on pure noise under two field geometries, at three ch
   2.83 \;\approx\; \underbrace{\tfrac{1}{0.4}}_{\text{undo the floor}} \times
                    \underbrace{1.0645^2}_{\text{FWHM}\,\to\,\text{redundancy length}} .
 \]</span></p>
-<p>MELODIC’s value is the first. Whoever wrote it fixed the floor and left the second factor on the table, which costs about 12% — far too little for the criterion to notice. Written in terms of what the estimator reports rather than the nominal <span class="math inline">\(0.4\)</span>, the fully corrected constant is <span class="math inline">\(1.133/f_z\)</span>, which at the floor measured here is about 2.7. The <span class="math inline">\(f^2\)</span> cancels out of it, so nothing about the kernel survives: what ought to be a property of the field is just the reciprocal of a number the estimator made up.</p>
+<p>MELODIC’s value is the first. Perhaps it was written for the fixed floor, leaving the second factor on the table (costs very little)? Written in terms of what the estimator reports rather than the nominal <span class="math inline">\(0.4\)</span>, the fully corrected constant is <span class="math inline">\(1.133/f_z\)</span>, which at the floor measured here is about 2.7. The <span class="math inline">\(f^2\)</span> cancels out of it, so nothing about the kernel survives: what ought to be a property of the field is just the reciprocal of a number the estimator made up.</p>
 <p>The simulation below builds that field: smoothing <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> and leaving <span class="math inline">\(z\)</span> untouched.</p>
 <div class="cell" data-execution_count="10">
 <details class="code-fold">
@@ -1200,11 +1213,14 @@ Table&nbsp;4: A field with real in-plane smoothness and no correlation between p
 </div>
 </div>
 <p>The <code>FWHM z</code> column is the estimator talking to itself; nothing was smoothed along <span class="math inline">\(z\)</span>, so the honest answer is zero, and what comes back is the floor. The constant such a field needs is correspondingly large, running from 3.10 to 2.45, against 1.14 when all three axes are genuinely smooth. And it is not really constant — it drifts, because the invented <span class="math inline">\(z\)</span> width itself creeps upward, from 0.38 to 0.44. Neither number is a fact about the field; both are facts about the estimator.</p>
-<p>Note that the measured column sits above <span class="math inline">\(2.5\)</span> almost everywhere, which is the missing <span class="math inline">\(1.0645^2\)</span> showing up as expected. <span class="math inline">\(2.5\cdot\mathrm{resels}\)</span> is systematically a little under what even this field wants.</p>
-<p><strong>Why the floor creeps.</strong> The drift in that column is the floor itself moving. The <span class="math inline">\(n\)</span> in the floor formula of the previous appendix is not the number of products but the number of <em>independent</em> ones, and in-plane smoothing correlates neighboring products with each other — for two in-plane positions a displacement <span class="math inline">\(\Delta\)</span> apart, the products covary as <span class="math inline">\(\rho_\text{inplane}(\Delta)^2\)</span> — so the count of independent terms falls by roughly the in-plane redundancy <span class="math inline">\(1.133f^2\)</span>, the same quantity as above doing different work. Fewer independent terms means a larger typical <span class="math inline">\(|\hat\rho|\)</span>, and so a larger <span class="math inline">\(f_z\)</span>.</p>
+<p>Note that the measured column sits above <span class="math inline">\(2.5\)</span> almost everywhere, which is the missing <span class="math inline">\(1.0645^2\)</span> showing up; <span class="math inline">\(2.5\cdot\mathrm{resels}\)</span> is systematically a little under what even this field wants.</p>
+<section id="why-the-floor-creeps" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-floor-creeps">Why the Floor Creeps</h3>
+<p>The drift in that column is the floor itself moving. The <span class="math inline">\(n\)</span> in the floor formula of the previous appendix is not the number of products but the number of <em>independent</em> ones, and in-plane smoothing correlates neighboring products with each other — for two in-plane positions a displacement <span class="math inline">\(\Delta\)</span> apart, the products covary as <span class="math inline">\(\rho_\text{inplane}(\Delta)^2\)</span> — so the count of independent terms falls by roughly the in-plane redundancy <span class="math inline">\(1.133f^2\)</span>, the same quantity as above doing different work. Fewer independent terms means a larger typical <span class="math inline">\(|\hat\rho|\)</span>, and so a larger <span class="math inline">\(f_z\)</span>.</p>
 <p>The effect is muted because <span class="math inline">\(f = \sqrt{2 \ln 2 / (-\ln \rho)}\)</span> is so compressive: an eighteenfold drop in independent terms moves <span class="math inline">\(f_z\)</span> only from about 0.40 to 0.44. But <span class="math inline">\(1.133/f_z\)</span> inherits it, predicting 2.96 at 1.5 voxels and 2.56 at four, against 3.10 and 2.45 measured. So most of the drift is the untouched axis being measured badly, in a way that gets worse the more the other two axes are smoothed. –&gt;</p>
 
 
+</section>
 </section>
 
 
@@ -1221,9 +1237,8 @@ Table&nbsp;4: A field with real in-plane smoothness and no correlation between p
 <li id="fn8"><p>In the adjustment, there’s <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L440">an interesting dropping of eigenvalues</a> that I also haven’t found any explanation for: <code>Columns(3, Ncols())</code> on an ascending spectrum, so the two smallest go, and everything downstream runs at <span class="math inline">\(p - 2\)</span>.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn9"><p>I find the direction of the tilt counterintuitive. Over-discounting (<span class="math inline">\(n_\text{eff}\)</span> too small) builds a reference that is wider (that is, more sloped) than the data, so the quotient is smallest at rank 1 and largest at the bottom of the spectrum. The next line, <a href="https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L463"><code>SortDescending</code></a>, then turns it over. This is presumably because the function <code>ppca_est</code> needs a descending spectrum: its <span class="math inline">\(\lvert A_z \rvert\)</span> term is a product over <span class="math inline">\(i &lt; j\)</span> of factors in <span class="math inline">\((\lambda_i - \lambda_j)\)</span>, and any factor that comes out non-positive is set to one, so it drops out of the product rather than changing its value.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn10"><p>The model order and component estimation steps are not iterative but sequential, so a bad estimate of the number of components can affect the component estimation.<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn11"><p>Worked through in <a href="#sec-appendix">the appendix</a>. The short version is that the redundancy volume is <span class="math inline">\(\int\rho^2\)</span> over displacements, which for a Gaussian works out to <span class="math inline">\((\pi/4\ln 2)^{d/2}\)</span> times the product of the per-axis FWHM, or <span class="math inline">\(1.206\cdot\mathrm{resels}\)</span> in three dimensions and <span class="math inline">\(1.133 f^2\)</span> in two.<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn12"><p>This is all just copied from other sources. It is equation 5 of <a href="https://atmos.uw.edu/wallace/PDFs/1999%20-%20The%20effective%20number%20of%20spatial%20degrees%20of%20freedom%20of%20a%20time-varying%20field.pdf">Bretherton et al.&nbsp;(1999)</a>.<a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn13"><p>This turns out to be a real condition and not a formality. A kernel narrower than the grid it is sampled on has most of its mass in one voxel, the sum and the integral part company. It is one of the reasons not to trust any of this below about a voxel and a half of smoothing.<a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11"><p>This is all just copied from other sources. It is equation 5 of <a href="https://atmos.uw.edu/wallace/PDFs/1999%20-%20The%20effective%20number%20of%20spatial%20degrees%20of%20freedom%20of%20a%20time-varying%20field.pdf">Bretherton et al.&nbsp;(1999)</a>.<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12"><p>This turns out to be a real condition and not a formality. A kernel narrower than the grid it is sampled on has most of its mass in one voxel, the sum and the integral part company. It is one of the reasons not to trust any of this below about a voxel and a half of smoothing.<a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
