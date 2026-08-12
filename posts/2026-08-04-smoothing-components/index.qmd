@@ -333,7 +333,7 @@ MELODIC picks the model order by maximizing a Laplace approximation to the model
 
 [^g]: The report's equation 9 also carries a condition the code does not check: it holds only for $\gamma \le 1$, "when the number of samples is equal or larger than the dimensionality of the problem at hand." This turns out to matter a bit, which I return to later.
 
-The chain is four functions. [`adj_eigspec`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L436) builds the reference and divides the observed spectrum by it. [`Feta`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L496) supplies that reference (not the Marchenko--Pastur density but its inverse, integrated and read off as one expected eigenvalue per rank, the $G^{-1}$ of the report). [`ppca_est`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L680) scores each candidate rank, and [`ppca_select`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L587) walks up the resulting curve until it stops rising, which is point taken to be the dimensionality.
+The chain is four functions. [`adj_eigspec`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L436) builds the reference and divides the observed spectrum by it. [`Feta`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L496) supplies that reference (not the Marchenko--Pastur density but its inverse, integrated and read off as one expected eigenvalue per rank, the $G^{-1}$ of the report). [`ppca_est`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L680) scores each candidate rank, and [`ppca_select`](https://git.fmrib.ox.ac.uk/fsl/melodic/-/blob/196cedc7d4868316ac7eeccffdcbe46bc81c0f89/melhlprfns.cc#L587) walks up the resulting curve until it stops rising, which is the point taken to be the dimensionality.
 
 Importantly, `adj_eigspec` does not use the voxel count for $n$, but instead $n_\text{eff}$:
 
@@ -398,7 +398,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-## Which criteria care, and in which direction
+## The Discount Can be Matched to the Data
 
 The tilt story makes a prediction: the failure should depend on $r$ (the mismatch between the two sample sizes) and not on smoothing as such. So take noise with genuinely independent voxels, where the correct discount is exactly $r = 1$, and vary $r$ by hand. Then, compare the Laplace criterion to another that is built into MELODIC (BIC).
 
@@ -467,19 +467,17 @@ MELODIC is usually step one of FIX, and I have not tested what any of this does 
 
 ## Appendix: Attempts at Getting 2.5 From Resels {#sec-resels}
 
-So the 2.5 constant matters. I haven't found any
+So the 2.5 constant matters. I haven't found any plausible explanation yet. These appendices walk through a few ideas, but they either land on a different constant or are unverifiably convoluted. 
 
 Smoothing spreads each voxel over its neighbors, so a block of voxels inside one blob is no longer a block of independent observations. The natural question is how big that block is. Answer that, and the effective sample size is just the number of voxels divided by it.
 
-There is already a unit for the size of a blob, and MELODIC is already computing it. The box whose sides are the FWHM along each axis is a resel. So one guess is that one resel buys one independent sample, and the discount should be about $1\cdot\mathrm{resels}$. That guess is close but slightly too small, because the FWHM is the width at half height and the correlation does not stop there. Voxels a little beyond the half-maximum point are still partly redundant with the center, meaning that the volume over which they are effectively the same observation is a bit larger than the resel box. Exactly how much larger is derivable,[^derivation] and for a Gaussian smoothed in three dimensions it is about 20%:
+There is already a unit for the size of a blob, and MELODIC is already computing it. The box whose sides are the FWHM along each axis is a resel. So one guess is that one resel buys one independent sample, and the discount should be about $1\cdot\mathrm{resels}$. That guess is close but slightly too small, because the FWHM is the width at half height and the correlation does not stop there. Voxels a little beyond the half-maximum point are still partly redundant with the center, meaning that the volume over which they are effectively the same observation is a bit larger than the resel box. Exactly how much larger [is derivable](#sec-appendix), and for a Gaussian smoothed in three dimensions it is about 20%:
 
 $$
   r \;\approx\; 1.206 \cdot \mathrm{resels} .
 $$
 
 Nothing in that is tunable. It is a fact about the shape of a Gaussian in three dimensions, and it is what any correction of this kind ought to converge to.
-
-[^derivation]: Worked through in [the appendix](#sec-appendix). The short version is that the redundancy volume is $\int\rho^2$ over displacements, which for a Gaussian works out to $(\pi/4\ln 2)^{d/2}$ times the product of the per-axis FWHM, or $1.206\cdot\mathrm{resels}$ in three dimensions and $1.133 f^2$ in two.
 
 This can be checked against the data. If the argument is right, then fitting a Marchenko--Pastur bulk to an observed eigenspectrum should recover $1.206\cdot\mathrm{resels}$.
 
@@ -550,7 +548,7 @@ Real data is not close to that threshold. [Kriegeskorte, Bodurka and Bandettini 
 
 ## Appendix: where the 1.206 comes from {#sec-appendix}
 
-The claim in the main text was that a blob is worth one independent sample, and that its volume is about 20% more than a resel. This is that, in full.
+The claim in the main text was that a blob is worth one independent sample, and that its volume is about 20% more than a resel. The short version is that the redundancy volume is $\int\rho^2$ over displacements, which for a Gaussian works out to $(\pi/4\ln 2)^{d/2}$ times the product of the per-axis FWHM, or $1.206\cdot\mathrm{resels}$ in three dimensions and $1.133 f^2$ in two.
 
 There are two ingredients. The first is how many independent columns a correlated set of columns is worth. For $N$ columns with spatial correlation matrix $C$, that count is[^esdof]
 
@@ -620,7 +618,9 @@ which is the 20% the main text quoted. In two dimensions the same expression giv
 
 `est_resels` reports a width for every axis, including axes that have nothing on them. This is where that floor comes from, why it sits near `{python} f"{resel_floor(NVOX * P):.2f}"`, and why it is not quite a constant. What the floor then does to the discount is the [next appendix](#sec-appendix2).
 
-**Why there is a floor at all.** Along an axis with no correlation, the true $\rho$ is zero, so $\hat\rho$ is pure sampling noise. It is an average of $n$ products of standardized values, one per adjacent pair per timepoint, so its standard deviation is $1/\sqrt{n}$. `est_resels` then takes the absolute value, and the mean of a folded normal is $\mathbb{E}\lvert\hat\rho\rvert = \sqrt{2/\pi n}$. Pushing that through the width conversion $f = \sqrt{2\ln 2/(-\ln\rho)}$ gives
+### Why there is a floor at all
+
+Along an axis with no correlation, the true $\rho$ is zero, so $\hat\rho$ is pure sampling noise. It is an average of $n$ products of standardized values, one per adjacent pair per timepoint, so its standard deviation is $1/\sqrt{n}$. `est_resels` then takes the absolute value, and the mean of a folded normal is $\mathbb{E}\lvert\hat\rho\rvert = \sqrt{2/\pi n}$. Pushing that through the width conversion $f = \sqrt{2\ln 2/(-\ln\rho)}$ gives
 
 $$
   f_\text{floor} \;=\; \sqrt{\frac{4\ln 2}{\ln(\pi n / 2)}} ,
@@ -639,7 +639,9 @@ That also means $0.4$ is a stable target but not an exact one. Across dataset si
 
   : $2.5$ is comfortably inside that range, which is the sense in which "round the floor to $0.4$ and invert" is a defensible thing to have done. It is not a constant of nature, though, and a much longer or much larger acquisition wants a different one.
 
-**Why the bias is confined to nearly-empty axes.** The width conversion is violently compressive near zero, which cuts both ways. It is what keeps a wildly wrong $\hat\rho$ from producing a wildly wrong width --- returning $f = 0.1$ would take $\rho \approx 10^{-61}$ --- and it is what stops the width from ever reaching zero. Above about a voxel and a quarter the compression no longer matters and `est_resels` is essentially unbiased; below it, the reported width is mostly an artifact of the floor. `resels` is a fair summary of redundancy for any axis with real correlation on it, and not a summary of anything for an axis without.
+### Why the Bias is Confined to Nearly-Empty Axes
+
+The width conversion is violently compressive near zero, which cuts both ways. It is what keeps a wildly wrong $\hat\rho$ from producing a wildly wrong width --- returning $f = 0.1$ would take $\rho \approx 10^{-61}$ --- and it is what stops the width from ever reaching zero. Above about a voxel and a quarter the compression no longer matters and `est_resels` is essentially unbiased; below it, the reported width is mostly an artifact of the floor. `resels` is a fair summary of redundancy for any axis with real correlation on it, and not a summary of anything for an axis without.
 
 ## Appendix: A Refinement of 2.5 When an Axis Has 0 Correlation {#sec-appendix2}
 
@@ -652,7 +654,7 @@ $$
                    \underbrace{1.0645^2}_{\text{FWHM}\,\to\,\text{redundancy length}} .
 $$
 
-MELODIC's value is the first. Whoever wrote it fixed the floor and left the second factor on the table, which costs about 12% --- far too little for the criterion to notice. Written in terms of what the estimator reports rather than the nominal $0.4$, the fully corrected constant is $1.133/f_z$, which at the floor measured here is about `{python} f"{1.133 / np.median([med(IP[fw]['fz']) for fw in FWHM[2:]]):.1f}"`. The $f^2$ cancels out of it, so nothing about the kernel survives: what ought to be a property of the field is just the reciprocal of a number the estimator made up.
+MELODIC's value is the first. Perhaps it was written for the fixed floor, leaving the second factor on the table (costs very little)? Written in terms of what the estimator reports rather than the nominal $0.4$, the fully corrected constant is $1.133/f_z$, which at the floor measured here is about `{python} f"{1.133 / np.median([med(IP[fw]['fz']) for fw in FWHM[2:]]):.1f}"`. The $f^2$ cancels out of it, so nothing about the kernel survives: what ought to be a property of the field is just the reciprocal of a number the estimator made up.
 
 The simulation below builds that field: smoothing $x$ and $y$ and leaving $z$ untouched. 
 
@@ -677,9 +679,11 @@ pd.DataFrame(
 
 The `FWHM z` column is the estimator talking to itself; nothing was smoothed along $z$, so the honest answer is zero, and what comes back is the floor. The constant such a field needs is correspondingly large, running from `{python} f"{med(IP[1.5]['r_fit']) / med(IP[1.5]['resels']):.2f}"` to `{python} f"{med(IP[4.0]['r_fit']) / med(IP[4.0]['resels']):.2f}"`, against `{python} f"{med(ISO[3.0]['r_fit']) / med(ISO[3.0]['resels']):.2f}"` when all three axes are genuinely smooth. And it is not really constant --- it drifts, because the invented $z$ width itself creeps upward, from `{python} f"{med(IP[1.5]['fz']):.2f}"` to `{python} f"{med(IP[4.0]['fz']):.2f}"`. Neither number is a fact about the field; both are facts about the estimator.
 
-Note that the measured column sits above $2.5$ almost everywhere, which is the missing $1.0645^2$ showing up as expected. $2.5\cdot\mathrm{resels}$ is systematically a little under what even this field wants.
+Note that the measured column sits above $2.5$ almost everywhere, which is the missing $1.0645^2$ showing up; $2.5\cdot\mathrm{resels}$ is systematically a little under what even this field wants.
 
-**Why the floor creeps.** The drift in that column is the floor itself moving. The $n$ in the floor formula of the previous appendix is not the number of products but the number of *independent* ones, and in-plane smoothing correlates neighboring products with each other --- for two in-plane positions a displacement $\Delta$ apart, the products covary as $\rho_\text{inplane}(\Delta)^2$ --- so the count of independent terms falls by roughly the in-plane redundancy $1.133f^2$, the same quantity as above doing different work. Fewer independent terms means a larger typical $|\hat\rho|$, and so a larger $f_z$.
+### Why the Floor Creeps
+
+The drift in that column is the floor itself moving. The $n$ in the floor formula of the previous appendix is not the number of products but the number of *independent* ones, and in-plane smoothing correlates neighboring products with each other --- for two in-plane positions a displacement $\Delta$ apart, the products covary as $\rho_\text{inplane}(\Delta)^2$ --- so the count of independent terms falls by roughly the in-plane redundancy $1.133f^2$, the same quantity as above doing different work. Fewer independent terms means a larger typical $|\hat\rho|$, and so a larger $f_z$.
 
 The effect is muted because $f = \sqrt{2 \ln 2 / (-\ln \rho)}$ is so compressive: an eighteenfold drop in independent terms moves $f_z$ only from about 0.40 to 0.44. But $1.133/f_z$ inherits it, predicting `{python} f"{1.133 / med(IP[1.5]['fz']):.2f}"` at 1.5 voxels and `{python} f"{1.133 / med(IP[4.0]['fz']):.2f}"` at four, against `{python} f"{med(IP[1.5]['r_fit']) / med(IP[1.5]['resels']):.2f}"` and `{python} f"{med(IP[4.0]['r_fit']) / med(IP[4.0]['resels']):.2f}"` measured. So most of the drift is the untouched axis being measured badly, in a way that gets worse the more the other two axes are smoothed. -->
 
