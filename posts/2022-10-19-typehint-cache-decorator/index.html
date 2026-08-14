@@ -382,7 +382,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <p>Recently, I encountered a python function that I didn’t want to modify, but whose output I wanted cached. Providing typehints for this seemed a bit complicated, so I’m posting this gist as a reminder. The main trick involves extensions from <a href="https://peps.python.org/pep-0612/">PEP 612</a>.</p>
 <p>In words, the decorator will take some function <code>f</code> that takes parameters <code>P</code> and produces a <code>str</code>. I want to be able to call <code>f</code> and additionally provide a filename that will point to a file in which the string will be written. The cache will be super basic, checking just for the existence of the file and skipping <code>f</code> if that file exists.</p>
 <p>In code, that looks like the following</p>
-<div id="69b02e06" class="cell" data-execution_count="1">
+<div id="b2c1c47f" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> typing</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -406,7 +406,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> wrapper</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>And then the decorator could be used like</p>
-<div id="1bb911cc" class="cell" data-execution_count="2">
+<div id="5801c579" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@cache_str</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_str(msg: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(</span>
@@ -414,7 +414,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> msg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="1f7538bf" class="cell" data-execution_count="3">
+<div id="6ea0fe19" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tempfile</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>msg <span class="op">=</span> <span class="st">"cached message"</span></span>
@@ -429,7 +429,7 @@ gtag('config', 'G-SP0TP763NP', { 'anonymize_ip': true});
 <pre><code>This function takes so long to run--I hope that I don't need to run it twice
 trying to read message from cache...
 tmp_path.read_text()='cached message'
-Found cached result /var/folders/0v/78f7rnyx3f530wylhj396ypr0000gn/T/tmpvjlcikqs/cache.txt. Skipping!</code></pre>
+Found cached result /var/folders/0v/78f7rnyx3f530wylhj396ypr0000gn/T/tmpl48gea9g/cache.txt. Skipping!</code></pre>
 </div>
 </div>
 <p>This is neat, but although my editor recognizes that the decorated function can accept a path as the first argument, that first argument could not be named. This appears to have been an explicit choice in PEP 612, made to avoid potential clashes with keyword arguments from the decorated function.</p>
