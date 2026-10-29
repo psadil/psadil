@@ -128,7 +128,7 @@ $$
 \mathbb{E}[h(x)] & =  \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right)\left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right) dx  \\
 & = \int_{-\infty}^{\infty} \frac{\exp (- x^2 + 4x - 8 )}{2\pi} dx \\
 & = \frac{1}{2\pi} \int_{-\infty}^{\infty} \exp (- x^2 + 4x - 8 ) dx\\
-& = \frac{1}{2\pi} \sqrt{\pi}\exp \left(\frac{4^2}{4}-8 \right)  & \textrm{en.wikipedia.org/wiki/Gaussian_function} \\
+& = \frac{1}{2\pi} \sqrt{\pi}\exp \left(\frac{4^2}{4}-8 \right)  & \textrm{en.wikipedia.org/wiki/Gaussian\_function} \\
 & = \frac{1}{2 \exp(4) \sqrt{\pi}}
 \end{aligned}
 $$

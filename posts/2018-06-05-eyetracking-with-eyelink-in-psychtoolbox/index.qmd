@@ -23,7 +23,7 @@ eng_dummy <- function(options) {
 knitr::knit_engines$set(matlab = eng_dummy)
 ```
 
-UPDATE: I now think that the examples I've presented here obscure the interface with Eyelink. Much cleaner to use MATLAB's object oriented programming. This is covered in [another post](https://psadil.github.io/psadil/post/eyetracking-in-psychtoolbox-oop/).
+UPDATE: I now think that the examples I've presented here obscure the interface with Eyelink. Much cleaner to use MATLAB's object oriented programming. This is covered in [another post](../2019-05-25-eyetracking-with-eyelink-in-psychtoolbox-now-with-oop/index.qmd).
 
 This post is designed as minimal documentation for using the Eyelink software at the UMass Amherst [hMRC](https://www.umass.edu/ials/hmrc). The goals are very modest
 
@@ -36,7 +36,7 @@ NOTE: This post is not designed to be a full introduction to the Eyelink toolbox
 
 # Background links + installing extra software
 
-You'll need to download the Eyelink API provided by SR Research. To do that, register an account [here](https://www.sr-support.com). Note that they moderate the accounts fairly heavily, so it may take 24 hrs+ for the registration to go though. Once you're registered, you can download the developers kit API ( [Windows](https://www.sr-support.com/forum/downloads/eyelink-display-software/39-eyelink-developers-kit-for-windows-windows-display-software), [Linux](https://www.sr-support.com/forum/downloads/eyelink-display-software/46-eyelink-developers-kit-for-linux-linux-display-software) ). You'll need that kit to be able to call Eyelink functions from within matlab (otherwise you get an error about missing mex files whenever you search for help pages). Registering also gives access to a support forum.
+You'll need to download the Eyelink API provided by SR Research. To do that, register an account [here](https://www.sr-support.com). Note that they moderate the accounts fairly heavily, so it may take 24 hrs+ for the registration to go though. Once you're registered, you can download the developers kit API ([Windows](https://www.sr-support.com/forum/downloads/eyelink-display-software/39-eyelink-developers-kit-for-windows-windows-display-software), [Linux](https://www.sr-support.com/forum/downloads/eyelink-display-software/46-eyelink-developers-kit-for-linux-linux-display-software). You'll need that kit to be able to call Eyelink functions from within matlab (otherwise you get an error about missing mex files whenever you search for help pages). Registering also gives access to a support forum.
 
 Before moving to the next session, it may make sense to look through their [manuals](https://www.sr-support.com/forum/downloads/manuals). If you have access to our box folder, here's a link to the relevant [Eyelink II manual](https://umass.box.com/s/1nr9m302wqn5l2jd9kaf9guv8ngqa9wp) and the [Data Viewer](https://umass.box.com/s/n8ki3br7watw2niuangxxflj6ulpnk67q). The manuals are, well, manuals, but reading through them takes less time than their length might suggest. If you are not a member of our lab, you may be able to ask a member of the hMRC to share the manuals.
 
@@ -350,7 +350,7 @@ end
 
 ```
 
-# Extra Resourcess
+# Extra Resources
 
 For examples of these methods in action, check out [an experiment on Voxel Tuning Functions](https://github.com/psadil/VTF). In particular, see [setupEyeTracker](https://github.com/psadil/VTF/blob/master/lib/PsychSetup/setupEyeTracker.m), [makeEyelinkFcn](https://github.com/psadil/VTF/blob/master/lib/PsychEyelink/makeEyelinkFcn.m). That repository also has examples of using the value returned by `makeEyelinkFcn` in [runContrast](https://github.com/psadil/VTF/blob/master/lib/PsychTasks/runContrast.m). Note that the repository may change from time to time and might not match the code in this post exactly. To download the exact files defined above, see [setupEyeTracker](https://psadil.github.io/psadil/files/matlab/setupEyeTracker.m), [makeEyelinkFcn](https://psadil.github.io/psadil/files/matlab/makeEyelinkFcn.m)
 
