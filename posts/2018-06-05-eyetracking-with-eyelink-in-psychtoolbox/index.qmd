@@ -36,17 +36,17 @@ NOTE: This post is not designed to be a full introduction to the Eyelink toolbox
 
 # Background links + installing extra software
 
-You'll need to download the Eyelink API provided by SR Research. To do that, register an account [here](https://www.sr-support.com). Note that they moderate the accounts fairly heavily, so it may take 24 hrs+ for the registration to go though. Once you're registered, you can download the developers kit API ([Windows](https://www.sr-support.com/forum/downloads/eyelink-display-software/39-eyelink-developers-kit-for-windows-windows-display-software), [Linux](https://www.sr-support.com/forum/downloads/eyelink-display-software/46-eyelink-developers-kit-for-linux-linux-display-software). You'll need that kit to be able to call Eyelink functions from within matlab (otherwise you get an error about missing mex files whenever you search for help pages). Registering also gives access to a support forum.
+You'll need to download the Eyelink API provided by SR Research. To do that, register an account [here](https://www.sr-research.com/support/). Note that they moderate the accounts fairly heavily, so it may take 24 hrs+ for the registration to go through. Once you're registered, you can download the [developers kit API](https://www.sr-research.com/support/forum-9.html) (Windows, macOS, and Linux). You'll need that kit to be able to call Eyelink functions from within matlab (otherwise you get an error about missing mex files whenever you search for help pages). Registering also gives access to a support forum.
 
-Before moving to the next session, it may make sense to look through their [manuals](https://www.sr-support.com/forum/downloads/manuals). If you have access to our box folder, here's a link to the relevant [Eyelink II manual](https://umass.box.com/s/1nr9m302wqn5l2jd9kaf9guv8ngqa9wp) and the [Data Viewer](https://umass.box.com/s/n8ki3br7watw2niuangxxflj6ulpnk67q). The manuals are, well, manuals, but reading through them takes less time than their length might suggest. If you are not a member of our lab, you may be able to ask a member of the hMRC to share the manuals.
+Before moving to the next session, it may make sense to look through their [manuals](https://www.sr-research.com/support/forum-31.html). Here's a link to the relevant [Eyelink II manual](https://www.sr-research.com/support/forum-34.html) and the [Data Viewer](https://www.sr-research.com/support/forum-32.html). The manuals are, well, manuals, but reading through them takes less time than their length might suggest.
 
-Without a licensing key, the version of the data viewer that can be downloaded is more or less useless (but, [here it is](https://www.sr-support.com/forum/downloads/data-analysis/4557-eyelink-data-viewer?4434-EyeLink-Data-Viewer=)). Instead, for working with the data in R, see [edfR](https://github.com/jashubbard/edfR) and [itrackR](https://github.com/jashubbard/itrackR). Note that these are only working on Mac and Linux. So, you may need to be working on the server to install / use those libraries. Alternatively, you can also read the edf files directly into matlab using [EDFMEX](https://www.sr-support.com/forum/downloads/data-analysis/5446-edfmex-reading-edf-data-directly-into-matlab). However, I won't be able to help much with using these packages, given that I only discovered them while writing this post. 
+Without a licensing key, the version of the data viewer that can be downloaded is more or less useless (but, [here it is](https://www.sr-research.com/support/forum-7.html)). Instead, for working with the data in R, see [edfR](https://github.com/jashubbard/edfR) and [itrackR](https://github.com/jashubbard/itrackR). Note that these are only working on Mac and Linux. So, you may need to be working on the server to install / use those libraries. Alternatively, you can also read the edf files directly into matlab using [EDFMEX](https://www.sr-research.com/support/thread-54.html). However, I won't be able to help much with using these packages, given that I only discovered them while writing this post. 
 
-Kwan-Jin Jung wrote a technical note about the eyetracking system, [see here](https://www.umass.edu/ials/sites/default/files/hmrc_tn_eye_monitoring_during_fmri_scan.pdf), and here's the [advertisement for our tracker](https://www.sr-research.com/products/eyelink-1000-plus/#LongRangeMount).
+Kwan-Jin Jung wrote a technical note about the eyetracking system, and here's the [advertisement for our tracker](https://www.sr-research.com/solutions/fmri-meg-solutions/).
 
 # Initializing Eyelink {#sec:init}
 
-This section walks through a function that initializes the eyelink system. The first step to interfacing with the Eyelink is to call the PTB command [`EyelinkInitDefaults`](https://web.archive.org/web/20171214112707/http://docs.psychtoolbox.org/EyelinkInitDefaults). This defines a struct with a number of default parameters, `el` about how the eyetracker will operate. I generally don't want all of those defaults, so the function below modifies them as needed. After the parameters in `el` have been  modified, this function calls [`EyelinkUpdateDefaults(el)`](https://web.archive.org/web/20171214035622/http://docs.psychtoolbox.org/EyelinkUpdateDefaults) to indicate to inform the eyelink system that the parameters should change.
+This section walks through a function that initializes the eyelink system. The first step to interfacing with the Eyelink is to call the PTB command [`EyelinkInitDefaults`](https://web.archive.org/web/20171214112707/http://docs.psychtoolbox.org/EyelinkInitDefaults). This defines a struct with a number of default parameters, `el` about how the eyetracker will operate. I generally don't want all of those defaults, so the function below modifies them as needed. After the parameters in `el` have been  modified, this function calls [`EyelinkUpdateDefaults(el)`](https://web.archive.org/web/20171214035622/http://docs.psychtoolbox.org/EyelinkUpdateDefaults) to inform the eyelink system that the parameters should change.
 
 The main other point of this function is to start the eyetracker calibration. That should be done at the start of each run.
 
@@ -201,7 +201,7 @@ Eyelink('StartRecording');
 WaitSecs(0.1);
 ```
 
-Eyelink will save it's files in a specialized format^[The options relating to saving data are for another post. It seems like you can do quite a lot with the Eyelink Data Viewer when various event tags have been set up properly (see [manual, on box](https://umass.box.com/s/n8ki3br7watw2niuangxxflj6ulpk67q) ), but my needs are so simple that I haven't bothered digging too deeply.]. For that file, it's useful to mark when the experiment has actually started. So, include a command like
+Eyelink will save its files in a specialized format^[The options relating to saving data are for another post. It seems like you can do quite a lot with the Eyelink Data Viewer when various event tags have been set up properly (see the [Data Viewer manual](https://www.sr-research.com/support/forum-32.html)), but my needs are so simple that I haven't bothered digging too deeply.]. For that file, it's useful to mark when the experiment has actually started. So, include a command like
 
 ```{matlab}
 Eyelink('message', 'SYNCTIME');
@@ -232,9 +232,9 @@ end
 
 # Sample script
 
-Unfortunately, attempting to call these function from a computer that does not have Eyelink's software installed will produce an error. This makes developing and testing an experimental script challenging, because if we litter our code with calls to [`Eyelink(...)`](https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink), then when we're not at the scanner computer we need to comment out all of those lines. I have no faith that I'll remember to uncomment all of these lines when I'm at the scanner each time, so when I'm writing code that calls these functions I place them in a wrapper. Credit goes to [Will Hopper](https://people.umass.edu/whopper/) for showing me this strategy when designing functions that receive input.
+Unfortunately, attempting to call these functions from a computer that does not have Eyelink's software installed will produce an error. This makes developing and testing an experimental script challenging, because if we litter our code with calls to [`Eyelink(...)`](https://web.archive.org/web/20171214045939/http://docs.psychtoolbox.org/Eyelink), then when we're not at the scanner computer we need to comment out all of those lines. I have no faith that I'll remember to uncomment all of these lines when I'm at the scanner each time, so when I'm writing code that calls these functions I place them in a wrapper. Credit goes to [Will Hopper](https://www.smith.edu/people/will-hopper) for showing me this strategy when designing functions that receive input.
 
-The main idea is two wrap all calls to `Eyelink(...)` with a function that starts like this
+The main idea is to wrap all calls to `Eyelink(...)` with a function that starts like this
 
 ```{matlab}
 
@@ -259,7 +259,7 @@ end
 
 The outer function, `makeEyelinkFcn` receives as input the variable `handlerName`, which can be either `none` or `T60`. Depending on that variable, the output to eyelinkFcn is then a call to an anonymous function which implements the actual calls to Eyelink. When `handlerName == 'T60'`, `makeEyelinkFcn` returns a function that is going to try to call various `Eyelink(...)` routines (shown below). But, when `handlerName == 'none'` `makeEyelinkFcn` will return a function that does nothing.
 
-This enables the writing of code that will call the eyelink functions when desired (e.g., when at the scanner), but calls to those functions can also be avoided when desired (by calling `makeEyeLinkFcn('none')` instead of `makeEyeLinkFcn('T60')`).
+This enables the writing of code that will call the eyelink functions when desired (e.g., when at the scanner), but calls to those functions can also be avoided when desired (by calling `makeEyelinkFcn('none')` instead of `makeEyelinkFcn('T60')`).
 
 ```{matlab}
 
@@ -358,7 +358,7 @@ For examples of these methods in action, check out [an experiment on Voxel Tunin
 
 Also, for inspiration about the cool experiments that can be run with Eyelink's software, see the [PTB Demos](https://github.com/kleinerm/Psychtoolbox-3/tree/master/Psychtoolbox/PsychHardware/EyelinkToolbox/EyelinkDemos). See a list of `Eyelink` functions [here](http://psychtoolbox.org/docs/EyelinkToolbox). You'll need to look at this page if you want access to the help files for these commands on a computer without Eyelink installed.
 
-Finally, thanks to [Ramiro](https://www.umass.edu/pbs/people/ramiro-reyes) for sharing a PTB script that got me started with Eyelink.
+Finally, thanks to [Ramiro](https://www.umass.edu/psychological-brain-sciences/about/directory/ramiro-reyes) for sharing a PTB script that got me started with Eyelink.
 
 ```{js}
 //| echo: false

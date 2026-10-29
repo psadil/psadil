@@ -21,11 +21,11 @@ knitr::opts_chunk$set(tidy = TRUE)
 
 This post attempts to provide a brief intro to importance sampling, presenting a relatively simple situation in which importance sampling enables a speedup in Monte Carlo by reducing the variance of the estimate.
 
-A lot of the material will be an effort to remember material that was taught to be in a Stochastic Processes and Applications class. This post should be though of as my notes on the [course notes](http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html), with supplementation by https://www.statlect.com/asymptotic-theory/importance-sampling. That is, it can safely be assumed that any content comes from those notes, excluding errors (which will be due to my translation)^[this page is mostly a study page for upcoming comprehensive exams]. 
+A lot of the material will be an effort to remember material that was taught to me in a Stochastic Processes and Applications class. This post should be thought of as my notes on the [course notes](https://web.archive.org/web/20181125151317/http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html), with supplementation by https://www.statlect.com/asymptotic-theory/importance-sampling. That is, it can safely be assumed that any content comes from those notes, excluding errors (which will be due to my translation)^[this page is mostly a study page for upcoming comprehensive exams]. 
 
 # What is importance sampling?
 
-Importance sampling comes up in the context of Monte Carlo, (MC) applications as a technique for reducing the variability in the MC estimator. As a reminder, MC can be used to estimate the expected value, $\mu$, of a random variable, $X$.
+Importance sampling comes up in the context of Monte Carlo (MC) applications as a technique for reducing the variability in the MC estimator. As a reminder, MC can be used to estimate the expected value, $\mu$, of a random variable, $X$.
 
 $$
 \mu = \mathbb{E}[h(x)] = \int h(x)p_X(x)\,dx
@@ -37,9 +37,9 @@ $$
 \hat{\mu} =\frac{1}{S}\sum_{s=1}^S h(x_s)
 $$
 
-where the subscript on $x$ implies the $s^th$ draw of $X$, and the hat over $\mu$ indicates that the result is an estimate. Note that, since we're starting from that equation, it is assumed that there is some way to produce random samples from the distribution $p_X$, and that the function, $h$ is calculable for any $X$. Also, $h$ might be something as simple as $h(x) = x$ if the expectation should correspond to the mean of $x$].
+where the subscript on $x$ implies the $s^{\text{th}}$ draw of $X$, and the hat over $\mu$ indicates that the result is an estimate. Note that, since we're starting from that equation, it is assumed that there is some way to produce random samples from the distribution $p_X$, and that the function, $h$ is calculable for any $X$. Also, $h$ might be something as simple as $h(x) = x$ if the expectation should correspond to the mean of $x$.
 
-This is a powerful idea, though a general downside is that some $\mu$ require many samples to obtain a reasonable estimate. The MC Standard Error (MCSE) provides an estimate of the approximation error, which is $\frac{1}{n} Var(h(X))$. This provides a metric by which to gauge different algorithms. In particular, if all else is equal, the estimator with lower variance will can obtain a given level of precision with a lower $S$. 
+This is a powerful idea, though a general downside is that some $\mu$ require many samples to obtain a reasonable estimate. The MC Standard Error (MCSE) provides an estimate of the approximation error, which is $\frac{1}{n} Var(h(X))$. This provides a metric by which to gauge different algorithms. In particular, if all else is equal, the estimator with lower variance can obtain a given level of precision with a lower $S$. 
 
 The basic idea with Importance Sampling (IS) is to draw samples from some alternative distribution, $p_Y$, which has the same support as $p_X$, then reweight those samples in accordance with the difference between $p_X$ and $p_Y$. 
 
@@ -66,7 +66,7 @@ h(y)\frac{p_X(y)}{p_Y(y)} & = c \\
 \end{aligned}
 $$
 
-That is, $h(y)\frac{p_X(y)}{p_Y(y)}$ will be constant whenever $p_Y(y)$ is proportional to $h(y)p_X(x)$. 
+That is, $h(y)\frac{p_X(y)}{p_Y(y)}$ will be constant whenever $p_Y(y)$ is proportional to $h(y)p_X(y)$. 
 
 $$
 \begin{aligned}
@@ -179,7 +179,7 @@ mean(y) - mu
 
 ### Using a distribution that simply matches h(x) is also not-so-great
 
-Now, let's instead construct and IS estimator. One intuitive (but by no means optimal) attempt would be to use $Y \sim N(4,1)$, a distribution that matches with $h(x)$ perfectly. Indeed, that will provide an accurate answer 
+Now, let's instead construct an IS estimator. One intuitive (but by no means optimal) attempt would be to use $Y \sim N(4,1)$, a distribution that matches with $h(x)$ perfectly. Indeed, that will provide an accurate answer 
 
 ```{r}
 y <- rnorm(1e6, mean = 4)
@@ -198,7 +198,7 @@ var(IS)
 
 ### The proposal distribution needs to be tuned to both p_X and h(x)
 
-This is a somewhat subtle point of the derivation provided above. We _don't_ just want a distribution that will be highest here $h(x)$ is high. Instead, what we actually need is a distribution that will be highest when $h(x)p_X(x)$ is high. That will be exactly where the two distributions intersect, at 2. 
+This is a somewhat subtle point of the derivation provided above. We _don't_ just want a distribution that will be highest where $h(x)$ is high. Instead, what we actually need is a distribution that will be highest when $h(x)p_X(x)$ is high. That will be exactly where the two distributions intersect, at 2. 
 
 ```{r}
 #| label: matching
@@ -220,7 +220,7 @@ var(IS)
 
 The answer is still accurate, but the variance has been reduced by many factors. This means that a desired level of MCSE could be achieved with many fewer samples. 
 
-One final demonstration, remember that $h(x)p_X(x)$ describes a distribution. Hence it would be a mistake to try a $p_Y$ that placed all of the density around that point of intersection. For example, let's try $Y \sim N(2,0.1)$. Although that is centered on the region that contributes the largest values to the expectation, the largest values alone do not define the expectation; too much of the tails of $h(x)$ are not included. Using this results is the worst variance.
+One final demonstration, remember that $h(x)p_X(x)$ describes a distribution. Hence it would be a mistake to try a $p_Y$ that placed all of the density around that point of intersection. For example, let's try $Y \sim N(2,0.1)$. Although that is centered on the region that contributes the largest values to the expectation, the largest values alone do not define the expectation; too much of the tails of $h(x)$ are not included. Using this results in the worst variance.
 
 ```{r}
 y <- rnorm(1e6, mean = 2, .1)
@@ -233,5 +233,5 @@ var(IS)
 # Other References
 
 - [integral of Gaussian Function](https://en.wikipedia.org/wiki/Gaussian_function#Integral_of_a_Gaussian_function)
-- [course notes](http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html)
+- [course notes](https://web.archive.org/web/20181125151317/http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html)
 - [statlect](https://www.statlect.com/asymptotic-theory/importance-sampling)
