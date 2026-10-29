@@ -423,10 +423,10 @@ window.Quarto = {
 
 
 <p>This post attempts to provide a brief intro to importance sampling, presenting a relatively simple situation in which importance sampling enables a speedup in Monte Carlo by reducing the variance of the estimate.</p>
-<p>A lot of the material will be an effort to remember material that was taught to be in a Stochastic Processes and Applications class. This post should be though of as my notes on the <a href="http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html">course notes</a>, with supplementation by https://www.statlect.com/asymptotic-theory/importance-sampling. That is, it can safely be assumed that any content comes from those notes, excluding errors (which will be due to my translation)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>A lot of the material will be an effort to remember material that was taught to me in a Stochastic Processes and Applications class. This post should be thought of as my notes on the <a href="https://web.archive.org/web/20181125151317/http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html">course notes</a>, with supplementation by https://www.statlect.com/asymptotic-theory/importance-sampling. That is, it can safely be assumed that any content comes from those notes, excluding errors (which will be due to my translation)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
 <section id="what-is-importance-sampling" class="level1">
 <h1>What is importance sampling?</h1>
-<p>Importance sampling comes up in the context of Monte Carlo, (MC) applications as a technique for reducing the variability in the MC estimator. As a reminder, MC can be used to estimate the expected value, <span class="math inline">\(\mu\)</span>, of a random variable, <span class="math inline">\(X\)</span>.</p>
+<p>Importance sampling comes up in the context of Monte Carlo (MC) applications as a technique for reducing the variability in the MC estimator. As a reminder, MC can be used to estimate the expected value, <span class="math inline">\(\mu\)</span>, of a random variable, <span class="math inline">\(X\)</span>.</p>
 <p><span class="math display">\[
 \mu = \mathbb{E}[h(x)] = \int h(x)p_X(x)\,dx
 \]</span></p>
@@ -434,8 +434,8 @@ window.Quarto = {
 <p><span class="math display">\[
 \hat{\mu} =\frac{1}{S}\sum_{s=1}^S h(x_s)
 \]</span></p>
-<p>where the subscript on <span class="math inline">\(x\)</span> implies the <span class="math inline">\(s^th\)</span> draw of <span class="math inline">\(X\)</span>, and the hat over <span class="math inline">\(\mu\)</span> indicates that the result is an estimate. Note that, since we’re starting from that equation, it is assumed that there is some way to produce random samples from the distribution <span class="math inline">\(p_X\)</span>, and that the function, <span class="math inline">\(h\)</span> is calculable for any <span class="math inline">\(X\)</span>. Also, <span class="math inline">\(h\)</span> might be something as simple as <span class="math inline">\(h(x) = x\)</span> if the expectation should correspond to the mean of <span class="math inline">\(x\)</span>].</p>
-<p>This is a powerful idea, though a general downside is that some <span class="math inline">\(\mu\)</span> require many samples to obtain a reasonable estimate. The MC Standard Error (MCSE) provides an estimate of the approximation error, which is <span class="math inline">\(\frac{1}{n} Var(h(X))\)</span>. This provides a metric by which to gauge different algorithms. In particular, if all else is equal, the estimator with lower variance will can obtain a given level of precision with a lower <span class="math inline">\(S\)</span>.</p>
+<p>where the subscript on <span class="math inline">\(x\)</span> implies the <span class="math inline">\(s^{\text{th}}\)</span> draw of <span class="math inline">\(X\)</span>, and the hat over <span class="math inline">\(\mu\)</span> indicates that the result is an estimate. Note that, since we’re starting from that equation, it is assumed that there is some way to produce random samples from the distribution <span class="math inline">\(p_X\)</span>, and that the function, <span class="math inline">\(h\)</span> is calculable for any <span class="math inline">\(X\)</span>. Also, <span class="math inline">\(h\)</span> might be something as simple as <span class="math inline">\(h(x) = x\)</span> if the expectation should correspond to the mean of <span class="math inline">\(x\)</span>.</p>
+<p>This is a powerful idea, though a general downside is that some <span class="math inline">\(\mu\)</span> require many samples to obtain a reasonable estimate. The MC Standard Error (MCSE) provides an estimate of the approximation error, which is <span class="math inline">\(\frac{1}{n} Var(h(X))\)</span>. This provides a metric by which to gauge different algorithms. In particular, if all else is equal, the estimator with lower variance can obtain a given level of precision with a lower <span class="math inline">\(S\)</span>.</p>
 <p>The basic idea with Importance Sampling (IS) is to draw samples from some alternative distribution, <span class="math inline">\(p_Y\)</span>, which has the same support as <span class="math inline">\(p_X\)</span>, then reweight those samples in accordance with the difference between <span class="math inline">\(p_X\)</span> and <span class="math inline">\(p_Y\)</span>.</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -457,7 +457,7 @@ h(y)\frac{p_X(y)}{p_Y(y)} &amp; = c \\
 \implies p_Y(y) &amp; \propto h(y)p_X(y) \\
 \end{aligned}
 \]</span></p>
-<p>That is, <span class="math inline">\(h(y)\frac{p_X(y)}{p_Y(y)}\)</span> will be constant whenever <span class="math inline">\(p_Y(y)\)</span> is proportional to <span class="math inline">\(h(y)p_X(x)\)</span>.</p>
+<p>That is, <span class="math inline">\(h(y)\frac{p_X(y)}{p_Y(y)}\)</span> will be constant whenever <span class="math inline">\(p_Y(y)\)</span> is proportional to <span class="math inline">\(h(y)p_X(y)\)</span>.</p>
 <p><span class="math display">\[
 \begin{aligned}
 p_Y(y) &amp; = \frac{h(y)p_X(y)}{\int h(y)p_X(y)\,dy} \\
@@ -511,7 +511,7 @@ Var(h(x)) = \mathbb{E}[h(x)^2] - \mathbb{E}[h(x)]^2
 \mathbb{E}[h(x)] &amp; =  \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right)\left(\frac{\exp(- \frac{x^2}{2})}{\sqrt{2\pi}} \right) dx  \\
 &amp; = \int_{-\infty}^{\infty} \frac{\exp (- x^2 + 4x - 8 )}{2\pi} dx \\
 &amp; = \frac{1}{2\pi} \int_{-\infty}^{\infty} \exp (- x^2 + 4x - 8 ) dx\\
-&amp; = \frac{1}{2\pi} \sqrt{\pi}\exp \left(\frac{4^2}{4}-8 \right)  &amp; \textrm{en.wikipedia.org/wiki/Gaussian_function} \\
+&amp; = \frac{1}{2\pi} \sqrt{\pi}\exp \left(\frac{4^2}{4}-8 \right)  &amp; \textrm{en.wikipedia.org/wiki/Gaussian\_function} \\
 &amp; = \frac{1}{2 \exp(4) \sqrt{\pi}}
 \end{aligned}
 \]</span></p>
@@ -559,7 +559,7 @@ Var(h(x)) &amp; = \left[ \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{(x-2)^
 </section>
 <section id="using-a-distribution-that-simply-matches-hx-is-also-not-so-great" class="level3">
 <h3 class="anchored" data-anchor-id="using-a-distribution-that-simply-matches-hx-is-also-not-so-great">Using a distribution that simply matches h(x) is also not-so-great</h3>
-<p>Now, let’s instead construct and IS estimator. One intuitive (but by no means optimal) attempt would be to use <span class="math inline">\(Y \sim N(4,1)\)</span>, a distribution that matches with <span class="math inline">\(h(x)\)</span> perfectly. Indeed, that will provide an accurate answer</p>
+<p>Now, let’s instead construct an IS estimator. One intuitive (but by no means optimal) attempt would be to use <span class="math inline">\(Y \sim N(4,1)\)</span>, a distribution that matches with <span class="math inline">\(h(x)\)</span> perfectly. Indeed, that will provide an accurate answer</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e+06</span>, <span class="at">mean =</span> <span class="dv">4</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">hx</span>(y)</span>
@@ -579,7 +579,7 @@ Var(h(x)) &amp; = \left[ \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{(x-2)^
 </section>
 <section id="the-proposal-distribution-needs-to-be-tuned-to-both-p_x-and-hx" class="level3">
 <h3 class="anchored" data-anchor-id="the-proposal-distribution-needs-to-be-tuned-to-both-p_x-and-hx">The proposal distribution needs to be tuned to both p_X and h(x)</h3>
-<p>This is a somewhat subtle point of the derivation provided above. We <em>don’t</em> just want a distribution that will be highest here <span class="math inline">\(h(x)\)</span> is high. Instead, what we actually need is a distribution that will be highest when <span class="math inline">\(h(x)p_X(x)\)</span> is high. That will be exactly where the two distributions intersect, at 2.</p>
+<p>This is a somewhat subtle point of the derivation provided above. We <em>don’t</em> just want a distribution that will be highest where <span class="math inline">\(h(x)\)</span> is high. Instead, what we actually need is a distribution that will be highest when <span class="math inline">\(h(x)p_X(x)\)</span> is high. That will be exactly where the two distributions intersect, at 2.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">10</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="fu">hx</span>(x), <span class="at">type =</span> <span class="st">"l"</span>)</span>
@@ -608,7 +608,7 @@ Var(h(x)) &amp; = \left[ \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{(x-2)^
 </div>
 </div>
 <p>The answer is still accurate, but the variance has been reduced by many factors. This means that a desired level of MCSE could be achieved with many fewer samples.</p>
-<p>One final demonstration, remember that <span class="math inline">\(h(x)p_X(x)\)</span> describes a distribution. Hence it would be a mistake to try a <span class="math inline">\(p_Y\)</span> that placed all of the density around that point of intersection. For example, let’s try <span class="math inline">\(Y \sim N(2,0.1)\)</span>. Although that is centered on the region that contributes the largest values to the expectation, the largest values alone do not define the expectation; too much of the tails of <span class="math inline">\(h(x)\)</span> are not included. Using this results is the worst variance.</p>
+<p>One final demonstration, remember that <span class="math inline">\(h(x)p_X(x)\)</span> describes a distribution. Hence it would be a mistake to try a <span class="math inline">\(p_Y\)</span> that placed all of the density around that point of intersection. For example, let’s try <span class="math inline">\(Y \sim N(2,0.1)\)</span>. Although that is centered on the region that contributes the largest values to the expectation, the largest values alone do not define the expectation; too much of the tails of <span class="math inline">\(h(x)\)</span> are not included. Using this results in the worst variance.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e+06</span>, <span class="at">mean =</span> <span class="dv">2</span>, <span class="fl">0.1</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">hx</span>(y)</span>
@@ -628,7 +628,7 @@ Var(h(x)) &amp; = \left[ \int_{-\infty}^{\infty} \left(\frac{\exp(- \frac{(x-2)^
 <h1>Other References</h1>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Gaussian_function#Integral_of_a_Gaussian_function">integral of Gaussian Function</a></li>
-<li><a href="http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html">course notes</a></li>
+<li><a href="https://web.archive.org/web/20181125151317/http://people.math.umass.edu/~lr7q/m697u-spring2018/m697uhome.html">course notes</a></li>
 <li><a href="https://www.statlect.com/asymptotic-theory/importance-sampling">statlect</a></li>
 </ul>
 
